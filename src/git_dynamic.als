@@ -1,5 +1,4 @@
 
-
 sig State {}
 
 // paths
@@ -177,6 +176,7 @@ pred other [s,s' : State] {
 
 // git add
 pred add [s,s' : State,p : Path] {
+	s != s'
 	p in (node.s).path
 	path.p in File
 	object.s' = object.s + (path.p).blob
@@ -188,20 +188,34 @@ pred add [s,s' : State,p : Path] {
 	root.s' = root.s
 }
 
-
+//run rm for 4 but exactly 2 State
 
 pred rm [s,s' : State,p : Path]{
 	//preconditions
-	p in (index.s).Blob
+	p in (index.s).Blob //path must be in index
+	/*no path.p & node.s or */one f:path.p & node.s | f.blob = p.index.s  //contents on file must match contents on index
+	some o:(((HEAD.s).head.s).path.s).p| o in p.index.s //p must be unmodified since the last commit
+	 
+	
+	//delete new empty dirs
+	
+	
+	
+	path.p in File & node.s //not sure about this
 	
 
+	/*no path.p
+	/*p.parent.name = p.name
+	one d:File | d in node.s' and d.path = p.parent
+	*/
+	
 	//behaviour
-	object.s' = object.s
 	index.s' = index.s - p->Blob
 	node.s' = node.s - path.p
 	
 
 	//stuff that stays the same
+	object.s' = object.s
 	head.s' = head.s
 	HEAD.s' = HEAD.s
 	root.s' = root.s

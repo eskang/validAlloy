@@ -20,9 +20,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
 import org.antlr.runtime.*;
 import org.apache.commons.io.FileUtils;
-import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Logger;
-import org.pmw.tinylog.writers.FileWriter;
 
 
 public class ValidAlloy {
@@ -121,7 +119,8 @@ public class ValidAlloy {
 		System.out.println("===========             Running Instances           =========== ");
 		
 		boolean flagerr;	
-        for(int i =0; i< test_iterations;i++){
+		boolean flagcontinue = true;
+        for(int i =0; i< test_iterations && flagcontinue ;i++){
         	flagerr = false;
         	
         	System.out.print("\rInstance            : " + i);
@@ -159,9 +158,9 @@ public class ValidAlloy {
         		
         		for(int t = 0;t<arg.get(j).size();t++){
         			
-        		String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
+        			String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
       //  		System.out.println("Skool " + skol);
-        		pathSkol.add(Utils.getEFromIterable(skolems, skol));
+        			pathSkol.add(Utils.getEFromIterable(skolems, skol));
         		
         		}
      //   		System.out.println("Pre it :" +preState);
@@ -198,8 +197,11 @@ public class ValidAlloy {
         			} else sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");
         		}
         		Logger.info("********* End of Instance       : "+i+" ********* ");		
-        		}
-        	sol=sol.next();
+        	
+        		sol=sol.next();
+        	}else
+        		flagcontinue = false;
+        	
         	
         } 
         System.out.println("\n===========             Command terminated          =========== ");
