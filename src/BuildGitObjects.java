@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 
 import org.pmw.tinylog.Logger;
@@ -191,6 +192,87 @@ public class BuildGitObjects {
 	}
 	
 	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits){
+
+		  String hashcode = null;
+
+		  try{
+
+			 String newpath = "output/"+pathindex;
+			 File path = new File(newpath);
+			 Logger.trace("Building commit tree on output/" + pathindex +" : "+ commits +" with "+ tree_hashcode);
+		  
+			ProcessBuilder pb;
+			
+		   
+		   
+		   if(commits.get(0).compareTo("FIRST_COMMIT")==0){
+			    ArrayList<String> cmds = new ArrayList<String>();
+			   // cmds.add("env GIT_AUTHOR_DATE=\"Wed Feb 16 14:00 2037 +0100\"");
+			 //   cmds.add("env GIT_COMMITTER_DATE=\"Wed Feb 16 14:00 2037 +0100\"");
+			    cmds.add("git");
+			    cmds.add("commit-tree");
+			    cmds.add(tree_hashcode);
+			    
+			    pb = new ProcessBuilder(cmds);
+			    pb.directory(path); 
+			 
+		   }
+		   else {
+
+		    ArrayList<String> cmds = new ArrayList<String>();
+		//    cmds.add("env GIT_AUTHOR_DATE=\"Wed Feb 16 14:00 2037 +0100\"");
+		//    cmds.add("env GIT_COMMITTER_DATE=\"Wed Feb 16 14:00 2037 +0100\"");
+		    cmds.add("git");
+		    cmds.add("commit-tree");
+		    cmds.add(tree_hashcode);
+
+		    for(String com : commits){
+		     cmds.add("-p");
+		     cmds.add(com);
+		    }
+		    pb = new ProcessBuilder(cmds);
+		    pb.directory(path); 
+		 
+		   }
+		   
+		    Map<String, String> env = pb.environment();
+		    env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+		    env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+		    
+
+		   Process pr = pb.start();
+
+		   OutputStream out = pr.getOutputStream();
+		   InputStream in = pr.getInputStream();
+		   InputStream err = pr.getErrorStream();
+
+		   InputStreamReader isr = new InputStreamReader(in);
+		   OutputStreamWriter osr = new OutputStreamWriter(out);
+
+
+		   BufferedReader br = new BufferedReader(isr);
+		   BufferedWriter bw = new BufferedWriter(osr);
+
+		   bw.flush();
+		   bw.write(message);
+		   bw.close();
+
+
+		   hashcode = br.readLine();
+		   Logger.trace("Commit hash : "+ hashcode);
+
+		   br.close();
+		   pr.waitFor();
+
+
+		  }catch(Exception exc){
+		   exc.printStackTrace();
+		  }
+		  return hashcode;
+
+		 }
+	/*
+	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits){
 		  
 		  String hashcode = null;
 		
@@ -201,7 +283,7 @@ public class BuildGitObjects {
 	    
 	     File path = new File(newpath);
 	     
-	     Logger.trace("Building commit tree on output/" + pathindex +" : "+ commits +"with"+ tree_hashcode);
+	     Logger.trace("Building commit tree on output/" + pathindex +" : "+ commits +" with "+ tree_hashcode);
 	     
 	     ProcessBuilder pb;
 		   
@@ -236,11 +318,12 @@ public class BuildGitObjects {
 		    ArrayList<String> cmds = new ArrayList<String>();
 		    cmds.add("git");
 		    cmds.add("hash-object");
-		    cmds.add("commit");
+		    cmds.add("-t");
+		    cmds.add("tree");
 		    cmds.add("-w");
 		    cmds.add("--stdin");
-	
 		    
+		    Logger.trace("Running "+ cmds);
 		    pb = new ProcessBuilder(cmds);
 		   
 		   
@@ -279,7 +362,7 @@ public class BuildGitObjects {
 		  return hashcode;
 		  
 		 }
-	
+	*/
 	public static String setHead(String path_name){
 		
 		String line = new String();
@@ -652,10 +735,12 @@ public class BuildGitObjects {
 		
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 		gitInit();
+		
 		for(A4Tuple t :ts )
 			mapObjsHash.put(t.atom(0),buildGitHashObject(t.atom(0)));
 		
 		treeBuilder(sol,world,mapAtom,mapObjsHash,iState);
+		
 		
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		

@@ -60,6 +60,41 @@ public class Utils {
 		return res;
 	}
 	
+public static void setGitDate(String pathindex){
+		
+		try{
+			
+			String newpath = "output/"+pathindex;
+			 
+			File path = new File(newpath);
+			System.out.println(newpath);
+			
+			ProcessBuilder pbA;
+			pbA = new ProcessBuilder("export GIT_AUTHOR_DATE='Wed Feb 16 14:00 2037 +0100'");
+			
+			pbA.directory(path);	
+			
+			Process prA = pbA.start();
+			prA.waitFor();
+		/*	
+			ProcessBuilder pbC;
+			pbC = new ProcessBuilder("export GIT_COMMITTER_DATE='Wed Feb 16 14:00 2037 +0100'");
+			
+			pbC.directory(path);	
+			
+			Process prC = pbC.start();
+			prC.waitFor();
+		*/
+
+		
+		
+		}catch(Exception exc){
+			exc.printStackTrace();
+		}
+
+		
+	}	
+	
 public static boolean diffPosPre(String pathindex){
 		
 		String line=null;
