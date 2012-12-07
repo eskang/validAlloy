@@ -1,10 +1,16 @@
 This document contains some hints for using the Alloy API:
 
-1. Unzip the Alloy jar file in ../lib using "jar xvf" to extract the source code for Alloy.
+1. Unzip the Alloy jar file in ../lib using "jar xvf" to extract the source 
+code for Alloy.
 
 2. Import the Alloy source code into Eclipse (or your favorite Java IDE).
 
-3. The file "edu/mit/csail/sdg/alloy4whole/ExampleUsingTheAPI.java" contains an example of how to use the API to run Alloy on an input file and generate an instance. The file only prints out the instance, but there are API functions that you can use to extract different parts of the instance. For a more detailed documentation, take a look here (especially at A4Solution class):
+3. The file "edu/mit/csail/sdg/alloy4whole/ExampleUsingTheAPI.java" 
+contains an example of how to use the API to run Alloy on an input file 
+and generate an instance. The file only prints out the instance, but there 
+are API functions that you can use to extract different parts of the 
+instance. For a more detailed documentation, take a look here (especially 
+at A4Solution class):
 
 http://alloy.mit.edu/alloy/documentation/alloy-api/index.html
 
