@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -12,7 +13,6 @@ import java.util.Map;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
@@ -29,6 +29,18 @@ import edu.mit.csail.sdg.alloy4whole.Helper;
 
 public class FileSystemBuilder {
 
+	public static<E> HashMap<String,E> atom2ObjectMapE(Iterable<E> iterable){
+		E e = null;
+		
+		HashMap<String, E> e_Map = new HashMap<String, E>();
+		Iterator<E> it = iterable.iterator();
+		while(it.hasNext()){
+			e = it.next();
+			e_Map.put(e.toString(), e);
+		}
+		return e_Map;
+	}
+	
 	public static <E> E getEFromIterable(Iterable<E> iterable, String name)
 	{
 		E res = null;
@@ -94,12 +106,12 @@ public class FileSystemBuilder {
 	public static void buildFileSystem(A4Solution sol) throws Err
 	{
 		
-			Map<String,Sig.PrimSig> map = Helper.atom2sig(sol);
-			SafeList<Sig> sigs = sol.getAllReachableSigs();
-			Iterable<ExprVar> it =sol.getAllAtoms();
-			ExprVar state0 = getEFromIterable(it,"State$0");
-			Sig node = getEFromIterable(sigs,"this/Node");
-			Sig dir = getEFromIterable(sigs,"this/Dir");
+			Map<String,Sig.PrimSig> mapSigs = Helper.atom2sig(sol);
+			HashMap<String,Sig> sigs = atom2ObjectMapE(sol.getAllReachableSigs());
+			HashMap<String,ExprVar> mapAtoms = atom2ObjectMapE(sol.getAllAtoms());
+			ExprVar state0 = mapAtoms.get("State$0");
+			Sig node = sigs.get("this/Node");
+			Sig dir = sigs.get("this/Dir");
 			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
 			A4TupleSet rootdir = (A4TupleSet) sol.eval(root.join(state0));	
 			Sig.Field parent = getEFromIterable(node.getFields(),"field (this/Node <: parent)");
@@ -109,23 +121,23 @@ public class FileSystemBuilder {
 			Path p = Paths.get(path);
 			try {
 				Files.createDirectory(p);
-				buildTree(sol,path, tupleroot.atom(0), parent,it,map);
+				buildTree(sol,path, tupleroot.atom(0), parent,mapAtoms,mapSigs);
 			}catch (IOException e) { System.out.println("IOException, provavelmente directoria já existe");}
 		}
 	
-	private static void buildTree(A4Solution sol,String path, String atom, Sig.Field parent,Iterable<ExprVar> atomList,Map<String,Sig.PrimSig> map) throws Err, IOException
+	private static void buildTree(A4Solution sol,String path, String atom, Sig.Field parent,HashMap<String,ExprVar> mapAtom,Map<String,Sig.PrimSig> mapSig) throws Err, IOException
 	{
-		ExprVar current = getEFromIterable(atomList,atom) ;
+		ExprVar current = mapAtom.get(atom);
 
 		A4TupleSet filhos = (A4TupleSet) sol.eval(parent.join(current));
 		for(A4Tuple filho : filhos)
 		{
 			String newpath = path +"/" +filho.atom(0).replace('$', '_');
 			Path p = Paths.get(newpath);
-			if(map.get(filho.atom(0)).toString().equals("this/Dir"))
+			if(mapSig.get(filho.atom(0)).toString().equals("this/Dir"))
 			{
 				Files.createDirectory(p);
-				buildTree(sol,newpath,filho.atom(0),parent,atomList,map);
+				buildTree(sol,newpath,filho.atom(0),parent,mapAtom,mapSig);
 			}
 			else 
 				Files.createFile(p);
