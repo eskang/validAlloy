@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +23,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 
 public class FileSystemBuilder {
@@ -42,10 +44,6 @@ public class FileSystemBuilder {
 			res = i;
 		return res;
 	}
-	public static Sig getSigFromSafeList(SafeList<Sig> sl, String name)
-	{
-		return getEFromIterable(sl,name);
-	}
 	
 	
 	
@@ -65,22 +63,27 @@ public class FileSystemBuilder {
 	            System.out.println("=========== Parsing+Typechecking "+filename+" =============");
 	            Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
 	            
+	            /*
 	            SafeList<Sig> sigs = world.getAllSigs();
-	            Sig state = getSigFromSafeList(sigs,"this/State");
+	            Sig state = getEFromIterable(sigs,"this/State");
 	            
-	            Expr expr1 = state.one().and(world.getAllReachableFacts());
-	            Command cmd1 = new Command(false,3,-1,-1,expr1);
-	             
-	           
+	           Expr expr1 = state.one().and(world.getAllReachableFacts());
+	            System.out.println(expr1);
+	            Command cmd1 = new Command(false,5,-1,-1,expr1);
+	             */
+	            A4Solution sol=null ;
 	            
 	            // Choose some default options for how you want to execute the commands
 	            A4Options options = new A4Options();
 	            options.solver = A4Options.SatSolver.SAT4J;
+	            for(Command cmd1: world.getAllCommands()) {
+	            	sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
+	            	buildFileSystem(sol);
+	            	sol.writeXML("instance.xml");
+					new VizGUI(false,"instance.xml",null);
+	            }
 	            
-	            A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
-	            buildFileSystem(sol);
-	            	
-	            	}
+	            }
 	        }
 	
 	
@@ -90,19 +93,35 @@ public class FileSystemBuilder {
 			SafeList<Sig> sigs = sol.getAllReachableSigs();
 			Iterable<ExprVar> it =sol.getAllAtoms();
 			ExprVar state0 = getEFromIterable(it,"State$0");
-			Sig node = getSigFromSafeList(sigs,"this/Node");
-			Sig dir = getSigFromSafeList(sigs,"this/Dir");
+			Sig node = getEFromIterable(sigs,"this/Node");
+			Sig dir = getEFromIterable(sigs,"this/Dir");
 			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
-			A4TupleSet rootdir = (A4TupleSet) sol.eval(root.join(state0));	            	
-			Sig.Field parent = getEFromIterable(node.getFields(),"field (this/Node <: parent");
+			A4TupleSet rootdir = (A4TupleSet) sol.eval(root.join(state0));	
+			Sig.Field parent = getEFromIterable(node.getFields(),"field (this/Node <: parent)");
 			A4Tuple tupleroot = rootdir.iterator().next();
 			String path = tupleroot.atom(0).replace('$', '_');
-			
+		
 			Path p = Paths.get(path);
-			try {Files.createDirectory(p);
-			}catch (Exception e) { ;}
+			try {
+				Files.createDirectory(p);
+			}catch (IOException e) { System.out.println("IOException, provavelmente directoria já existe");}
+			buildTree(sol,path, tupleroot.atom(0), parent,it);
 			
-			System.out.println(path);
+			
+			
+		}
+	}
+	
+	private static void buildTree(A4Solution sol,String path, String atom, Sig.Field parent,Iterable<ExprVar> atomList) throws Err
+	{
+		ExprVar current = getEFromIterable(atomList,atom) ;
+
+		A4TupleSet filhos = (A4TupleSet) sol.eval(parent.join(current));
+		for(A4Tuple filho : filhos)
+		{
+			//....
+			System.out.println(filho);
 		}
 	}
 }
+
