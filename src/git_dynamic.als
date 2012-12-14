@@ -1,4 +1,4 @@
-run{some parent.node} for 5 but exactly 1 State
+run{some parent.node && some File} for 5 but exactly 1 State, exactly  3 Dir
 
 sig State {}
 
