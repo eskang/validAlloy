@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.HashMap;
 
 
 
@@ -87,6 +88,21 @@ public class FileSystemBuilder {
 	        }
 	
 	
+	public static<E> HashMap<String,E> atomToObjectMapE(Iterable<E> iterable)
+		
+		E e = null;
+			
+		HashMap<String, E> e_Map = new HashMap<String, E>();
+		Iterator<E> it = iterable.iterator();
+		while(it.hasNext()){
+			e = it.next();
+			e_Map.put(e.toString(), e);
+		}
+		return e_Map;
+	}
+	
+	
+	
 	public static void buildFileSystem(A4Solution sol) throws Err
 	{
 		if (sol.satisfiable()){
@@ -111,6 +127,11 @@ public class FileSystemBuilder {
 			
 		}
 	}
+	
+	
+	
+	
+	
 	
 	private static void buildTree(A4Solution sol,String path, String atom, Sig.Field parent,Iterable<ExprVar> atomList) throws Err
 	{
