@@ -1,1 +1,5 @@
-This is where the source code lives.
+FileSystemBuilder.java has our current work on trying to create the File System from the instance given by Alloy
+
+We have a problem, we cant create our run command in java, when we try to execute them, the facts are ignored.
+In Order to bypass this problem we declared the run command that we pretended to use on the git_dynamic.als file that also contains the model.
+
