@@ -84,12 +84,12 @@ public class FileSystemBuilder {
 	
 	
 	/**
-	 * Main method that buils a number of filesystem from an alloy
-	 * The iterable argument must be of Iterable Class, and the name a String
-	 * @param  		iterable  object
-	 * @param		String name
-	 * @return      Object that has the same name
-	 * @see         getEFromIterable
+	 * Main method that buils a number of git filesystems, from a number of alloy instances.
+	 * It has two inputs, the file with the alloy model and the number of git filesystem to create
+	 * @param  		git alloy model(.als)
+	 * @param		Number of filesystem to create
+	 * @return      N git filesystems
+	 * @see         main
 	 */
 	public static void main(String[] args)  throws Err{
 		
@@ -104,7 +104,7 @@ public class FileSystemBuilder {
 	        String filename = args[0];
 	        int test_iterations = Integer.parseInt(args[1]);
 	        // Parse+typecheck the model
-	        System.out.println("=========== Parsing+Typechecking "+filename+" =============");
+	        System.out.println("=========== Parsing + Typechecking "+filename+" =============");
 	        Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
 	            
 	            /*
@@ -122,6 +122,7 @@ public class FileSystemBuilder {
 	            options.solver = A4Options.SatSolver.SAT4J;
 	            Command cmd1 = world.getAllCommands().get(0);
 	            sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
+	            System.out.println("=========== Getting "+ test_iterations +" Solutions from "+filename+" =============");
 	            for(int i =0; i< test_iterations;i++){
 	            	if (sol.satisfiable())
 	            	{
@@ -132,25 +133,51 @@ public class FileSystemBuilder {
 	            }
 	        }
 	
-	
+	/**
+	 * 
+	 * Builds a filesystem from a solution.
+	 * Receives a A4Solution, and a number to create the directory 
+	 * @param  		A4Solution sol
+	 * @param		Number of filesystem to creat
+	 * @see         buildFileSystem
+	 */
 	public static void buildFileSystem(A4Solution sol,int i) throws Err
 	{
+		 	//Get all Sigs and map them to their names(string)
 			Map<String,Sig.PrimSig> mapSigs = Helper.atom2sig(sol);
-			HashMap<String,Sig> sigs = atom2ObjectMapE(sol.getAllReachableSigs());
-			HashMap<String,ExprVar> mapAtoms = atom2ObjectMapE(sol.getAllAtoms());
 			
+			//Get all reachable sigs and map them to their names(string)
+			HashMap<String,Sig> sigs = atom2ObjectMapE(sol.getAllReachableSigs());
+		
+			//Get all atoms and map them to their names(string)
+			HashMap<String,ExprVar> mapAtoms = atom2ObjectMapE(sol.getAllAtoms());
+		
+			//Get first state
 			ExprVar state0 = mapAtoms.get("State$0");
+		
+			//Get current Node
 			Sig nodeSig = sigs.get("this/Node");
+		
+			//Get current Dir
 			Sig dir = sigs.get("this/Dir");
+		
+			//Get all Fields and map them to their names(string)
 			HashMap<String,Sig.Field> mapNodeFields = atom2ObjectMapE(nodeSig.getFields());
+			
+			//Get Root
 			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
+		
+			//Get Node
 			Sig.Field nodeField = mapNodeFields.get("field (this/Node <: node)");
-			//System.out.println(nodeField);
+			
+			//Get the true root
 			A4TupleSet rootdir = (A4TupleSet) sol.eval((root.join(state0)).intersect(nodeField.join(state0)));
+			//Get parents from the node
 			Sig.Field parent = mapNodeFields.get("field (this/Node <: parent)");
 			A4Tuple tupleroot = rootdir.iterator().next();
 			String path = tupleroot.atom(0).replace('$', '_');
 			
+			//Get the parents from state
 			Expr parents = nodeField.join(state0).domain(parent);
 	
 			path = "output/"+i+"/"+path;
@@ -161,6 +188,19 @@ public class FileSystemBuilder {
 			}catch (IOException e) { System.out.println("IOException, Directory already exists!\n");}
 		}
 	
+	
+	/**
+	 * 
+	 * Builds recursively the filesystem tree
+	 * Receives a A4Solution, the current path, the current atom, the parents, and the mapped values of all atoms and all sigs
+	 * @param  		A4Solution sol
+	 * @param		String path
+	 * @param	    String Atom
+	 * @param		Expr parent
+	 * @param		HashMap<String,ExprVar> mapAtom
+	 * @param		Map<String,Sig.PrimSig> mapSig
+	 * @see         buildTree
+	 */
 	private static void buildTree(A4Solution sol,String path, String atom, Expr parent,HashMap<String,ExprVar> mapAtom,Map<String,Sig.PrimSig> mapSig) throws Err, IOException
 	{
 		ExprVar current = mapAtom.get(atom);
