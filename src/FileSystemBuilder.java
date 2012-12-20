@@ -24,7 +24,6 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-import edu.mit.csail.sdg.alloy4viz.VizGUI;
 import edu.mit.csail.sdg.alloy4whole.Helper;
 
 
@@ -107,14 +106,7 @@ public class FileSystemBuilder {
 	        System.out.println("=========== Parsing + Typechecking "+filename+" =============");
 	        Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
 	            
-	            /*
-	            SafeList<Sig> sigs = world.getAllSigs();
-	            Sig state = getEFromIterable(sigs,"this/State");
 	            
-	           Expr expr1 = state.one().and(world.getAllReachableFacts());
-	            System.out.println(expr1);
-	            Command cmd1 = new Command(false,5,-1,-1,expr1);
-	             */
 	            A4Solution sol=null ;
 	            
 	            // Choose some default options for how you want to execute the commands
@@ -155,33 +147,35 @@ public class FileSystemBuilder {
 			//Get first state
 			ExprVar state0 = mapAtoms.get("State$0");
 		
-			//Get current Node
+			//Get the sig Node
 			Sig nodeSig = sigs.get("this/Node");
 		
-			//Get current Dir
+			//Get the sig Dir
 			Sig dir = sigs.get("this/Dir");
 		
-			//Get all Fields and map them to their names(string)
+			//Get all Node's Fields and map them to their names(string)
 			HashMap<String,Sig.Field> mapNodeFields = atom2ObjectMapE(nodeSig.getFields());
 			
-			//Get Root
+			//Get the root relation from the sig Dir
 			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
 		
-			//Get Node
+			//Get the node relation from the sig Node (node maps Node with state)
 			Sig.Field nodeField = mapNodeFields.get("field (this/Node <: node)");
 			
 			//Get the true root
 			A4TupleSet rootdir = (A4TupleSet) sol.eval((root.join(state0)).intersect(nodeField.join(state0)));
-			//Get parents from the node
+			//Get the parent relation
 			Sig.Field parent = mapNodeFields.get("field (this/Node <: parent)");
-			A4Tuple tupleroot = rootdir.iterator().next();
-			String path = tupleroot.atom(0).replace('$', '_');
 			
-			//Get the parents from state
+			//Get the nodes in state0 that are parents
 			Expr parents = nodeField.join(state0).domain(parent);
 	
+			//defining output path
+			A4Tuple tupleroot = rootdir.iterator().next();
+			String path = tupleroot.atom(0).replace('$', '_');
 			path = "output/"+i+"/"+path;
 			Path p = Paths.get( path);
+			
 			try {				
 				Files.createDirectories(p);
 				buildTree(sol,path, tupleroot.atom(0), parents,mapAtoms,mapSigs);
