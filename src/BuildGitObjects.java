@@ -1,14 +1,19 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Module;
+import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 
 
 public class BuildGitObjects {
@@ -97,6 +102,12 @@ public class BuildGitObjects {
 	
 	}
 
-	
-
+	public static void buildObjects(A4Solution sol,Module world, String index) throws Err
+	{
+		Expr e = CompUtil.parseOneExpression_fromString(world, "Blob <: object.State");
+		A4TupleSet ts = (A4TupleSet) sol.eval(e);
+		gitInit(index);
+		for(A4Tuple t :ts )
+			buildGitHashObject(t.atom(0),index);
+	}		
 }
