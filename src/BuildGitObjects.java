@@ -1,10 +1,15 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 
 public class BuildGitObjects {
 
@@ -14,10 +19,16 @@ public class BuildGitObjects {
 		
 		String line = new String();
 		try{
-		
-			Runtime rt = Runtime.getRuntime();
-			String cmd = "exec git init";
-			Process pr = rt.exec(cmd);
+    		String newpath = "output/"+pathindex;
+			 
+			 File path = new File(newpath);
+			
+			ProcessBuilder pb = new ProcessBuilder("git","init");
+			
+			pb.directory(path);	
+			
+			Process pr = pb.start();
+			
 
 			OutputStream out = pr.getOutputStream();
 			InputStream in = pr.getInputStream();
@@ -44,9 +55,17 @@ public class BuildGitObjects {
 	
 	try{
 		
-		Runtime rt = Runtime.getRuntime();
-		String cmd = "git hash-object -w --stdin";
-		Process pr = rt.exec(cmd);
+		String newpath = "output/"+pathindex;
+		 
+		 File path = new File(newpath);
+		
+		ProcessBuilder pb = new ProcessBuilder("git","hash-object","-w","--stdin");
+		
+		pb.directory(path);	
+		
+		Process pr = pb.start();
+		
+	
 		
 		OutputStream out = pr.getOutputStream();
 		InputStream in = pr.getInputStream();
@@ -65,6 +84,8 @@ public class BuildGitObjects {
 	
 	
 		line = br.readLine();
+		System.out.println(line);
+		
 		br.close();
 		pr.destroy();
 	

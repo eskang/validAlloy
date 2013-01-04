@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -135,7 +136,10 @@ public class FileSystemBuilder {
 			path = "output/"+i+"/"+path;
 			Path p = Paths.get( path);
 			
-			try {				
+			try {
+				
+
+				
 				Files.createDirectories(p);
 				buildTree(sol,path, tupleroot.atom(0), parents,mapAtoms,mapSigs);
 			}catch (IOException e) { System.out.println("IOException, Directory already exists!\n");}

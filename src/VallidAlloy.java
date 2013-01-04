@@ -1,3 +1,8 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
@@ -20,9 +25,10 @@ public class VallidAlloy {
 	 * @param  		git alloy model(.als)
 	 * @param		Number of filesystem to create
 	 * @return      N git filesystems
+	 * @throws IOException 
 	 * @see         main
 	 */
-	public static void main(String[] args)  throws Err{
+	public static void main(String[] args)  throws Err, IOException{
 		
 		 A4Reporter rep = new A4Reporter() {
 	            // For example, here we choose to display each "warning" by printing it to System.out
@@ -49,8 +55,18 @@ public class VallidAlloy {
 	            System.out.println("=========== Getting "+ test_iterations +" Solutions from "+filename+" =============");
 	            for(int i =0; i< test_iterations;i++){
 	            	if (sol.satisfiable())
-	            	{
-	            		FileSystemBuilder.buildFileSystem(sol,i);
+	            	{	
+	            		
+	            		
+	            		String newpath = "output/"+Integer.toString(i);
+	        			Path p = Paths.get(newpath);
+	        			Files.createDirectories(p);
+	        			FileSystemBuilder.buildFileSystem(sol,i);
+	        			BuildGitObjects.gitInit(Integer.toString(i));
+	            		BuildGitObjects.buildGitHashObject("blob"+Integer.toString(i),Integer.toString(i));
+	            	
+	            		System.out.println(i);
+	            		
 	            		sol.writeXML("output/"+i+"/instance"+i+".xml");
 	            	}
 	            	sol=sol.next();
