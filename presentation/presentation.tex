@@ -1,0 +1,234 @@
+%% LyX 2.0.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{beamer}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+ % this default might be overridden by plain title style
+ \newcommand\makebeamertitle{\frame{\maketitle}}%
+ \AtBeginDocument{
+   \let\origtableofcontents=\tableofcontents
+   \def\tableofcontents{\@ifnextchar[{\origtableofcontents}{\gobbletableofcontents}}
+   \def\gobbletableofcontents#1{\origtableofcontents}
+ }
+ \long\def\lyxframe#1{\@lyxframe#1\@lyxframestop}%
+ \def\@lyxframe{\@ifnextchar<{\@@lyxframe}{\@@lyxframe<*>}}%
+ \def\@@lyxframe<#1>{\@ifnextchar[{\@@@lyxframe<#1>}{\@@@lyxframe<#1>[]}}
+ \def\@@@lyxframe<#1>[{\@ifnextchar<{\@@@@@lyxframe<#1>[}{\@@@@lyxframe<#1>[<*>][}}
+ \def\@@@@@lyxframe<#1>[#2]{\@ifnextchar[{\@@@@lyxframe<#1>[#2]}{\@@@@lyxframe<#1>[#2][]}}
+ \long\def\@@@@lyxframe<#1>[#2][#3]#4\@lyxframestop#5\lyxframeend{%
+   \frame<#1>[#2][#3]{\frametitle{#4}#5}}
+ \newenvironment{topcolumns}{\begin{columns}[t]}{\end{columns}}
+ \def\lyxframeend{} % In case there is a superfluous frame end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usetheme{Warsaw}
+% or ...
+
+\setbeamercovered{transparent}
+% or whatever (possibly just delete it)
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+
+
+
+
+\title[VallidAlloy]{VallidAlloy}
+
+
+\subtitle{A tool for validating Alloy specifications using test-case generation}
+
+
+\author[J.Pinheiro, T.Guimarães]{José Pinheiro, pg23208 \and Tiago Guimarães, pg23208}
+
+
+\institute{Escola de Engenharia, Departamento de Informatica\\
+Universidade do Minho}
+
+
+\date{Milestone 1, 2012/01/10}
+
+\makebeamertitle
+
+
+\pgfdeclareimage[height=0.5cm]{Universidade do Minho}{umlogo.jpg}
+
+\logo{\pgfuseimage{Universidade do Minho}}
+
+
+
+\AtBeginSubsection[]{
+
+  \frame<beamer>{ 
+
+    \frametitle{Outline}   
+
+    \tableofcontents[currentsection,currentsubsection] 
+
+  }
+
+}
+
+
+
+%\beamerdefaultoverlayspecification{<+->}
+
+
+\lyxframeend{}\lyxframe{Outline}
+
+\tableofcontents{}
+
+
+
+
+\lyxframeend{}\section{Motivation}
+
+
+\lyxframeend{}\subsection[Basic Problem]{The Basic Problem That We Studied}
+
+
+\lyxframeend{}\lyxframe{Make Titles Informative. Use Uppercase Letters.}
+
+
+\framesubtitle{Frame subtitles are optional. Use upper- or lowercase letters.}
+\begin{itemize}
+\item Use Itemize a lot.
+
+
+\pause{}
+
+\item Use very short sentences or short phrases.
+
+
+\pause{}
+
+\item These overlays are created using the Pause style.
+\end{itemize}
+
+\lyxframeend{}\lyxframe{Make Titles Informative. }
+\begin{itemize}
+\item <1->You can also use overlay specifications to create overlays.
+\item <3->This allows you to present things in any order.
+\item <2->This is shown second.
+\end{itemize}
+
+\lyxframeend{}\lyxframe{Make Titles Informative.}
+\begin{block}
+<1->{}
+\begin{itemize}
+\item Untitled block.
+\item Shown on all slides.
+\end{itemize}
+\end{block}
+\begin{exampleblock}
+<2->{Some Example Block Title}
+\begin{itemize}
+\item $e^{i\pi}=-1$.
+\item $e^{i\pi/2}=i$.
+\end{itemize}
+\end{exampleblock}
+
+\lyxframeend{}\subsection{Previous Work}
+
+
+\lyxframeend{}\lyxframe{Make Titles Informative. }
+\begin{example}%{}
+<1->On first slide. 
+\end{example}%{}
+
+\begin{example}%{}
+<2->On second slide.
+\end{example}%{}
+
+\lyxframeend{}\section{Our Results/Contribution}
+
+
+\lyxframeend{}\subsection{Main Results}
+
+
+\lyxframeend{}\lyxframe{Make Titles Informative. }
+\begin{theorem}%{}
+On first slide.
+\end{theorem}%{}
+
+\pause{}
+\begin{corollary}%{}
+On second slide.
+\end{corollary}%{}
+
+\lyxframeend{}\lyxframe{Make Titles Informative. }
+\begin{topcolumns}%{}
+
+
+\column{5cm}
+\begin{theorem}%{}
+<1->In left column.
+\end{theorem}%{}
+
+\column{5cm}
+\begin{corollary}%{}
+<2->In right column.\\
+New line
+\end{corollary}%{}
+\end{topcolumns}%{}
+
+\lyxframeend{}\subsection{Basic Ideas for Proofs/Implementations}
+
+
+\lyxframeend{}\section*{Summary}
+
+
+\lyxframeend{}\lyxframe{Summary}
+\begin{itemize}
+\item The \textcolor{red}{first main message} of your talk in one or two
+lines.
+\item The \textcolor{red}{second main message} of your talk in one or two
+lines.
+\item Perhaps a \textcolor{red}{third message}, but not more than that.
+\end{itemize}
+
+
+\vskip0pt plus.5fill
+\begin{itemize}
+\item Outlook
+
+\begin{itemize}
+\item What we have not done yet.
+\item Even more stuff.
+\end{itemize}
+\end{itemize}
+
+\lyxframeend{}
+
+\appendix
+
+\lyxframeend{}\section*{Appendix}
+
+
+\lyxframeend{}\subsection*{For Further Reading}
+
+
+\lyxframeend{}\lyxframe{[allowframebreaks]For Further Reading}
+
+\beamertemplatebookbibitems
+\begin{thebibliography}{References}
+\bibitem{Author1990}A. Author. \newblock\emph{Handbook of Everything}.\newblock
+Some Press, 1990.\beamertemplatearticlebibitems
+
+\bibitem{Someone2002}S. Someone.\newblock On this and that\emph{.}
+\newblock\emph{Journal on This and That}. 2(1):50--100, 2000.
+
+\end{thebibliography}
+
+\lyxframeend{}
+\end{document}
