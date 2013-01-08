@@ -4,7 +4,7 @@
 \usepackage{mathptmx}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
-\usepackage{color}
+\usepackage{textcomp}
 \usepackage{amsmath}
 \usepackage{amssymb}
 
@@ -24,7 +24,6 @@
  \def\@@@@@lyxframe<#1>[#2]{\@ifnextchar[{\@@@@lyxframe<#1>[#2]}{\@@@@lyxframe<#1>[#2][]}}
  \long\def\@@@@lyxframe<#1>[#2][#3]#4\@lyxframestop#5\lyxframeend{%
    \frame<#1>[#2][#3]{\frametitle{#4}#5}}
- \newenvironment{topcolumns}{\begin{columns}[t]}{\end{columns}}
  \def\lyxframeend{} % In case there is a superfluous frame end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
@@ -43,20 +42,20 @@
 
 
 
-\title[Short Paper Title]{VallidAlloy}
+\title[VallidAlloy]{VallidAlloy}
 
 
 \subtitle{A tool for validating Alloy specifications using test-case generation}
 
 
-\author[Author, Another]{José Pinheiro, pg23208 \and Tiago Guimarães, pg23208}
+\author[J.Pinheiro, T.Guimarães]{José Pinheiro, pg23208 \and Tiago Guimarães, pg22832 }
 
 
 \institute{Escola de Engenharia, Departamento de Informatica\\
 Universidade do Minho}
 
 
-\date{Milsstone 1, 2012/01/10}
+\date{Milestone 1, 2012/01/10}
 
 \makebeamertitle
 
@@ -100,101 +99,117 @@ Universidade do Minho}
 \lyxframeend{}\lyxframe{Model Validation trough test case generation}
 
 
-\framesubtitle{Frame subtitles are optional. Use upper- or lowercase letters.}
+\framesubtitle{}
 \begin{itemize}
-\item Use Itemize a lot.
+\item Use of test case generation to validate a model.
 
 
 \pause{}
 
-\item Use very short sentences or short phrases.
+\item Generate test cases from a model.
 
 
 \pause{}
 
-\item These overlays are created using the Pause style.
+\item Implement tests cases.
+
+
+\pause{}
+
+\item Compare the tests cases with the model.
+
+
+\pause{}
+
+\item If any diference is found, there is a problem in the model or the
+implementation.
 \end{itemize}
 
 \lyxframeend{}\lyxframe{Case-study: Git}
 \begin{itemize}
-\item <1->You can also use overlay specifications to create overlays.
-\item <3->This allows you to present things in any order.
-\item <2->This is shown second.
+\item <1->Use of Git as case study of model validation trough test case
+generation.
+\item <2->Implement intances of git repositories generated from an alloy
+git model.
+\item <3->Compare the git repositories with the model.
+\item <4->The final objective is to get an a correct alloy git model.
 \end{itemize}
 
 \lyxframeend{}\lyxframe{What is Git}
-\begin{block}
-<1->{}
 \begin{itemize}
-\item Untitled block.
-\item Shown on all slides.
+\item <1->Git is a famous distributed revision control and source code
+management system.
+\item <2->Complete history and full revision tracking capabilities.
+\item <3->Git Data structures.
+\item <4->Porcelain comands.
+\item <5->Plumbling comands.
 \end{itemize}
-\end{block}
-\begin{exampleblock}
-<2->{Some Example Block Title}
-\begin{itemize}
-\item $e^{i\pi}=-1$.
-\item $e^{i\pi/2}=i$.
-\end{itemize}
-\end{exampleblock}
 
 \lyxframeend{}\subsection{Alloy Git Model}
 
 
 \lyxframeend{}\lyxframe{Alloy Git Model }
-\begin{example}%{}
-<1->On first slide. 
-\end{example}%{}
-
-\begin{example}%{}
-<2->On second slide.
-\end{example}%{}
+\begin{itemize}
+\item <1->Use of an alloy git model to generate test cases.
+\item <2->Ultimate goal of vallidAlloy is to improve this model.
+\item <3->The alloy git model was given to us from a previous work with
+this goal.
+\end{itemize}
 
 \lyxframeend{}\section{VallidAlloy}
 
 
-\lyxframeend{}\subsection{Git Workbench}
+\lyxframeend{}\subsection{Testbench}
 
 
-\lyxframeend{}\lyxframe{Why a Workbench?}
-\begin{theorem}%{}
-On first slide.
-\end{theorem}%{}
-
-\pause{}
-\begin{corollary}%{}
-On second slide.
-\end{corollary}%{}
+\lyxframeend{}\lyxframe{Why a Testbench?}
+\begin{itemize}
+\item <1->It is the difficult to correctly see if the instances from the
+alloy git model are correct and behave like git.
+\item <2->Git manual is obscure.
+\item <3->Generates git repositories from an alloy model.
+\item <4->Compare the git repositories with the alloy model.
+\end{itemize}
 
 \lyxframeend{}\lyxframe{How it works}
-\begin{topcolumns}%{}
+\begin{itemize}
+\item <1->The tesbench is made in Java to easily conect to the alloy api.
+\item <2->Trough alloy api the testbench gets the solution generated from
+an run in the model.
+\item <3->Use of git plumbing to generate the git objects.
+\item <4->Also generates the repository filysystem.
+\item <5->Creates a number of diferent runs from that solution into actual
+git repositories.
+\end{itemize}
 
-
-\column{5cm}
-\begin{theorem}%{}
-<1->In left column.
-\end{theorem}%{}
-
-\column{5cm}
-\begin{corollary}%{}
-<2->In right column.\\
-New line
-\end{corollary}%{}
-\end{topcolumns}%{}
+\lyxframeend{}\lyxframe{Work done in Milestone 1}
+\begin{itemize}
+\item <1->It currently replicates:\end{itemize}
+\begin{enumerate}
+\item <2->Filesystem from an a alloy instance;
+\item <3->Git repository;
+\item <3->Git Objects(blobs).
+\end{enumerate}
 
 \lyxframeend{}\subsection{Future Implementations}
 
+
+\lyxframeend{}\lyxframe{Future Implementations}
+\begin{itemize}
+\item <1->Create all the git objects.
+\item <2->Optimize workbench.
+\item <3->Actualy improve the model.
+\end{itemize}
 
 \lyxframeend{}\section*{Summary}
 
 
 \lyxframeend{}\lyxframe{Summary}
 \begin{itemize}
-\item The \textcolor{red}{first main message} of your talk in one or two
-lines.
-\item The \textcolor{red}{second main message} of your talk in one or two
-lines.
-\item Perhaps a \textcolor{red}{third message}, but not more than that.
+\item Model validation through test case generation.
+\item Use of alloy.
+\item Git as case study.
+\item Validate model.
 \end{itemize}
 
 
@@ -203,8 +218,8 @@ lines.
 \item Outlook
 
 \begin{itemize}
-\item What we have not done yet.
-\item Even more stuff.
+\item Replicate full git repository.
+\item Improve alloy git model.
 \end{itemize}
 \end{itemize}
 
@@ -222,11 +237,11 @@ lines.
 
 \beamertemplatebookbibitems
 \begin{thebibliography}{References}
-\bibitem{Author1990}A. Author. \newblock\emph{Handbook of Everything}.\newblock
-Some Press, 1990.\beamertemplatearticlebibitems
+\bibitem{Daniel Jackson}Daniel Jackson. \newblockSoftware Abstractions:
+Logic, Language, and Analysis\newblock The MIT Press, 2006. 1990.\beamertemplatearticlebibitems
 
-\bibitem{Someone2002}S. Someone.\newblock On this and that\emph{.}
-\newblock\emph{Journal on This and That}. 2(1):50--100, 2000.
+\bibitem{Someone2002}Scott Chacon.\newblock Pro Git\emph{.} \newblock\emph{Apress
+Berkely, CA, USA ©2009 }.
 
 \end{thebibliography}
 
