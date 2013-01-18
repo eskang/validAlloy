@@ -6,10 +6,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -19,9 +21,9 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 
 public class BuildGitObjects {
 
-
+	private static String pathindex;
 		
-	public static String gitInit(String pathindex){
+	public static String gitInit(){
 		
 		String line = new String();
 		try{
@@ -54,7 +56,7 @@ public class BuildGitObjects {
 	
 	}
 	
-	public static  String buildGitHashObject(String blob,String pathindex){
+	public static  String buildGitHashObject(String blob){
 		
 	
 	String line = new String();
@@ -104,16 +106,24 @@ public class BuildGitObjects {
 	}
 
 	
-	public static String buildTreeEntry(String mode,String type,String hashcode,String desc){
-		
-		String entry = mode + " " + type + " " + hashcode + "\t" + desc + "\n";
+	public static String buildTreeEntry(String type,String hashcode,String ref){
+		String mode;
+		if(type.equals("this/Blob")){
+			mode = "100644";
+			type = "blob";
+		}
+		else{
+			mode = "040000";
+			type = "tree";
+		}
+		String entry = mode + " " + type + " " + hashcode + "\t" + ref + "\n";
 		
 		return entry;
 		
 	}
 	
 	
-	public static String buildGitTree(ArrayList<String> entrys, String pathindex){
+	public static String buildGitTree(ArrayList<String> entrys){
 	
 		String hashcode = null;
 	
@@ -172,10 +182,47 @@ public class BuildGitObjects {
 	
 	public static void buildObjects(A4Solution sol,Module world, String index) throws Err
 	{
-		Expr e = CompUtil.parseOneExpression_fromString(world, "Blob <: object.State");
-		A4TupleSet ts = (A4TupleSet) sol.eval(e);
-		gitInit(index);
+		//TODO: Change .State join an atom instead (only works because there's exactly 1 state in the run command)
+		HashMap<String,ExprVar> mapAtom =Utils.atom2ObjectMapE(sol.getAllAtoms());
+		HashMap<String,String> mapObjsHash = new HashMap<String,String>();
+		pathindex = index;
+		Expr blobs = CompUtil.parseOneExpression_fromString(world, "Blob <: object.State");
+		Expr content = CompUtil.parseOneExpression_fromString(world, "content");
+		String current = " (object.State <:Tree - content.Tree.univ)";
+		Expr authTrees = CompUtil.parseOneExpression_fromString(world, current);
+		Expr createdTrees = CompUtil.parseOneExpression_fromString(world, "");
+		Expr Tree = CompUtil.parseOneExpression_fromString(world, "object.State <:Tree");
+		Expr univ = CompUtil.parseOneExpression_fromString(world, "univ");
+		
+		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
+		gitInit();
 		for(A4Tuple t :ts )
-			buildGitHashObject(t.atom(0),index);
+			mapObjsHash.put(t.atom(0),buildGitHashObject(t.atom(0)));
+		//TODO: Anteriores
+		A4TupleSet trees = (A4TupleSet) sol.eval(authTrees);
+		while(trees.size()>0)
+		{ 
+			buildTrees(sol,trees,content,mapAtom,mapObjsHash);
+			for(A4Tuple t : trees)
+				createdTrees = createdTrees.plus(mapAtom.get(t.atom(0)));
+			authTrees =  Tree.minus(createdTrees).intersect(content.join(createdTrees.join(univ)));
+			trees = (A4TupleSet) sol.eval(authTrees);
+		}
 	}		
+	
+	public static void buildTrees(A4Solution sol, A4TupleSet trees,Expr content,HashMap<String,ExprVar> mapAtoms,HashMap<String,String> mapObjsHash)throws Err
+	{
+		ArrayList<String> entries;
+		ExprVar tree;
+		A4TupleSet lines;
+		for(A4Tuple t : trees)
+		{
+			entries  = new ArrayList<String>();
+			tree = mapAtoms.get(t.atom(0));
+			lines = (A4TupleSet) sol.eval(tree.join(content));
+			for(A4Tuple line: lines)
+				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),line.atom(0)));
+		 mapObjsHash.put(t.atom(0),buildGitTree(entries));
+		}
+	}
 }
