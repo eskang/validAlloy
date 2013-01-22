@@ -7,9 +7,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 
+import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
@@ -188,25 +192,37 @@ public class BuildGitObjects {
 		pathindex = index;
 		Expr blobs = CompUtil.parseOneExpression_fromString(world, "Blob <: object.State");
 		Expr content = CompUtil.parseOneExpression_fromString(world, "content");
-		String current = " (object.State <:Tree - content.Tree.univ)";
-		Expr authTrees = CompUtil.parseOneExpression_fromString(world, current);
-		Expr createdTrees = CompUtil.parseOneExpression_fromString(world, "");
+		//String starter= " (object.State <:Tree - content.Tree.univ)";
 		Expr Tree = CompUtil.parseOneExpression_fromString(world, "object.State <:Tree");
 		Expr univ = CompUtil.parseOneExpression_fromString(world, "univ");
+		 
+		//"object.State <: {t : Tree - previousTrees | univ.(t.content) :> Tree in  previousTrees}"
+		LinkedList<ExprVar> aux = new LinkedList<ExprVar>();
+		aux.add(ExprVar.make(null, "t",Tree.type()));
+		Expr previousTrees = CompUtil.parseOneExpression_fromString(world, "none :> Tree");
+		Decl tDecl = new Decl(null,null,null,aux,Tree);
+		Expr treeExpr = univ.join(tDecl.get().join(content)).range(Tree).in(previousTrees); 
+		treeExpr = treeExpr.comprehensionOver(tDecl);
 		
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 		gitInit();
 		for(A4Tuple t :ts )
 			mapObjsHash.put(t.atom(0),buildGitHashObject(t.atom(0)));
-		//TODO: Anteriores
-		A4TupleSet trees = (A4TupleSet) sol.eval(authTrees);
+			
+		
+		A4TupleSet trees = (A4TupleSet) sol.eval(treeExpr);
 		while(trees.size()>0)
 		{ 
 			buildTrees(sol,trees,content,mapAtom,mapObjsHash);
 			for(A4Tuple t : trees)
-				createdTrees = createdTrees.plus(mapAtom.get(t.atom(0)));
-			authTrees =  Tree.minus(createdTrees).intersect(content.join(createdTrees.join(univ)));
-			trees = (A4TupleSet) sol.eval(authTrees);
+			{
+				previousTrees = previousTrees.plus(mapAtom.get(t.atom(0)));
+				tDecl = new Decl(null,null,null,aux,Tree.minus(previousTrees)); 
+				treeExpr = univ.join(tDecl.get().join(content)).range(Tree).in(previousTrees); 
+				treeExpr = treeExpr.comprehensionOver(tDecl);
+			}
+			
+			trees = (A4TupleSet) sol.eval(treeExpr);
 		}
 	}		
 	
