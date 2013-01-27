@@ -1,4 +1,4 @@
-run{some parent.node and some File} for 5 but exactly 1 State, exactly  3 Dir, exactly 3 Tree
+run{some parent.node and some File and some Commit :>object.State } for 5 but exactly 1 State, exactly  3 Dir, exactly 3 Tree
 
 sig State {}
 

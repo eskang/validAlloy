@@ -17,6 +17,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
@@ -128,7 +129,6 @@ public class BuildGitObjects {
 	
 	
 	
-	
 	public static String buildGitTree(ArrayList<String> entrys){
 	
 		String hashcode = null;
@@ -185,61 +185,72 @@ public class BuildGitObjects {
 		
 	}
 	
-	public static String buildCommitTree(String tree_hashcode, String message, String commit_hashcode){
-		
-		String hashcode = null;
-	
-		try{
-			
-			String newpath = "output/"+pathindex;
-			 
-			File path = new File(newpath);
-			
-			ProcessBuilder pb;
-			
-			if(commit_hashcode.compareTo("FIRST_COMMIT")==0){
-				pb = new ProcessBuilder("git","commit-tree",tree_hashcode);
-			}
-			else {
-				pb = new ProcessBuilder("git","commit-tree",tree_hashcode,"-p",commit_hashcode);
-			}
-			
-			pb.directory(path);	
-			
-			Process pr = pb.start();
-			
-			OutputStream out = pr.getOutputStream();
-			InputStream in = pr.getInputStream();
-			InputStream err = pr.getErrorStream();
+	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits){
+		  
+		  String hashcode = null;
+		 
+		  try{
+		   
+		   //String newpath = "output/"+pathindex;
+		    
+		  // File path = new File(newpath);
+		   
+		   ProcessBuilder pb;
+		   
+		   if(commits.get(0).compareTo("FIRST_COMMIT")==0){
+		    pb = new ProcessBuilder("git","commit-tree",tree_hashcode);
+		   }
+		   else {
+		    
+		    ArrayList<String> cmds = new ArrayList<String>();
+		    cmds.add("git");
+		    cmds.add("commit-tree");
+		    cmds.add(tree_hashcode);
+		    
+		    for(String com : commits){
+		     cmds.add("-p");
+		     cmds.add(com);
+		    }
+		    
+		    pb = new ProcessBuilder(cmds);
+		   }
+		   
+		  // pb.directory(path); 
+		   
+		   Process pr = pb.start();
+		   
+		   OutputStream out = pr.getOutputStream();
+		   InputStream in = pr.getInputStream();
+		   InputStream err = pr.getErrorStream();
 
-			InputStreamReader isr = new InputStreamReader(in);
-			OutputStreamWriter osr = new OutputStreamWriter(out);
-			
-			
-			BufferedReader br = new BufferedReader(isr);
-			BufferedWriter bw = new BufferedWriter(osr);
-			
-			bw.flush();
-			bw.write(hashcode);
-			bw.close();
-		
-		
-			hashcode = br.readLine();
-			System.out.println(hashcode);
-			
-			br.close();
-			pr.destroy();
-		
-		
-		}catch(Exception exc){
-			exc.printStackTrace();
-		}
-		return hashcode;
-		
-	}
+		   InputStreamReader isr = new InputStreamReader(in);
+		   OutputStreamWriter osr = new OutputStreamWriter(out);
+		   
+		   
+		   BufferedReader br = new BufferedReader(isr);
+		   BufferedWriter bw = new BufferedWriter(osr);
+		   
+		   bw.flush();
+		   bw.write(message);
+		   bw.close();
+		  
+		  
+		   hashcode = br.readLine();
+		   System.out.println(hashcode);
+		   
+		   br.close();
+		   pr.destroy();
+		  
+		  
+		  }catch(Exception exc){
+		   exc.printStackTrace();
+		  }
+		  return hashcode;
+		  
+		 }
 	
 
-	/*
+	
 	public static void buildObjects(A4Solution sol,Module world, String index) throws Err
 	{
 		//TODO: Change .State join an atom instead (only works because there's exactly 1 state in the run command)
@@ -248,17 +259,16 @@ public class BuildGitObjects {
 		pathindex = index;
 		Expr blobs = CompUtil.parseOneExpression_fromString(world, "Blob <: object.State");
 		Expr content = CompUtil.parseOneExpression_fromString(world, "content");
-		//String starter= " (object.State <:Tree - content.Tree.univ)";
 		Expr Tree = CompUtil.parseOneExpression_fromString(world, "object.State <:Tree");
 		Expr univ = CompUtil.parseOneExpression_fromString(world, "univ");
 		 
-		//"object.State <: {t : Tree - previousTrees | univ.(t.content) :> Tree in  previousTrees}"
 		LinkedList<ExprVar> aux = new LinkedList<ExprVar>();
 		aux.add(ExprVar.make(null, "t",Tree.type()));
 		Expr previousTrees = CompUtil.parseOneExpression_fromString(world, "none :> Tree");
 		Decl tDecl = new Decl(null,null,null,aux,Tree);
 		Expr treeExpr = univ.join(tDecl.get().join(content)).range(Tree).in(previousTrees); 
 		treeExpr = treeExpr.comprehensionOver(tDecl);
+		
 		
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 		gitInit();
@@ -280,7 +290,62 @@ public class BuildGitObjects {
 			
 			trees = (A4TupleSet) sol.eval(treeExpr);
 		}
+		
+		//TODO Commits
+		Sig Commit = Utils.getEFromIterable(world.getAllSigs(), "this/Commit");
+		Expr domain = CompUtil.parseOneExpression_fromString(world, "object.State");
+		Expr previousCommits = CompUtil.parseOneExpression_fromString(world, "none :> Commit");
+		Expr previous = CompUtil.parseOneExpression_fromString(world, "previous :> object.State");
+		Expr c = Commit.decl.get();
+		// forall c:Commit :: c in object.State and c.previous in 'previousCommits' and c not in 'previousComits'
+		Expr currentCommits = c.in(domain).and(c.join(previous).in(previousCommits).and(c.in(previousCommits).not()));
+		currentCommits = currentCommits.comprehensionOver(Commit.decl);
+		
+		A4TupleSet commits = (A4TupleSet) sol.eval(currentCommits);
+		while(commits.size() >0)
+		{
+			System.out.println(commits.size());
+			buildCommits(sol,commits,previous,CompUtil.parseOneExpression_fromString(world, "tree :> object.State"),mapAtom,mapObjsHash);
+			for(A4Tuple tc : commits)
+			{
+				previousCommits = previousCommits.plus(mapAtom.get(tc.atom(0)));
+				currentCommits = c.in(domain).and(c.join(previous).in(previousCommits).and(c.in(previousCommits).not()));
+				currentCommits = currentCommits.comprehensionOver(Commit.decl);
+			}
+			commits =  (A4TupleSet) sol.eval(currentCommits);
+		}
+		
+		
 	}		
+	
+	public static void buildCommits(A4Solution sol, A4TupleSet commits,Expr previous,Expr tree,HashMap<String,ExprVar> mapAtom,HashMap<String,String> mapObjsHash) throws Err
+	{
+		ArrayList<String> entries;
+		ExprVar commit;
+		A4TupleSet prevCommits;
+		A4Tuple commitTree;
+		String treeHash;
+		
+		for(A4Tuple t : commits)
+		{
+			entries  = new ArrayList<String>();
+			commit = mapAtom.get(t.atom(0));
+			System.out.println(t.atom(0));
+			commitTree = ((A4TupleSet)sol.eval(commit.join(tree))).iterator().next();
+			System.out.println(commitTree.atom(0));
+			prevCommits = (A4TupleSet) sol.eval(commit.join(previous));
+			
+			if(prevCommits.size()>0)
+				for(A4Tuple prev: prevCommits)
+					entries.add(mapObjsHash.get(prev.atom(0)));
+			else
+				entries.add("FIRST_COMMIT");
+		 
+			treeHash =mapObjsHash.get(commitTree.atom(0));
+			System.out.println(treeHash);
+			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"mensage",entries));
+		}
+	}
 	
 	public static void buildTrees(A4Solution sol, A4TupleSet trees,Expr content,HashMap<String,ExprVar> mapAtoms,HashMap<String,String> mapObjsHash)throws Err
 	{
@@ -296,7 +361,6 @@ public class BuildGitObjects {
 				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),line.atom(0)));
 		 mapObjsHash.put(t.atom(0),buildGitTree(entries));
 		}
-	}
-	*/
+	}	
 	
 }

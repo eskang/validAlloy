@@ -63,9 +63,6 @@ public class VallidAlloy {
 	        			Files.createDirectories(p);
 	        			FileSystemBuilder.buildFileSystem(sol,i);
 	        			BuildGitObjects.buildObjects(sol, world, Integer.toString(i));
-	        			/*BuildGitObjects.gitInit(Integer.toString(i));
-	            		BuildGitObjects.buildGitHashObject("blob"+Integer.toString(i),Integer.toString(i));
-	            	   */
 	            		System.out.println(i);
 	            		
 	            		sol.writeXML("output/"+i+"/instance"+i+".xml");
