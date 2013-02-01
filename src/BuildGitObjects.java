@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import com.sun.org.apache.xml.internal.serializer.utils.Utils;
+
 
 
 
@@ -249,6 +251,141 @@ public class BuildGitObjects {
 		  
 		 }
 	
+	public static String setHead(String path_name){
+		
+		String line = new String();
+		try{
+    		String newpath = "output/"+pathindex;
+			 
+			File path = new File(newpath);
+			
+			ProcessBuilder pb = new ProcessBuilder("git","symbolic-ref","HEAD",path_name);
+			
+			pb.directory(path);	
+			
+			Process pr = pb.start();
+			
+
+			OutputStream out = pr.getOutputStream();
+			InputStream in = pr.getInputStream();
+			InputStream err = pr.getErrorStream();
+
+			InputStreamReader isr = new InputStreamReader(in);
+			BufferedReader br = new BufferedReader(isr);
+	
+			line = br.readLine();
+			br.close();
+			pr.destroy();			
+	
+	}catch(Exception exc){
+		exc.printStackTrace();
+	}
+	return line;
+}
+
+public static String buildGitRef(String commit_hashcode,String path_name){
+	
+	try{
+		
+		String newpath = "output/"+pathindex;
+		 
+		File path = new File(newpath);
+		
+		ProcessBuilder pb;
+			
+			ArrayList<String> cmds = new ArrayList<String>();
+			cmds.add("git");
+			cmds.add("update-ref");
+			cmds.add(path_name);
+			cmds.add(commit_hashcode);
+			
+			pb = new ProcessBuilder(cmds);
+		
+		pb.directory(path);	
+		
+		Process pr = pb.start();
+		
+		OutputStream out = pr.getOutputStream();
+		InputStream in = pr.getInputStream();
+		InputStream err = pr.getErrorStream();
+
+		InputStreamReader isr = new InputStreamReader(in);
+		OutputStreamWriter osr = new OutputStreamWriter(out);
+		
+		
+		BufferedReader br = new BufferedReader(isr);
+		BufferedWriter bw = new BufferedWriter(osr);
+		
+		bw.flush();
+		//bw.write();
+		bw.close();
+	
+	
+		br.close();
+		pr.destroy();
+	
+	
+	}catch(Exception exc){
+		exc.printStackTrace();
+	}
+	return path_name;
+	
+}
+
+
+
+
+public static String buildGitIndexEntry(String object_hash,String file_name){
+	
+	try{
+		
+		String newpath = "output/"+pathindex;
+		 
+		File path = new File(newpath);
+		
+		ProcessBuilder pb;
+			
+			ArrayList<String> cmds = new ArrayList<String>();
+			cmds.add("git");
+			cmds.add("update-index");
+			cmds.add("--add");
+			cmds.add("--cacheinfo");
+			cmds.add("100644");
+			cmds.add(object_hash);
+			cmds.add(file_name);
+			
+			pb = new ProcessBuilder(cmds);
+		
+		pb.directory(path);	
+		
+		Process pr = pb.start();
+		
+		OutputStream out = pr.getOutputStream();
+		InputStream in = pr.getInputStream();
+		InputStream err = pr.getErrorStream();
+
+		InputStreamReader isr = new InputStreamReader(in);
+		OutputStreamWriter osr = new OutputStreamWriter(out);
+		
+		
+		BufferedReader br = new BufferedReader(isr);
+		BufferedWriter bw = new BufferedWriter(osr);
+		
+		bw.flush();
+		//bw.write();
+		bw.close();
+	
+	
+		br.close();
+		pr.destroy();
+	
+	
+	}catch(Exception exc){
+		exc.printStackTrace();
+	}
+	return file_name;
+	
+}
 
 	
 	public static void buildObjects(A4Solution sol,Module world, String index,ExprVar iState) throws Err
