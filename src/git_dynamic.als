@@ -1,11 +1,11 @@
-run{some parent.node and some File and some Commit :>object.State } for 5 but exactly 1 State, exactly  3 Dir, exactly 3 Tree
+//run {some object.State} for 5 but exactly 1 State, exactly  3 Dir
 
 sig State {}
 
 // paths
 
 sig Name {
-	head : set State
+	HEAD : set State
 }
 
 sig Path {
@@ -97,11 +97,8 @@ fun untracked : Path -> State {
 	{p : Path, s : State | some path.p & File & node.s and no p.index.s}
 }
 
-/*
-check {
-	all s : State | deleted.s in modified.s
-} for 5
-*/
+//check {all s : State | deleted.s in modified.s} for 5
+
 fact {
 	// object is closed under refs
 	all s : State | (object.s).points in object.s
@@ -121,20 +118,20 @@ fact {
 
 // git references and head
 
-sig Ref extends Name {
-	ref : Object lone -> State
+sig Ref in Name {
+	head : Commit lone -> State
 }
 
 fact {
 	all s : State {
 		// there always exists one head
-		one head.s
+		one HEAD.s
 		// refs point to an object in the database
-		ref.s in Ref -> object.s
-		// if head points to something it must point to a commit
-		(head.s).(ref.s) in Commit
+		head.s in Ref -> object.s
 	}
 }
+
+//run {} for 4 but exactly 1 State
 
 //run {all s : State | some modified.s and some deleted.s and some untracked.s} for 4 but exactly 1 State
 
@@ -142,7 +139,7 @@ fact {
 pred other [s,s' : State] {
 	object.s' = object.s 
 	index.s' = index.s
-	ref.s' = ref.s
+//	ref.s' = ref.s
 	head.s' = head.s
 	not (node.s' = node.s and root.s' = root.s)
 }
@@ -155,12 +152,11 @@ pred add [p : Path, s,s' : State] {
 	path.p in File
 	object.s' = object.s + (path.p).blob
 	index.s' = index.s ++ p->(path.p).blob
-	ref.s' = ref.s
+//	ref.s' = ref.s
 	head.s' = head.s
 
 	node.s' = node.s
 	root.s' = root.s
 }
 
-//run add for 4 but 2 State
-
+run add for 4 but 2 State

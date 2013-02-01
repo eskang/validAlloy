@@ -7,6 +7,7 @@ import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
@@ -43,32 +44,44 @@ public class VallidAlloy {
 	        // Parse+typecheck the model
 	        System.out.println("=========== Parsing + Typechecking "+filename+" =============");
 	        Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
-	            
-	            
-	            A4Solution sol=null ;
-	            
-	            // Choose some default options for how you want to execute the commands
-	            A4Options options = new A4Options();
-	            options.solver = A4Options.SatSolver.SAT4J;
-	            Command cmd1 = world.getAllCommands().get(0);
-	            sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
-	            System.out.println("=========== Getting "+ test_iterations +" Solutions from "+filename+" =============");
-	            for(int i =0; i< test_iterations;i++){
-	            	if (sol.satisfiable())
-	            	{	
-	            		
-	            		
-	            		String newpath = "output/"+Integer.toString(i);
-	        			Path p = Paths.get(newpath);
-	        			Files.createDirectories(p);
-	        			FileSystemBuilder.buildFileSystem(sol,i);
-	        			BuildGitObjects.buildObjects(sol, world, Integer.toString(i));
-	            		System.out.println(i);
-	            		
-	            		sol.writeXML("output/"+i+"/instance"+i+".xml");
-	            	}
-	            	sol=sol.next();
-	            }
+	        
+	        
+	        
+	        A4Solution sol=null ;
+	        
+	        // Choose some default options for how you want to execute the commands
+	        A4Options options = new A4Options();
+	        options.solver = A4Options.SatSolver.SAT4J;
+	        Command cmd1 = world.getAllCommands().get(0);
+	        sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
+	        System.out.println("=========== Getting "+ test_iterations +" Solutions from "+filename+" =============");
+	        String newpath = null;
+	        Path p  = null;
+	        Iterable<ExprVar> skolems = null;
+	        ExprVar preState = null;
+	        ExprVar posState = null;
+	        for(int i =0; i< test_iterations;i++){
+	        	if (sol.satisfiable())
+	        	{
+	        		newpath = "output/"+Integer.toString(i);
+	        		p = Paths.get(newpath);skolems = sol.getAllSkolems();
+	        		Files.createDirectories(p);
+	        		
+	        		preState= Utils.getEFromIterable(skolems, "$add_s");
+	        		posState = Utils.getEFromIterable(skolems, "$add_s'");
+	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
+	        		
+	        		System.out.println("Instance "+i+" preState\n__________________________________________________________________");
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i),preState);
+	        		
+	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i),preState);
+	        		
+	        		System.out.println("End of Instance: "+i+"\n__________________________________________________________________");
+	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
+	        		}
+	        	sol=sol.next();
+	        	}
 	        }
+	}
 	
-}
