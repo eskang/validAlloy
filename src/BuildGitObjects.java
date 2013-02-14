@@ -386,6 +386,22 @@ public class BuildGitObjects {
 	
 }
 
+	private static String buildPath(A4Solution sol, Expr parent,ExprVar current, HashMap<String,ExprVar> mapAtom) throws Err
+	{
+		A4TupleSet ts = (A4TupleSet) sol.eval(current);
+		String it  = ts.iterator().next().atom(0).replace("$", "_");
+		A4TupleSet ts2 = (A4TupleSet) sol.eval(current.join(parent));
+		if(ts2.size() == 0)
+			return it;
+		else
+			return buildPath(sol,parent,mapAtom.get(ts2.iterator().next().atom(0)),mapAtom) + "/"+ it;
+	}
+	public static void runAdd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom) throws Err
+	{ 
+		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
+		String filePath = buildPath(sol,parent,path,mapAtom);	
+	}
+	
 	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash, Expr state) throws Err
 	{
 		Expr nodeBlob = CompUtil.parseOneExpression_fromString(world, "path.index").join(state);
@@ -398,10 +414,9 @@ public class BuildGitObjects {
 	}
 
 
-	public static void buildObjects(A4Solution sol,Module world, String index,ExprVar iState) throws Err
+	public static void buildObjects(A4Solution sol,Module world, String index,ExprVar iState, HashMap<String,ExprVar> mapAtom) throws Err
 	{
 		
-		HashMap<String,ExprVar> mapAtom =Utils.atom2ObjectMapE(sol.getAllAtoms());
 		HashMap<String,String> mapObjsHash = new HashMap<String,String>();
 		pathindex = index;
 		Expr domain = CompUtil.parseOneExpression_fromString(world, "object").join(iState);

@@ -159,7 +159,7 @@ pred add [p : Path, s,s' : State] {
 	index.s' = index.s ++ p->(path.p).blob
 //	ref.s' = ref.s
 	head.s' = head.s
-
+	HEAD.s' = HEAD.s
 	node.s' = node.s
 	root.s' = root.s
 }

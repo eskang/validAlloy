@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -63,6 +64,7 @@ public class VallidAlloy {
 	        for(int i =0; i< test_iterations;i++){
 	        	if (sol.satisfiable())
 	        	{
+	        		HashMap<String,ExprVar> mapAtom =Utils.atom2ObjectMapE(sol.getAllAtoms());
 	        		newpath = "output/"+Integer.toString(i);
 	        		p = Paths.get(newpath);skolems = sol.getAllSkolems();
 	        		Files.createDirectories(p);
@@ -74,10 +76,10 @@ public class VallidAlloy {
 	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
 	        		
 	        		System.out.println("Instance "+i+" preState\n__________________________________________________________________");
-	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pre",preState);
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pre",preState,mapAtom);
 	        		
 	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
-	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState);
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState,mapAtom);
 	        		
 	        		System.out.println("End of Instance: "+i+"\n__________________________________________________________________");
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
