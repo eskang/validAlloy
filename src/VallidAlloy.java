@@ -61,6 +61,7 @@ public class VallidAlloy {
 	        Iterable<ExprVar> skolems = null;
 	        ExprVar preState = null;
 	        ExprVar posState = null;
+	        ExprVar pathSkol = null;
 	        for(int i =0; i< test_iterations;i++){
 	        	if (sol.satisfiable())
 	        	{
@@ -71,6 +72,8 @@ public class VallidAlloy {
 	        		
 	        		preState= Utils.getEFromIterable(skolems, "$show_s");
 	        		posState = Utils.getEFromIterable(skolems, "$show_s'");
+	        		pathSkol = Utils.getEFromIterable(skolems, "$show_p");
+	        		
 	        		System.out.println(preState);
 	        		System.out.println(posState);
 	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
@@ -80,6 +83,10 @@ public class VallidAlloy {
 	        		
 	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
 	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState,mapAtom);
+	        		
+	        		//BuildGitObjects.runAdd(sol,world,"output/"+Integer.toString(i)+"/pre",pathSkol,mapAtom);
+	        		
+	        		Utils.diffPosPre(Integer.toString(i));
 	        		
 	        		System.out.println("End of Instance: "+i+"\n__________________________________________________________________");
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");

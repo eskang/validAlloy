@@ -93,6 +93,29 @@ public class Utils {
 		
 			line = br.readLine();
 			br.close();
+			
+			if(line !=null){
+				
+				BufferedWriter writer = null;
+				
+				try
+				{
+					writer = new BufferedWriter( new FileWriter(newpath  + "/diff.txt"));
+					writer.write(line);
+
+				}
+				catch (IOException e){}
+				finally
+				{
+					try
+					{
+						if ( writer != null)
+							writer.close( );
+					}
+					catch ( IOException e){}
+			     }
+				}
+			
 			pr.destroy();
 		
 		
@@ -100,27 +123,7 @@ public class Utils {
 			exc.printStackTrace();
 		}
 		
-		if(!line.equals(null)){
-			
-			BufferedWriter writer = null;
-			
-			try
-			{
-				writer = new BufferedWriter( new FileWriter("diff.txt"));
-				writer.write(line);
-
-			}
-			catch (IOException e){}
-			finally
-			{
-				try
-				{
-					if ( writer != null)
-						writer.close( );
-				}
-				catch ( IOException e){}
-		     }
-			}
+		
 		
 		return line;
 		

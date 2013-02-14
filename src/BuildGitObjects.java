@@ -386,13 +386,13 @@ public class BuildGitObjects {
 	
 }
 	
-	public static String gitAdd(String file_name){
+	public static String gitAdd(String file_name,String p){
 		
 	try{
 		
-		String newpath = "output/"+pathindex;
+		
 		 
-		File path = new File(newpath);
+		File path = new File(p);
 		
 		ProcessBuilder pb;
 			
@@ -445,21 +445,25 @@ public class BuildGitObjects {
 		else
 			return buildPath(sol,parent,mapAtom.get(ts2.iterator().next().atom(0)),mapAtom) + "/"+ it;
 	}
+	
+	
 	public static void runAdd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom) throws Err
 	{ 
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
 		String filePath = buildPath(sol,parent,path,mapAtom);	
+		gitAdd(filePath,p);
 	}
 	
-	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash, Expr state) throws Err
+	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash,HashMap<String,ExprVar>mapAtom, Expr state) throws Err
 	{
 		Expr nodeBlob = CompUtil.parseOneExpression_fromString(world, "path.index").join(state);
-		
+		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
 		A4TupleSet ts =  (A4TupleSet) sol.eval(nodeBlob);
-		
-		for (A4Tuple t : ts)
-			System.out.println("index res: "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),t.atom(0).replace("$", "_")));
-		
+		String path;
+		for (A4Tuple t : ts){
+			path = buildPath(sol,parent,mapAtom.get(t.atom(0)),mapAtom);
+			System.out.println("index res: "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
+		}
 	}
 
 
@@ -485,7 +489,7 @@ public class BuildGitObjects {
 		
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		
-		buildIndex(sol,world,mapObjsHash,iState);
+		buildIndex(sol,world,mapObjsHash,mapAtom,iState);
 		
 		placeHEAD(sol,world,iState);
 	}		
@@ -495,6 +499,7 @@ public class BuildGitObjects {
 		Expr domain = CompUtil.parseOneExpression_fromString(world, "object").join(iState);
 		Expr content = CompUtil.parseOneExpression_fromString(world, "content");
 		Expr Tree = CompUtil.parseOneExpression_fromString(world, "Tree").domain(domain);
+		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
 		
 		LinkedList<ExprVar> aux = new LinkedList<ExprVar>();
 		aux.add(ExprVar.make(null, "t",Tree.type()));
@@ -507,7 +512,7 @@ public class BuildGitObjects {
 		A4TupleSet trees = (A4TupleSet) sol.eval(treeExpr);
 		while(trees.size()>0)
 		{ 
-			buildTrees(sol,trees,content,mapAtom,mapObjsHash);
+			buildTrees(sol,parent,trees,content,mapAtom,mapObjsHash);
 			for(A4Tuple t : trees)
 			{
 				previousTrees = previousTrees.plus(mapAtom.get(t.atom(0)));
@@ -587,19 +592,23 @@ public class BuildGitObjects {
 		}
 	}
 	
-	public static void buildTrees(A4Solution sol, A4TupleSet trees,Expr content,HashMap<String,ExprVar> mapAtoms,HashMap<String,String> mapObjsHash)throws Err
+	public static void buildTrees(A4Solution sol,Expr parent, A4TupleSet trees,Expr content,HashMap<String,ExprVar> mapAtoms,HashMap<String,String> mapObjsHash)throws Err
 	{
 		ArrayList<String> entries;
 		ExprVar tree;
 		A4TupleSet lines;
+		String path;
 		for(A4Tuple t : trees)
 		{
 			entries  = new ArrayList<String>();
 			tree = mapAtoms.get(t.atom(0));
 			lines = (A4TupleSet) sol.eval(tree.join(content));
 			for(A4Tuple line: lines)
-				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),line.atom(0)));
-		 mapObjsHash.put(t.atom(0),buildGitTree(entries));
+			{
+				path = buildPath(sol,parent,mapAtoms.get(line.atom(0)),mapAtoms);
+				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),path));
+			}
+			mapObjsHash.put(t.atom(0),buildGitTree(entries));
 		}
 	}	
 	
