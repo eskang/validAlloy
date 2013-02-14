@@ -67,8 +67,10 @@ public class VallidAlloy {
 	        		p = Paths.get(newpath);skolems = sol.getAllSkolems();
 	        		Files.createDirectories(p);
 	        		
-	        		preState= Utils.getEFromIterable(skolems, "$add_s");
-	        		posState = Utils.getEFromIterable(skolems, "$add_s'");
+	        		preState= Utils.getEFromIterable(skolems, "$show_s");
+	        		posState = Utils.getEFromIterable(skolems, "$show_s'");
+	        		System.out.println(preState);
+	        		System.out.println(posState);
 	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
 	        		
 	        		System.out.println("Instance "+i+" preState\n__________________________________________________________________");

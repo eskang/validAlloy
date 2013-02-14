@@ -1,4 +1,9 @@
-//run {some object.State} for 5 but exactly 1 State, exactly  3 Dir
+pred show[s,s':State,p:Path]
+{
+	add[p,s,s']
+}
+
+run show for 4 but 2 State
 
 sig State {}
 
@@ -159,4 +164,4 @@ pred add [p : Path, s,s' : State] {
 	root.s' = root.s
 }
 
-run add for 4 but 2 State
+//run add for 4 but 2 State

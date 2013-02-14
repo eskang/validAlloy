@@ -282,7 +282,7 @@ public class BuildGitObjects {
 	return line;
 }
 
-public static String buildGitRef(String commit_hashcode,String path_name){
+	public static String buildGitRef(String commit_hashcode,String path_name){
 	
 	try{
 		
@@ -334,7 +334,7 @@ public static String buildGitRef(String commit_hashcode,String path_name){
 
 
 
-public static String buildGitIndexEntry(String object_hash,String file_name){
+	public static String buildGitIndexEntry(String object_hash,String file_name){
 	
 	try{
 		
@@ -386,10 +386,21 @@ public static String buildGitIndexEntry(String object_hash,String file_name){
 	
 }
 
-	
+	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash, Expr state) throws Err
+	{
+		Expr nodeBlob = CompUtil.parseOneExpression_fromString(world, "path.index").join(state);
+		
+		A4TupleSet ts =  (A4TupleSet) sol.eval(nodeBlob);
+		
+		for (A4Tuple t : ts)
+			System.out.println("index res: "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),t.atom(0).replace("$", "_")));
+		
+	}
+
+
 	public static void buildObjects(A4Solution sol,Module world, String index,ExprVar iState) throws Err
 	{
-		//TODO: Change .State, join an atom instead (only works because there's exactly 1 state in the run command)
+		
 		HashMap<String,ExprVar> mapAtom =Utils.atom2ObjectMapE(sol.getAllAtoms());
 		HashMap<String,String> mapObjsHash = new HashMap<String,String>();
 		pathindex = index;
@@ -410,6 +421,7 @@ public static String buildGitIndexEntry(String object_hash,String file_name){
 		
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		
+		buildIndex(sol,world,mapObjsHash,iState);
 	}		
 	
 	public static void treeBuilder(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err
@@ -470,6 +482,11 @@ public static String buildGitIndexEntry(String object_hash,String file_name){
 		}
 	}
 	
+	public static void placeHEAD(A4Solution sol,Module world,Expr iState) throws Err
+	{
+		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
+		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
+	}
 	
 	
 	public static void buildCommits(A4Solution sol, A4TupleSet commits,Expr previous,Expr tree,HashMap<String,ExprVar> mapAtom,HashMap<String,String> mapObjsHash) throws Err
