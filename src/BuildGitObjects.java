@@ -422,6 +422,8 @@ public class BuildGitObjects {
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		
 		buildIndex(sol,world,mapObjsHash,iState);
+		
+		placeHEAD(sol,world,iState);
 	}		
 	
 	public static void treeBuilder(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err
@@ -486,6 +488,9 @@ public class BuildGitObjects {
 	{
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
+		A4Tuple tup = res.iterator().next();
+		System.out.println(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
+		
 	}
 	
 	

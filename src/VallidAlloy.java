@@ -74,10 +74,10 @@ public class VallidAlloy {
 	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
 	        		
 	        		System.out.println("Instance "+i+" preState\n__________________________________________________________________");
-	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i),preState);
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pre",preState);
 	        		
 	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
-	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i),preState);
+	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState);
 	        		
 	        		System.out.println("End of Instance: "+i+"\n__________________________________________________________________");
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
