@@ -385,6 +385,55 @@ public class BuildGitObjects {
 	return file_name;
 	
 }
+	
+	public static String gitAdd(String file_name){
+		
+	try{
+		
+		String newpath = "output/"+pathindex;
+		 
+		File path = new File(newpath);
+		
+		ProcessBuilder pb;
+			
+			ArrayList<String> cmds = new ArrayList<String>();
+			cmds.add("git");
+			cmds.add("add");
+			cmds.add(file_name);
+			
+			pb = new ProcessBuilder(cmds);
+		
+		pb.directory(path);	
+		
+		Process pr = pb.start();
+		
+		OutputStream out = pr.getOutputStream();
+		InputStream in = pr.getInputStream();
+		InputStream err = pr.getErrorStream();
+
+		InputStreamReader isr = new InputStreamReader(in);
+		OutputStreamWriter osr = new OutputStreamWriter(out);
+		
+		
+		BufferedReader br = new BufferedReader(isr);
+		BufferedWriter bw = new BufferedWriter(osr);
+		
+		bw.flush();
+		//bw.write();
+		bw.close();
+	
+	
+		br.close();
+		pr.destroy();
+	
+	
+	}catch(Exception exc){
+		exc.printStackTrace();
+	}
+	return file_name;
+	
+}
+	
 
 	private static String buildPath(A4Solution sol, Expr parent,ExprVar current, HashMap<String,ExprVar> mapAtom) throws Err
 	{

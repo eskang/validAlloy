@@ -1,3 +1,13 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -41,5 +51,78 @@ public class Utils {
 		if(found)
 			res = i;
 		return res;
+	}
+	
+	public static String diffPosPre(String pathindex){
+		
+		String line=null;
+		
+		try{
+			
+			String newpath = "output/"+pathindex;
+			 
+			File path = new File(newpath);
+			
+			ProcessBuilder pb;
+				
+				ArrayList<String> cmds = new ArrayList<String>();
+				cmds.add("diff");
+				cmds.add("-r");
+				cmds.add("pre");
+				cmds.add("pos");
+				
+				pb = new ProcessBuilder(cmds);
+			
+			pb.directory(path);	
+			
+			Process pr = pb.start();
+			
+			OutputStream out = pr.getOutputStream();
+			InputStream in = pr.getInputStream();
+			InputStream err = pr.getErrorStream();
+
+			InputStreamReader isr = new InputStreamReader(in);
+			OutputStreamWriter osr = new OutputStreamWriter(out);
+			
+			
+			BufferedReader br = new BufferedReader(isr);
+			BufferedWriter bw = new BufferedWriter(osr);
+			
+			bw.flush();
+			bw.close();
+		
+			line = br.readLine();
+			br.close();
+			pr.destroy();
+		
+		
+		}catch(Exception exc){
+			exc.printStackTrace();
+		}
+		
+		if(!line.equals(null)){
+			
+			BufferedWriter writer = null;
+			
+			try
+			{
+				writer = new BufferedWriter( new FileWriter("diff.txt"));
+				writer.write(line);
+
+			}
+			catch (IOException e){}
+			finally
+			{
+				try
+				{
+					if ( writer != null)
+						writer.close( );
+				}
+				catch ( IOException e){}
+		     }
+			}
+		
+		return line;
+		
 	}
 }
