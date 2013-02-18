@@ -53,9 +53,11 @@ public class Utils {
 		return res;
 	}
 	
-	public static String diffPosPre(String pathindex){
+public static String diffPosPre(String pathindex){
 		
 		String line=null;
+		
+		StringBuilder lines = null;
 		
 		try{
 			
@@ -91,31 +93,20 @@ public class Utils {
 			bw.flush();
 			bw.close();
 		
+			
 			line = br.readLine();
+			
+			if(line != null) lines = new StringBuilder();
+			
+			while(line != null){
+				lines.append(line+"\n");
+				
+				line = br.readLine();
+				}
+			
+			System.out.println(lines);
+			
 			br.close();
-			
-			if(line !=null){
-				
-				BufferedWriter writer = null;
-				
-				try
-				{
-					writer = new BufferedWriter( new FileWriter(newpath  + "/diff.txt"));
-					writer.write(line);
-
-				}
-				catch (IOException e){}
-				finally
-				{
-					try
-					{
-						if ( writer != null)
-							writer.close( );
-					}
-					catch ( IOException e){}
-			     }
-				}
-			
 			pr.destroy();
 		
 		
@@ -123,7 +114,27 @@ public class Utils {
 			exc.printStackTrace();
 		}
 		
-		
+		if(lines != null){
+			
+			BufferedWriter writer = null;
+			
+			try
+			{
+				writer = new BufferedWriter( new FileWriter("diff.txt"));
+				writer.write(lines.toString());
+
+			}
+			catch (IOException e){}
+			finally
+			{
+				try
+				{
+					if ( writer != null)
+						writer.close( );
+				}
+				catch ( IOException e){}
+		     }
+			}
 		
 		return line;
 		
