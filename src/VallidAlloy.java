@@ -84,7 +84,7 @@ public class VallidAlloy {
 	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
 	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState,mapAtom);
 	        		
-	        		//BuildGitObjects.runAdd(sol,world,"output/"+Integer.toString(i)+"/pre",pathSkol,mapAtom);
+	        		BuildGitObjects.runAdd(sol,world,"output/"+Integer.toString(i)+"/pre",pathSkol,mapAtom);
 	        		
 	        		Utils.diffPosPre(Integer.toString(i));
 	        		

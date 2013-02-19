@@ -462,6 +462,8 @@ public class BuildGitObjects {
 		String path;
 		for (A4Tuple t : ts){
 			path = buildPath(sol,parent,mapAtom.get(t.atom(0)),mapAtom);
+			System.out.println("res map:" +mapObjsHash.get(t.atom(1)));
+			System.out.println("res path:" +path);
 			System.out.println("index res: "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
 		}
 	}

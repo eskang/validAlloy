@@ -1,5 +1,7 @@
 pred show[s,s':State,p:Path]
 {
+	s = s'
+	some Commit <: object.s
 	add[p,s,s']
 }
 
