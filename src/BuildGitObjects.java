@@ -189,32 +189,54 @@ public class BuildGitObjects {
 	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits){
 		  
 		  String hashcode = null;
+		
 		 
 		  try{
 		   
-		   String newpath = "output/"+pathindex;
-		    
-		   File path = new File(newpath);
+		 String newpath = "output/"+pathindex;
+	    
+	     File path = new File(newpath);
+	     
+	     ProcessBuilder pb;
 		   
-		   ProcessBuilder pb;
+			  String tree = "tree  " + tree_hashcode + "\n";
+			  String author = "author mr.git <mr.git@gmail.com> 1234567890 +0000" +"\n";
+			  String commiter = "committer mr.git <mr.git@gmail.com> 1234567890 +0000" +"\n";
 		   
+			  String finalcommit = null;
+			  
 		   if(commits.get(0).compareTo("FIRST_COMMIT")==0){
-		    pb = new ProcessBuilder("git","commit-tree",tree_hashcode);
+	
+			  finalcommit = tree + author + commiter + "\n" + message + "\n";
+		    
+		   } else {
+			   
+			   
+			   StringBuilder commit = new StringBuilder();
+			   
+			   commit.append(tree);
+			   
+			   for (String com: commits){
+				   commit.append("parent " +com +"\n");
+			   }
+			   commit.append(author);
+			   commit.append(commiter);
+			   commit.append("\n" + message + "\n");
+			   
+			   finalcommit = commit.toString();
 		   }
-		   else {
+			   
 		    
 		    ArrayList<String> cmds = new ArrayList<String>();
 		    cmds.add("git");
-		    cmds.add("commit-tree");
-		    cmds.add(tree_hashcode);
-		    
-		    for(String com : commits){
-		     cmds.add("-p");
-		     cmds.add(com);
-		    }
+		    cmds.add("hash-object");
+		    cmds.add("commit");
+		    cmds.add("-w");
+		    cmds.add("--stdin");
+	
 		    
 		    pb = new ProcessBuilder(cmds);
-		   }
+		   
 		   
 		   pb.directory(path); 
 		   
@@ -232,7 +254,7 @@ public class BuildGitObjects {
 		   BufferedWriter bw = new BufferedWriter(osr);
 		   
 		   bw.flush();
-		   bw.write(message);
+		   bw.write(finalcommit);
 		   bw.close();
 		  
 		  
