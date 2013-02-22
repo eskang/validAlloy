@@ -53,7 +53,7 @@ public class BuildGitObjects {
 	
 			line = br.readLine();
 			br.close();
-			pr.destroy();			
+			pr.waitFor();			
 	
 	}catch(Exception exc){
 		exc.printStackTrace();
@@ -101,7 +101,7 @@ public class BuildGitObjects {
 		System.out.println("blob hash:  " + line);
 		
 		br.close();
-		pr.destroy();
+		pr.waitFor();
 	
 	
 	}catch(Exception exc){
@@ -176,7 +176,7 @@ public class BuildGitObjects {
 			System.out.println("tree hash (apos mostrar tab)" + hashcode);
 			
 			br.close();
-			pr.destroy();
+			pr.waitFor();
 		
 		
 		}catch(Exception exc){
@@ -262,7 +262,7 @@ public class BuildGitObjects {
 		   System.out.println("commit hash : "+ hashcode);
 		   
 		   br.close();
-		   pr.destroy();
+		   pr.waitFor();
 		  
 		  
 		  }catch(Exception exc){
@@ -296,7 +296,7 @@ public class BuildGitObjects {
 	
 			line = br.readLine();
 			br.close();
-			pr.destroy();			
+			pr.waitFor();			
 	
 	}catch(Exception exc){
 		exc.printStackTrace();
@@ -343,7 +343,7 @@ public class BuildGitObjects {
 	
 	
 		br.close();
-		pr.destroy();
+		pr.waitFor();
 	
 	
 	}catch(Exception exc){
@@ -398,7 +398,7 @@ public class BuildGitObjects {
 	
 	
 		br.close();
-		pr.destroy();
+		pr.waitFor();
 	
 	
 	}catch(Exception exc){
@@ -422,10 +422,14 @@ public class BuildGitObjects {
 			cmds.add("git");
 			cmds.add("add");
 			cmds.add(file_name);
+			System.out.println("filename: " + file_name + "\npath: " + path);
+
+			
 			
 			pb = new ProcessBuilder(cmds);
 		
 		pb.directory(path);	
+		
 		
 		Process pr = pb.start();
 		
@@ -443,10 +447,11 @@ public class BuildGitObjects {
 		bw.flush();
 		//bw.write();
 		bw.close();
-	
+		System.out.println(br.readLine());
 	
 		br.close();
-		pr.destroy();
+		
+		pr.waitFor();
 	
 	
 	}catch(Exception exc){
@@ -473,7 +478,8 @@ public class BuildGitObjects {
 	{ 
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
-		String filePath = buildPath(sol,parent,name,path,mapAtom);	
+		String filePath = buildPath(sol,parent,name,path,mapAtom);
+		System.out.println("fp: "+ filePath +"\np: "+ p);
 		gitAdd(filePath,p);
 	}
 	
