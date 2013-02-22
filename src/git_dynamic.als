@@ -1,6 +1,6 @@
 pred show[s,s':State,p:Path]
 {
-	s = s'
+	s != s'
 	some Commit <: object.s
 	add[p,s,s']
 }
@@ -16,7 +16,7 @@ sig Name {
 }
 
 sig Path {
-	name : Name,
+	name : one Name,
 	parent : lone Path,
 	index : Blob lone -> State
 }

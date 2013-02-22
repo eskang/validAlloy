@@ -106,7 +106,31 @@ public static String diffPosPre(String pathindex){
 			
 			System.out.println(lines);
 			
+			if(lines != null){
+				
+				BufferedWriter writer = null;
+				
+				try
+				{
+					writer = new BufferedWriter( new FileWriter(newpath +"/diff.txt"));
+					writer.write(lines.toString());
+
+				}
+				catch (IOException e){}
+				
+				finally
+				{
+				try
+					{
+						if ( writer != null)
+							writer.close( );
+					}
+					catch ( IOException e){}
+			     }
+				}
+			
 			br.close();
+			
 			pr.destroy();
 		
 		
@@ -114,27 +138,7 @@ public static String diffPosPre(String pathindex){
 			exc.printStackTrace();
 		}
 		
-		if(lines != null){
-			
-			BufferedWriter writer = null;
-			
-			try
-			{
-				writer = new BufferedWriter( new FileWriter("diff.txt"));
-				writer.write(lines.toString());
-
-			}
-			catch (IOException e){}
-			finally
-			{
-				try
-				{
-					if ( writer != null)
-						writer.close( );
-				}
-				catch ( IOException e){}
-		     }
-			}
+	
 		
 		return line;
 		

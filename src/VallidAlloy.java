@@ -76,7 +76,7 @@ public class VallidAlloy {
 	        		
 	        		System.out.println(preState);
 	        		System.out.println(posState);
-	        		FileSystemBuilder.buildFileSystem(sol,i,preState,posState);
+	        		FileSystemBuilder.buildFileSystem(sol,i,world,preState,posState);
 	        		
 	        		System.out.println("Instance "+i+" preState\n__________________________________________________________________");
 	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pre",preState,mapAtom);
