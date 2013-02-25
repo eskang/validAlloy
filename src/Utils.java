@@ -70,6 +70,7 @@ public static String diffPosPre(String pathindex){
 				ArrayList<String> cmds = new ArrayList<String>();
 				cmds.add("diff");
 				cmds.add("-r");
+				cmds.add("--exclude=index");
 				cmds.add("pre");
 				cmds.add("pos");
 				
@@ -143,4 +144,99 @@ public static String diffPosPre(String pathindex){
 		return line;
 		
 	}
+
+public static void diffIndex(String pathindex){
+	printindex(pathindex+"/pre");
+	printindex(pathindex+"/pos");
+}
+
+public static String printindex(String pathindex){
+	
+	String line=null;
+	
+	StringBuilder lines = null;
+	
+	try{
+		
+		String newpath = "output/"+pathindex;
+		 
+		File path = new File(newpath);
+		
+		ProcessBuilder pb;
+			
+			ArrayList<String> cmds = new ArrayList<String>();
+			cmds.add("git");
+			cmds.add("ls-files");
+			cmds.add("--stage");
+			
+			pb = new ProcessBuilder(cmds);
+		
+		pb.directory(path);	
+		
+		Process pr = pb.start();
+		
+		OutputStream out = pr.getOutputStream();
+		InputStream in = pr.getInputStream();
+		InputStream err = pr.getErrorStream();
+
+		InputStreamReader isr = new InputStreamReader(in);
+		OutputStreamWriter osr = new OutputStreamWriter(out);
+		
+		
+		BufferedReader br = new BufferedReader(isr);
+		BufferedWriter bw = new BufferedWriter(osr);
+		
+		bw.flush();
+		bw.close();
+	
+		
+		line = br.readLine();
+		
+		if(line != null) lines = new StringBuilder();
+		
+		while(line != null){
+			lines.append(line+"\n");
+			
+			line = br.readLine();
+			}
+		
+		System.out.println(lines);
+		
+		if(lines != null){
+			
+			BufferedWriter writer = null;
+			
+			try
+			{
+				writer = new BufferedWriter( new FileWriter(newpath +"/diff_index.txt"));
+				writer.write(lines.toString());
+
+			}
+			catch (IOException e){}
+			
+			finally
+			{
+			try
+				{
+					if ( writer != null)
+						writer.close( );
+				}
+				catch ( IOException e){}
+		     }
+			}
+		
+		br.close();
+		
+		pr.destroy();
+	
+	
+	}catch(Exception exc){
+		exc.printStackTrace();
+	}
+	
+
+	
+	return line;
+	
+}
 }
