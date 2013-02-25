@@ -132,7 +132,7 @@ public static String diffPosPre(String pathindex){
 			
 			br.close();
 			
-			pr.destroy();
+			pr.waitFor();
 		
 		
 		}catch(Exception exc){
@@ -227,7 +227,7 @@ public static String printindex(String pathindex){
 		
 		br.close();
 		
-		pr.destroy();
+		pr.waitFor();
 	
 	
 	}catch(Exception exc){
