@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
@@ -16,6 +17,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
 import org.antlr.runtime.*;
+
 
 
 public class VallidAlloy {
@@ -49,23 +51,28 @@ public class VallidAlloy {
 	                  	
 	            	try {
 	            		CfgParser.cfg_return cfg_obj = g.cfg();
-	            	/*
+	            	
 	    			ArrayList<HashMap<String,String>> vars = cfg_obj.vars;
-	    			ArrayList<ArrayList<String>> args = cfg_obj.args;
+	    			ArrayList<ArrayList<String>> arg = cfg_obj.args;
 	    			ArrayList<ArrayList<String>> opts = cfg_obj.opts;
 	    			ArrayList<String> preds = cfg_obj.preds;
 	    			ArrayList<String> scopes = cfg_obj.scopes;
 	    			ArrayList<String> cmds = cfg_obj.cmds;
+	    			int n_cmds = cfg_obj.n_comands;
+	    			int n_runs = cfg_obj.n_runs;
 	    			
 	            	System.out.println(vars);
-	    			System.out.println(args);
+	    			System.out.println(arg);
 	    			System.out.println(opts);
 	    			System.out.println(preds);
 	    			System.out.println(scopes);
 	    			System.out.println(cmds);
-	    			*/
+	    			System.out.println(n_runs);
+	    			System.out.println(n_cmds);
+	    			
 	        
-	            	}
+	            	} catch (RecognitionException e) {
+	                	e.printStackTrace();
 	    	}
 	            		/*
 	         * 
@@ -123,9 +130,9 @@ public class VallidAlloy {
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
 	        		}
 	        	sol=sol.next();
-	        	} */
+	        	 */
 	        } 
-		
+		}
 	}
 	
 	
