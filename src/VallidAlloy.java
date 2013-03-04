@@ -15,7 +15,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
-
+import org.antlr.runtime.*;
 
 
 public class VallidAlloy {
@@ -39,7 +39,36 @@ public class VallidAlloy {
 	                System.out.flush();
 	            }
 	        };
+	        
+	    	if(args.length == 1){
+	    		String input_text = args[0];
+	    		CfgLexer lex = new CfgLexer(new ANTLRFileStream(input_text, "UTF8"));
+	            	CommonTokenStream tokens = new CommonTokenStream(lex);
 
+	            	CfgParser g = new CfgParser(tokens);
+	                  	
+	            	try {
+	            		CfgParser.cfg_return cfg_obj = g.cfg();
+	            	/*
+	    			ArrayList<HashMap<String,String>> vars = cfg_obj.vars;
+	    			ArrayList<ArrayList<String>> args = cfg_obj.args;
+	    			ArrayList<ArrayList<String>> opts = cfg_obj.opts;
+	    			ArrayList<String> preds = cfg_obj.preds;
+	    			ArrayList<String> scopes = cfg_obj.scopes;
+	    			ArrayList<String> cmds = cfg_obj.cmds;
+	    			
+	            	System.out.println(vars);
+	    			System.out.println(args);
+	    			System.out.println(opts);
+	    			System.out.println(preds);
+	    			System.out.println(scopes);
+	    			System.out.println(cmds);
+	    			*/
+	        
+	            	}
+	    	}
+	            		/*
+	         * 
 	        String filename = args[0];
 	        int test_iterations = Integer.parseInt(args[1]);
 	        // Parse+typecheck the model
@@ -94,7 +123,9 @@ public class VallidAlloy {
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
 	        		}
 	        	sol=sol.next();
-	        	}
-	        }
+	        	} */
+	        } 
+		
 	}
+	
 	
