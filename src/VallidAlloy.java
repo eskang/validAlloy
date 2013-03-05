@@ -32,6 +32,7 @@ public class VallidAlloy {
 	 * @throws IOException 
 	 * @see         main
 	 */
+	@SuppressWarnings("null")
 	public static void main(String[] args)  throws Err, IOException{
 		
 		 A4Reporter rep = new A4Reporter() {
@@ -44,22 +45,35 @@ public class VallidAlloy {
 	        
 	    	if(args.length == 1){
 	    		String input_text = args[0];
+	    		
+	    		System.out.println("=========== Parsing Config File + Typechecking "+input_text+" =============");
+	    		
 	    		CfgLexer lex = new CfgLexer(new ANTLRFileStream(input_text, "UTF8"));
 	            	CommonTokenStream tokens = new CommonTokenStream(lex);
 
 	            	CfgParser g = new CfgParser(tokens);
+	            	
+	            	ArrayList<HashMap<String,String>> vars ; 
+	    			ArrayList<ArrayList<String>> arg ;
+	    			ArrayList<ArrayList<String>> opts = null ;
+	    			ArrayList<String> preds ;
+	    			ArrayList<String> scopes ;
+	    			ArrayList<String> cmds = null ;
+	    			int n_cmds ;
+	    			int n_runs = 0 ;
 	                  	
 	            	try {
+	            		
 	            		CfgParser.cfg_return cfg_obj = g.cfg();
 	            	
-	    			ArrayList<HashMap<String,String>> vars = cfg_obj.vars;
-	    			ArrayList<ArrayList<String>> arg = cfg_obj.args;
-	    			ArrayList<ArrayList<String>> opts = cfg_obj.opts;
-	    			ArrayList<String> preds = cfg_obj.preds;
-	    			ArrayList<String> scopes = cfg_obj.scopes;
-	    			ArrayList<String> cmds = cfg_obj.cmds;
-	    			int n_cmds = cfg_obj.n_comands;
-	    			int n_runs = cfg_obj.n_runs;
+	            		vars = cfg_obj.vars;
+	            		arg = cfg_obj.args;
+	            		opts = cfg_obj.opts;
+	            		preds = cfg_obj.preds;
+	            		scopes = cfg_obj.scopes;
+	            		cmds = cfg_obj.cmds;
+	            		n_cmds = cfg_obj.n_comands;
+	            		n_runs = cfg_obj.n_runs;
 	    			
 	            	System.out.println(vars);
 	    			System.out.println(arg);
@@ -70,19 +84,17 @@ public class VallidAlloy {
 	    			System.out.println(n_runs);
 	    			System.out.println(n_cmds);
 	    			
-	        
 	            	} catch (RecognitionException e) {
 	                	e.printStackTrace();
-	    	}
-	            		/*
-	         * 
-	        String filename = args[0];
-	        int test_iterations = Integer.parseInt(args[1]);
-	        // Parse+typecheck the model
-	        System.out.println("=========== Parsing + Typechecking "+filename+" =============");
-	        Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
+	            	}
+	    	
+	     
+	        int test_iterations = n_runs;
 	        
 	        
+	        
+	
+	        Module world = CompUtil.parseEverything_fromFile(rep, null, "src/git_dynamic.als");
 	        
 	        A4Solution sol=null ;
 	        
@@ -91,7 +103,7 @@ public class VallidAlloy {
 	        options.solver = A4Options.SatSolver.SAT4J;
 	        Command cmd1 = world.getAllCommands().get(0);
 	        sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
-	        System.out.println("=========== Getting "+ test_iterations +" Solutions from "+filename+" =============");
+	        System.out.println("=========== Getting "+ test_iterations +" Solutions from "+"git_dynamic.als"+" =============");
 	        String newpath = null;
 	        Path p  = null;
 	        Iterable<ExprVar> skolems = null;
@@ -120,8 +132,7 @@ public class VallidAlloy {
 	        		System.out.println("Instance "+i+" posState\n__________________________________________________________________");
 	        		BuildGitObjects.buildObjects(sol, world, Integer.toString(i)+"/pos",posState,mapAtom);
 	        		
-	        		BuildGitObjects.runAdd(sol,world,"output/"+Integer.toString(i)+"/pre",pathSkol,mapAtom);
-	        	
+	        		BuildGitObjects.runCmd(sol,world,"output/"+Integer.toString(i)+"/pre",pathSkol,mapAtom,cmds.get(0),opts.get(0));
 	        		
 	        		Utils.diffIndex(Integer.toString(i));
 	        		Utils.diffPosPre(Integer.toString(i));
@@ -130,9 +141,10 @@ public class VallidAlloy {
 	        		sol.writeXML("output/"+i+"/instance"+i+".xml");
 	        		}
 	        	sol=sol.next();
-	        	 */
+	        	
 	        } 
-		}
-	}
+	    }
+	  }
+   }
 	
 	

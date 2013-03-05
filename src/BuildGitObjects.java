@@ -451,6 +451,8 @@ public class BuildGitObjects {
 	
 		br.close();
 		
+		
+		
 		pr.waitFor();
 	
 	
@@ -460,7 +462,69 @@ public class BuildGitObjects {
 	return file_name;
 	
 }
-	
+	public static String gitCmd(ArrayList<String> cmds,String p){
+		
+		String return_string = null;
+		
+		System.out.println(cmds);
+		System.out.println(p);
+		
+		try{
+			
+			String line;
+			
+			StringBuilder lines = null;
+			 
+			File path = new File(p);
+			
+			ProcessBuilder pb;
+		
+			pb = new ProcessBuilder(cmds);
+			
+			pb.directory(path);	
+			
+			Process pr = pb.start();
+			
+			OutputStream out = pr.getOutputStream();
+			InputStream in = pr.getInputStream();
+			InputStream err = pr.getErrorStream();
+
+			InputStreamReader isr = new InputStreamReader(in);
+			OutputStreamWriter osr = new OutputStreamWriter(out);
+			
+			
+			BufferedReader br = new BufferedReader(isr);
+			BufferedWriter bw = new BufferedWriter(osr);
+			
+			bw.flush();
+			//bw.write();
+			bw.close();
+			System.out.println(br.readLine());
+		
+			br.close();
+		
+			/*if(br.ready()){
+			
+			line = br.readLine();
+			
+			if(line != null) lines = new StringBuilder();
+			
+			while(line != null){
+				lines.append(line+"\n");
+				
+				line = br.readLine();
+				}
+			}
+			pr.waitFor();
+		
+			return_string = lines.toString();
+			*/
+		}catch(Exception exc){
+			exc.printStackTrace();
+		}
+		return return_string;
+		
+	}
 
 	private static String buildPath(A4Solution sol, Expr parent,Expr name,ExprVar current, HashMap<String,ExprVar> mapAtom) throws Err
 	{//TODO: current.name
@@ -481,6 +545,27 @@ public class BuildGitObjects {
 		String filePath = buildPath(sol,parent,name,path,mapAtom);
 		System.out.println("fp: "+ filePath +"\np: "+ p);
 		gitAdd(filePath,p);
+	}
+	
+	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options) throws Err
+	{ 
+		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
+		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
+		String filePath = buildPath(sol,parent,name,path,mapAtom);
+		System.out.println("fp: "+ filePath +"\np: "+ p);
+		
+		ArrayList<String> n_cmds = new ArrayList<String>();
+		
+		n_cmds.add("git");
+		n_cmds.add(cmd);
+		n_cmds.add(filePath);
+		
+		for (String n_cmd : options)
+		{
+			n_cmds.add(n_cmd);
+		}
+		
+		gitCmd(n_cmds,p);
 	}
 	
 	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash,HashMap<String,ExprVar>mapAtom, Expr state) throws Err
