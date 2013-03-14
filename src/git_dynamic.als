@@ -5,8 +5,6 @@ pred show[s,s':State,p:Path]
 	add[p,s,s']
 }
 
-run show for 4 but 2 State
-
 sig State {}
 
 // paths

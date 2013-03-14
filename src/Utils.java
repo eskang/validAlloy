@@ -7,9 +7,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import static java.nio.file.StandardCopyOption.*;
 
 
 public class Utils {
@@ -239,4 +245,43 @@ public static String printindex(String pathindex){
 	return line;
 	
 }
+
+ public static String addPred(String file, String pred, String scope) throws IOException{
+
+	 StringBuilder run = new StringBuilder();
+	 run.append("run ");
+	 run.append(pred);
+	 run.append(" ");
+	 run.append(scope);
+	 
+	 Path model  = Paths.get(file);
+	 Path tmodel = Paths.get(file+".tmp");
+	 
+
+	try {
+		Files.createFile(tmodel);
+		Files.copy(model, tmodel,REPLACE_EXISTING);
+	} catch (FileAlreadyExistsException e1) {
+		System.out.println("Model Temporary File Already Exists \n Replacing With New Content");
+	}
+	 
+	
+
+	 try {
+		    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file+".tmp", true)));
+		    out.println(run.toString());
+		    out.close();
+		} catch (IOException e) {
+		}
+	 
+	 
+	 return file+".tmp";
+ }
+ 
+ public static void delTemporaryModel(String file) throws IOException{
+	 
+	Path tmodel = Paths.get(file+".tmp");
+	
+	Files.delete(tmodel);
+ }
 }

@@ -49,14 +49,14 @@ int n_comands = 0;
 	 	$cfg.scopes = scopes;
 	 	$cfg.cmds = cmds;
 	 	$cfg.n_runs = $r.n_runs;
-	 	System.out.println(n_comands);
 	 	$cfg.n_comands = n_comands;
+	
 	 }
 	;	
 
 
 comand   returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList<String> opts, String pred,String scope, String cmd]
-	: vars 'pred' pred  'scope'  sp 'cmd'  cmdgit 
+	: vars? 'pred' pred  'scope'  sp 'cmd'  cmdgit 
 	 {
 	 	$comand.vars = $vars.a_vars;
 		$comand.args = $pred.args;
@@ -93,7 +93,7 @@ pred returns [String name, ArrayList<String> args]
 	
 
 arguments returns [ArrayList<String> args]
-	:'[' 's' ',' 's2' ',' g=args ']'
+	:'[' g=args? ']'
 	{
 	  $arguments.args = $g.n_ag;
 	}
@@ -103,7 +103,7 @@ args returns [ArrayList<String> n_ag]
 @init{
 ArrayList<String> args = new ArrayList<String>();
 }
-	:a=arg { args.add($a.ag);} (',' b=arg { args.add($b.ag);})*
+	:a=arg[true] { args.add($a.ag);} (',' b=arg[true] { args.add($b.ag);})*
 	{
 	 $args.n_ag = args;
 	}
@@ -114,18 +114,18 @@ sp  returns [String sp]
 @init{
 StringBuilder scope = new StringBuilder();
 }
-	: 'for' sigs
+	: 'for' i= INT  sigs
 	{
-	 scope.append("for  ");
+	 scope.append("for  " + $i.text+ " ");
 	 for (String sig : $sigs.n_sigs)
 	  {
 	   scope.append(sig +" ");  	
 	  }
 	  $sp.sp = scope.toString();
 	}
-	| 'for' 'exactly' sigs
+	| 'for'j= INT  'but exactly' sigs
 	{
-	 scope.append("for exactly ");
+	 scope.append("for "  +$j.text+ " but exactly ");
 	 for (String sig : $sigs.n_sigs)
 	  {
 	   scope.append(sig +" ");  	
@@ -152,7 +152,7 @@ sig returns [String sig]
 	;
 
 var returns [String arg, String type]
-	: a=arg ':' t=type
+	: a=arg[false] ':' t=type
 	{
 	 $var.arg = $a.ag;
 	 $var.type = $t.text;
@@ -183,19 +183,25 @@ ArrayList<String> opts = new ArrayList<String>();
 	;
 	
 opt returns [String op]
-	:'[' i= ID ']'
+	: i= ID 
 	{
 	$opt.op = $i.text;
+	}
+	|arg[false]
+	{
+	$opt.op = $arg.ag;
 	}
 	;
 name 
 	: ID
 	;
 	
-arg returns [String ag]
-	:'#'i=INT 
+arg [boolean flag] returns [String ag]
+	:'#'i=ID
 	{
-	 $arg.ag = $i.text;
+	if($arg.flag)
+	  $arg.ag = $i.text;
+	  else $arg.ag = "#" +$i.text;
 	}
 	;
 	

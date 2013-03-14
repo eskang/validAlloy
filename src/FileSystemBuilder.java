@@ -87,7 +87,7 @@ public class FileSystemBuilder {
 	 * @param		Number of filesystem to creat
 	 * @see         buildFileSystem
 	 */
-	public static void buildFileSystem(A4Solution sol,int i,Module world,ExprVar preState,ExprVar posState) throws Err
+	public static void buildFileSystem(A4Solution sol,int i,String pred_name,Module world,ExprVar preState,ExprVar posState) throws Err
 	{
 		 	//Get all Sigs and map them to their names(string)
 			Map<String,Sig.PrimSig> mapSigs = Helper.atom2sig(sol);
@@ -138,7 +138,7 @@ public class FileSystemBuilder {
 			A4Tuple posTupleRootName = posRootName.iterator().next();
 			
 			
-			String path = "output/"+i+"/";
+			String path = "output/"+pred_name+"/"+i+"/";
 			String prePath = path + "pre/" + preTupleRootName.atom(0).replace('$', '_');
 			String posPath = path + "pos/" + posTupleRootName.atom(0).replace('$', '_');
 			

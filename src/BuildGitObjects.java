@@ -547,24 +547,44 @@ public class BuildGitObjects {
 		gitAdd(filePath,p);
 	}
 	
-	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options) throws Err
+	
+	public static String buildType(HashMap<String,String> vars,String cmd,A4Solution sol,HashMap<String,ExprVar> mapAtom,Expr parent,Expr name,ExprVar path) throws Err{
+		
+		String type = null;
+
+		if(vars.get(cmd).equals("path")){
+			type = buildPath(sol,parent,name,path,mapAtom);
+			
+		} else{
+			
+			type = buildPath(sol,parent,name,path,mapAtom);
+		}
+		
+		return type;
+		
+	}
+	
+	
+	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Err
 	{ 
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
-		String filePath = buildPath(sol,parent,name,path,mapAtom);
-		System.out.println("fp: "+ filePath +"\np: "+ p);
+	//	System.out.println("fp: "+ filePath +"\np: "+ p);
 		
 		ArrayList<String> n_cmds = new ArrayList<String>();
 		
 		n_cmds.add("git");
 		n_cmds.add(cmd);
-		n_cmds.add(filePath);
+		
 		
 		for (String n_cmd : options)
 		{
-			n_cmds.add(n_cmd);
+			
+			if(n_cmd.matches("#[a-zA-Z0-9]*")){
+				n_cmds.add(buildType(vars,n_cmd,sol,mapAtom,parent,name,path));
+			}else n_cmds.add(n_cmd);
 		}
-		
+			
 		gitCmd(n_cmds,p);
 	}
 	
