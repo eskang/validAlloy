@@ -1,8 +1,9 @@
 pred show[s,s':State,p:Path]
 {
 	s != s'
-	some Commit <: object.s
-	add[p,s,s']
+	#(index.s) > 3
+	#(object.s) > 3
+	rm[p,s,s']
 }
 
 sig State {}
@@ -163,5 +164,17 @@ pred add [p : Path, s,s' : State] {
 	node.s' = node.s
 	root.s' = root.s
 }
+
+pred rm [p : Path, s,s' : State] {
+	p in (node.s).path
+	path.p in File
+	object.s' = object.s
+	index.s' = index.s -- p->(path.p).blob
+	head.s' = head.s
+	HEAD.s' = HEAD.s
+	node.s' = node.s
+	root.s' = root.s
+}
+
 
 //run add for 4 but 2 State
