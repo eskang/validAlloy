@@ -489,7 +489,7 @@ public class BuildGitObjects {
 			InputStream in = pr.getInputStream();
 			InputStream err = pr.getErrorStream();
 
-			InputStreamReader isr = new InputStreamReader(in);
+			InputStreamReader isr = new InputStreamReader(err);
 			OutputStreamWriter osr = new OutputStreamWriter(out);
 			
 			
@@ -499,26 +499,38 @@ public class BuildGitObjects {
 			bw.flush();
 			//bw.write();
 			bw.close();
-			System.out.println(br.readLine());
+		//stem.out.println(br.readLine());
 		
-			br.close();
+			
 		
-			/*if(br.ready()){
 			
-			line = br.readLine();
+		
 			
-			if(line != null) lines = new StringBuilder();
-			
-			while(line != null){
-				lines.append(line+"\n");
-				
-				line = br.readLine();
-				}
-			}
 			pr.waitFor();
 		
-			return_string = lines.toString();
-			*/
+			if(br.ready()){
+				
+				line = br.readLine();
+				
+				if(line != null) lines = new StringBuilder();
+				
+				while(line != null){
+					lines.append(line+"\n");
+					
+					line = br.readLine();
+					}
+				return_string = lines.toString();
+				System.out.println(return_string);
+				
+				
+				
+				}
+			
+			
+			br.close();
+			
+			
+			
 		}catch(Exception exc){
 			exc.printStackTrace();
 		}

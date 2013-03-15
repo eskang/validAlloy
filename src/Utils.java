@@ -113,6 +113,10 @@ public static String diffPosPre(String pathindex){
 			
 			System.out.println(lines);
 			
+			
+		
+			
+			
 			if(lines != null){
 				
 				BufferedWriter writer = null;
@@ -134,7 +138,10 @@ public static String diffPosPre(String pathindex){
 					}
 					catch ( IOException e){}
 			     }
-				}
+			}else
+			{
+				//TODO: Apagar path;
+			}
 			
 			br.close();
 			
