@@ -63,7 +63,7 @@ fact {
 // git objects and index (see path)
 
 abstract sig Object {
-	object : set State
+	object : set State,
 }
 
 sig Blob extends Object {}
@@ -72,10 +72,35 @@ sig Tree extends Object {
 	content : Name -> lone (Blob+Tree)
 }
 
+fun children : Object -> Object {
+	{t : Tree, o : Object | some n : Name | t->n->o in content} 
+}
+
 sig Commit extends Object {
 	previous : set Commit,
-	tree : one Tree
+	tree : one Tree,
+	path : (Tree+Blob) -> Path -> State
 }
+
+fact MatichingObjectsToPaths {
+	all s : State {
+		path.s in object.s -> object.s -> Path
+	}
+	all s : State, c : Commit & object.s { 
+		c.path.s in (c.tree.^children -> some Path)
+		all o : c.tree.children {
+			one o.(c.path.s) and no o.(c.path.s).parent and o.(c.path.s).name = c.tree.content.o
+		}
+		all o : c.tree.children.^children {
+			all p : (children.o).(c.path.s) | one p' : o.(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
+			all p' : o.(c.path.s) | one p : (children.o).(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
+		}
+	}
+}
+
+check {
+	all s : State, c : object.s & Commit, o : Object | lone o.(c.path.s)
+} for 6 but 1 State
 
 sig Tag extends Object {
 	commit : one Commit,
@@ -83,7 +108,7 @@ sig Tag extends Object {
 }
 
 fun points : Object -> Object {
-	{t : Tree, o : Object | some n : Name | t->n->o in content} + previous + tree + commit
+	children + previous + tree + commit
 }
 
 fun staged : Path -> State {
@@ -136,6 +161,9 @@ fact {
 	}
 }
 
+
+
+
 //run {} for 4 but exactly 1 State
 
 //run {all s : State | some modified.s and some deleted.s and some untracked.s} for 4 but exactly 1 State
@@ -165,8 +193,10 @@ pred add [p : Path, s,s' : State] {
 }
 
 pred rm [p : Path, s,s' : State] {
-	p in (node.s).path
-	path.p in File
+	p in (index.s).Blob
+
+	object.s' = object.s
+	index.s' = index.s - p->Blob
 	head.s' = head.s
 	HEAD.s' = HEAD.s
 	node.s' = node.s
@@ -176,3 +206,5 @@ pred rm [p : Path, s,s' : State] {
 
 
 //run add for 4 but 2 State
+=======
+run rm for 8 but exactly 2 State
