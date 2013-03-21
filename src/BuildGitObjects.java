@@ -101,7 +101,7 @@ public class BuildGitObjects {
 		pr.waitFor();
 	
 		line = br.readLine();
-		System.out.println("Blob hash :  " + line);
+		System.out.println("Blob hash : " + line);
 		br.close();
 		
 	
@@ -144,8 +144,6 @@ public class BuildGitObjects {
 				tree.append(line);
 			}
 			 
-			System.out.println("arvore:\n " + tree.toString());
-			 
 			String newpath = "output/"+pathindex;
 			 
 			File path = new File(newpath);
@@ -176,7 +174,7 @@ public class BuildGitObjects {
 			pr.waitFor();
 		
 			hashcode = br.readLine();
-			System.out.println("Tree hash :" + hashcode);
+			System.out.println("Tree hash : " + hashcode);
 			
 			br.close();
 			
@@ -697,7 +695,7 @@ public class BuildGitObjects {
 		A4TupleSet commits = (A4TupleSet) sol.eval(currentCommits);
 		while(commits.size() >0)
 		{
-			System.out.println(commits.size());
+			//System.out.println(commits.size());
 			buildCommits(sol,commits,previous,CompUtil.parseOneExpression_fromString(world, "tree").range(domain),mapAtom,mapObjsHash);
 			for(A4Tuple tc : commits)
 			{
@@ -714,7 +712,7 @@ public class BuildGitObjects {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
 		A4Tuple tup = res.iterator().next();
-		System.out.println(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
+		//System.out.println(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
 		
 	}
 	
@@ -731,9 +729,9 @@ public class BuildGitObjects {
 		{
 			entries  = new ArrayList<String>();
 			commit = mapAtom.get(t.atom(0));
-			System.out.println(t.atom(0));
+			//System.out.println(t.atom(0));
 			commitTree = ((A4TupleSet)sol.eval(commit.join(tree))).iterator().next();
-			System.out.println(commitTree.atom(0));
+		//	System.out.println(commitTree.atom(0));
 			prevCommits = (A4TupleSet) sol.eval(commit.join(previous));
 			
 			if(prevCommits.size()>0)
@@ -743,7 +741,7 @@ public class BuildGitObjects {
 				entries.add("FIRST_COMMIT");
 		 
 			treeHash =mapObjsHash.get(commitTree.atom(0));
-			System.out.println(treeHash);
+			//System.out.println(treeHash);
 			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"mensage",entries));
 		}
 	}
