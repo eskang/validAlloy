@@ -51,9 +51,11 @@ public class BuildGitObjects {
 			InputStreamReader isr = new InputStreamReader(in);
 			BufferedReader br = new BufferedReader(isr);
 	
+			pr.waitFor();	
+			
 			line = br.readLine();
 			br.close();
-			pr.waitFor();			
+					
 	
 	}catch(Exception exc){
 		exc.printStackTrace();
@@ -96,12 +98,12 @@ public class BuildGitObjects {
 		bw.write(blob);
 		bw.close();
 	
+		pr.waitFor();
 	
 		line = br.readLine();
-		System.out.println("blob hash:  " + line);
-		
+		System.out.println("Blob hash :  " + line);
 		br.close();
-		pr.waitFor();
+		
 	
 	
 	}catch(Exception exc){
@@ -170,13 +172,14 @@ public class BuildGitObjects {
 			bw.flush();
 			bw.write(tree.toString());
 			bw.close();
-		
+			
+			pr.waitFor();
 		
 			hashcode = br.readLine();
-			System.out.println("tree hash (apos mostrar tab)" + hashcode);
+			System.out.println("Tree hash :" + hashcode);
 			
 			br.close();
-			pr.waitFor();
+			
 		
 		
 		}catch(Exception exc){
@@ -258,11 +261,13 @@ public class BuildGitObjects {
 		   bw.close();
 		  
 		  
-		   hashcode = br.readLine();
-		   System.out.println("commit hash : "+ hashcode);
-		   
-		   br.close();
 		   pr.waitFor();
+		   
+		   hashcode = br.readLine();
+		   System.out.println("Commit hash : "+ hashcode);
+
+		   br.close();
+		  
 		  
 		  
 		  }catch(Exception exc){
@@ -294,9 +299,11 @@ public class BuildGitObjects {
 			InputStreamReader isr = new InputStreamReader(in);
 			BufferedReader br = new BufferedReader(isr);
 	
+			pr.waitFor();	
+			
 			line = br.readLine();
 			br.close();
-			pr.waitFor();			
+					
 	
 	}catch(Exception exc){
 		exc.printStackTrace();
@@ -422,10 +429,7 @@ public class BuildGitObjects {
 			cmds.add("git");
 			cmds.add("add");
 			cmds.add(file_name);
-			System.out.println("filename: " + file_name + "\npath: " + path);
 
-			
-			
 			pb = new ProcessBuilder(cmds);
 		
 		pb.directory(path);	
@@ -447,13 +451,13 @@ public class BuildGitObjects {
 		bw.flush();
 		//bw.write();
 		bw.close();
-		System.out.println(br.readLine());
+		
+		pr.waitFor();
 	
 		br.close();
 		
 		
 		
-		pr.waitFor();
 	
 	
 	}catch(Exception exc){
@@ -465,9 +469,6 @@ public class BuildGitObjects {
 	public static String gitCmd(ArrayList<String> cmds,String p){
 		
 		String return_string = null;
-		
-		System.out.println(cmds);
-		System.out.println(p);
 		
 		try{
 			
@@ -490,23 +491,33 @@ public class BuildGitObjects {
 			InputStream err = pr.getErrorStream();
 
 			InputStreamReader isr = new InputStreamReader(err);
+			InputStreamReader esr = new InputStreamReader(in);
 			OutputStreamWriter osr = new OutputStreamWriter(out);
 			
 			
 			BufferedReader br = new BufferedReader(isr);
+			BufferedReader br2 = new BufferedReader(esr);
 			BufferedWriter bw = new BufferedWriter(osr);
 			
 			bw.flush();
-			//bw.write();
 			bw.close();
-		//stem.out.println(br.readLine());
-		
-			
-		
-			
-		
-			
+
 			pr.waitFor();
+			
+			
+			if(br2.ready()){
+				
+				line = br2.readLine();
+				
+				if(line != null) lines = new StringBuilder();
+				
+				while(line != null){
+					lines.append(line+"\n");
+					
+					line = br2.readLine();
+					}
+				return_string = lines.toString();
+				}
 		
 			if(br.ready()){
 				
@@ -519,14 +530,10 @@ public class BuildGitObjects {
 					
 					line = br.readLine();
 					}
-				return_string = lines.toString();
-				System.out.println(return_string);
-				
-				
-				
+				return_string = lines.toString();		
 				}
 			
-			
+			br2.close();
 			br.close();
 			
 			
@@ -555,7 +562,6 @@ public class BuildGitObjects {
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
 		String filePath = buildPath(sol,parent,name,path,mapAtom);
-		System.out.println("fp: "+ filePath +"\np: "+ p);
 		gitAdd(filePath,p);
 	}
 	
@@ -597,7 +603,7 @@ public class BuildGitObjects {
 			}else n_cmds.add(n_cmd);
 		}
 			
-		gitCmd(n_cmds,p);
+		System.out.println("Result from "+ n_cmds+" on path "+p+":\n\n" +gitCmd(n_cmds,p));
 	}
 	
 	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash,HashMap<String,ExprVar>mapAtom, Expr state) throws Err
@@ -609,9 +615,9 @@ public class BuildGitObjects {
 		String path;
 		for (A4Tuple t : ts){
 			path = buildPath(sol,parent,name,mapAtom.get(t.atom(0)),mapAtom);
-			System.out.println("res map:" +mapObjsHash.get(t.atom(1)));
-			System.out.println("res path:" +path);
-			System.out.println("index res: "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
+			System.out.println("Res map   :" +mapObjsHash.get(t.atom(1)));
+			System.out.println("Res path  :" +path);
+			System.out.println("Index res : "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
 		}
 	}
 

@@ -59,7 +59,7 @@ public class Utils {
 		return res;
 	}
 	
-public static String diffPosPre(String pathindex){
+public static boolean diffPosPre(String pathindex){
 		
 		String line=null;
 		
@@ -101,6 +101,8 @@ public static String diffPosPre(String pathindex){
 			bw.close();
 		
 			
+			pr.waitFor();
+			
 			line = br.readLine();
 			
 			if(line != null) lines = new StringBuilder();
@@ -138,23 +140,18 @@ public static String diffPosPre(String pathindex){
 					}
 					catch ( IOException e){}
 			     }
-			}else
-			{
-				//TODO: Apagar path;
-			}
-			
+		
 			br.close();
 			
-			pr.waitFor();
+			}
 		
 		
 		}catch(Exception exc){
 			exc.printStackTrace();
 		}
-		
-	
-		
-		return line;
+
+
+		return (lines == null) ? true : false;
 		
 	}
 
@@ -289,6 +286,6 @@ public static String printindex(String pathindex){
 	 
 	Path tmodel = Paths.get(file+".tmp");
 	
-	Files.delete(tmodel);
+	Files.deleteIfExists(tmodel);
  }
 }
