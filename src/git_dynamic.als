@@ -1,9 +1,4 @@
-pred show[s,s':State,p:Path]
-{
-	s != s'
-	some Commit <: object.s
-	add[p,s,s']
-}
+
 
 sig State {}
 
@@ -98,10 +93,11 @@ fact MatichingObjectsToPaths {
 	}
 }
 
+/*
 check {
 	all s : State, c : object.s & Commit, o : Object | lone o.(c.path.s)
 } for 6 but 1 State
-
+*/
 sig Tag extends Object {
 	commit : one Commit,
 	name : one Name
@@ -180,7 +176,7 @@ pred other [s,s' : State] {
 //run other for 4 but 2 State
 
 // git add
-pred add [p : Path, s,s' : State] {
+pred add [s,s' : State,p : Path] {
 	p in (node.s).path
 	path.p in File
 	object.s' = object.s + (path.p).blob
@@ -192,7 +188,7 @@ pred add [p : Path, s,s' : State] {
 	root.s' = root.s
 }
 
-pred rm [p : Path, s,s' : State] {
+pred rm [s,s' : State,p : Path]{
 	p in (index.s).Blob
 
 	object.s' = object.s
@@ -202,9 +198,3 @@ pred rm [p : Path, s,s' : State] {
 	node.s' = node.s
 	root.s' = root.s
 }
-
-
-
-//run add for 4 but 2 State
-=======
-//run rm for 8 but exactly 2 State
