@@ -1,15 +1,15 @@
-run{some parent.node and some File} for 5 but exactly 1 State, exactly  3 Dir
+
 
 sig State {}
 
 // paths
 
 sig Name {
-	head : set State
+	HEAD : set State
 }
 
 sig Path {
-	name : Name,
+	name : one Name,
 	parent : lone Path,
 	index : Blob lone -> State
 }
@@ -58,7 +58,7 @@ fact {
 // git objects and index (see path)
 
 abstract sig Object {
-	object : set State
+	object : set State,
 }
 
 sig Blob extends Object {}
@@ -67,18 +67,44 @@ sig Tree extends Object {
 	content : Name -> lone (Blob+Tree)
 }
 
-sig Commit extends Object {
-	previous : set Commit,
-	tree : one Tree
+fun children : Object -> Object {
+	{t : Tree, o : Object | some n : Name | t->n->o in content} 
 }
 
+sig Commit extends Object {
+	previous : set Commit,
+	tree : one Tree,
+	path : (Tree+Blob) -> Path -> State
+}
+
+fact MatichingObjectsToPaths {
+	all s : State {
+		path.s in object.s -> object.s -> Path
+	}
+	all s : State, c : Commit & object.s { 
+		c.path.s in (c.tree.^children -> some Path)
+		all o : c.tree.children {
+			one o.(c.path.s) and no o.(c.path.s).parent and o.(c.path.s).name = c.tree.content.o
+		}
+		all o : c.tree.children.^children {
+			all p : (children.o).(c.path.s) | one p' : o.(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
+			all p' : o.(c.path.s) | one p : (children.o).(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
+		}
+	}
+}
+
+/*
+check {
+	all s : State, c : object.s & Commit, o : Object | lone o.(c.path.s)
+} for 6 but 1 State
+*/
 sig Tag extends Object {
 	commit : one Commit,
 	name : one Name
 }
 
 fun points : Object -> Object {
-	{t : Tree, o : Object | some n : Name | t->n->o in content} + previous + tree + commit
+	children + previous + tree + commit
 }
 
 fun staged : Path -> State {
@@ -97,11 +123,8 @@ fun untracked : Path -> State {
 	{p : Path, s : State | some path.p & File & node.s and no p.index.s}
 }
 
-/*
-check {
-	all s : State | deleted.s in modified.s
-} for 5
-*/
+//check {all s : State | deleted.s in modified.s} for 5
+
 fact {
 	// object is closed under refs
 	all s : State | (object.s).points in object.s
@@ -121,20 +144,23 @@ fact {
 
 // git references and head
 
-sig Ref extends Name {
-	ref : Object lone -> State
+sig Ref in Name {
+	head : Commit lone -> State
 }
 
 fact {
 	all s : State {
 		// there always exists one head
-		one head.s
+		one HEAD.s
 		// refs point to an object in the database
-		ref.s in Ref -> object.s
-		// if head points to something it must point to a commit
-		(head.s).(ref.s) in Commit
+		head.s in Ref -> object.s
 	}
 }
+
+
+
+
+//run {} for 4 but exactly 1 State
 
 //run {all s : State | some modified.s and some deleted.s and some untracked.s} for 4 but exactly 1 State
 
@@ -142,7 +168,7 @@ fact {
 pred other [s,s' : State] {
 	object.s' = object.s 
 	index.s' = index.s
-	ref.s' = ref.s
+//	ref.s' = ref.s
 	head.s' = head.s
 	not (node.s' = node.s and root.s' = root.s)
 }
@@ -150,17 +176,25 @@ pred other [s,s' : State] {
 //run other for 4 but 2 State
 
 // git add
-pred add [p : Path, s,s' : State] {
+pred add [s,s' : State,p : Path] {
 	p in (node.s).path
 	path.p in File
 	object.s' = object.s + (path.p).blob
 	index.s' = index.s ++ p->(path.p).blob
-	ref.s' = ref.s
+//	ref.s' = ref.s
 	head.s' = head.s
-
+	HEAD.s' = HEAD.s
 	node.s' = node.s
 	root.s' = root.s
 }
 
-//run add for 4 but 2 State
+pred rm [s,s' : State,p : Path]{
+	p in (index.s).Blob
 
+	object.s' = object.s
+	index.s' = index.s - p->Blob
+	head.s' = head.s
+	HEAD.s' = HEAD.s
+	node.s' = node.s
+	root.s' = root.s
+}

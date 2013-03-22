@@ -13,7 +13,9 @@ import java.util.Map;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
@@ -85,7 +87,7 @@ public class FileSystemBuilder {
 	 * @param		Number of filesystem to creat
 	 * @see         buildFileSystem
 	 */
-	public static void buildFileSystem(A4Solution sol,int i) throws Err
+	public static void buildFileSystem(A4Solution sol,int i,String pred_name,Module world,ExprVar preState,ExprVar posState) throws Err
 	{
 		 	//Get all Sigs and map them to their names(string)
 			Map<String,Sig.PrimSig> mapSigs = Helper.atom2sig(sol);
@@ -95,9 +97,6 @@ public class FileSystemBuilder {
 		
 			//Get all atoms and map them to their names(string)
 			HashMap<String,ExprVar> mapAtoms = atom2ObjectMapE(sol.getAllAtoms());
-		
-			//Get first state
-			ExprVar state0 = mapAtoms.get("State$0");
 		
 			//Get the sig Node
 			Sig nodeSig = sigs.get("this/Node");
@@ -110,30 +109,51 @@ public class FileSystemBuilder {
 			
 			//Get the root relation from the sig Dir
 			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
+			
 		
 			//Get the node relation from the sig Node (node maps Node with state)
 			Sig.Field nodeField = mapNodeFields.get("field (this/Node <: node)");
+		
+			//Get blob and name relation
+			Expr name = CompUtil.parseOneExpression_fromString(world, "Node <: name");
+			Expr blob = CompUtil.parseOneExpression_fromString(world,"blob"); 
 			
 			//Get the true root
-			A4TupleSet rootdir = (A4TupleSet) sol.eval((root.join(state0)).intersect(nodeField.join(state0)));
+			A4TupleSet preRootDir = (A4TupleSet) sol.eval((root.join(preState)).intersect(nodeField.join(preState)));
+			A4TupleSet posRootDir = (A4TupleSet) sol.eval((root.join(posState)).intersect(nodeField.join(posState)));
+			A4TupleSet preRootName= (A4TupleSet) sol.eval((root.join(preState)).intersect(nodeField.join(preState)).join(name));
+			A4TupleSet posRootName = (A4TupleSet) sol.eval((root.join(posState)).intersect(nodeField.join(posState)).join(name));
 			//Get the parent relation
 			Sig.Field parent = mapNodeFields.get("field (this/Node <: parent)");
 			
 			//Get the nodes in state0 that are parents
-			Expr parents = nodeField.join(state0).domain(parent);
-	
-			//defining output path
-			A4Tuple tupleroot = rootdir.iterator().next();
-			String path = tupleroot.atom(0).replace('$', '_');
-			path = "output/"+i+"/"+path;
-			Path p = Paths.get( path);
+			Expr preParents = nodeField.join(preState).domain(parent);
+			Expr posParents = nodeField.join(posState).domain(parent);
 			
-			try {
+			
+			//defining output path
+			A4Tuple preTupleRoot = preRootDir.iterator().next();
+			A4Tuple posTupleRoot = posRootDir.iterator().next();
+			A4Tuple preTupleRootName = preRootName.iterator().next();
+			A4Tuple posTupleRootName = posRootName.iterator().next();
+			
+			
+			String path = "output/"+pred_name+"/"+i+"/";
+			String prePath = path + "pre/" + preTupleRootName.atom(0).replace('$', '_');
+			String posPath = path + "pos/" + posTupleRootName.atom(0).replace('$', '_');
+			
+			Path preP = Paths.get( prePath);
+			Path posP = Paths.get(posPath);
+			
+			try {				
+				Files.createDirectories(preP);
+				buildTree(sol,prePath, preTupleRoot.atom(0), name,blob,preParents,mapAtoms,mapSigs);
 				
-
+				Files.createDirectories(posP);
+				buildTree(sol,posPath, posTupleRoot.atom(0), name,blob,posParents,mapAtoms,mapSigs);
 				
-				Files.createDirectories(p);
-				buildTree(sol,path, tupleroot.atom(0), parents,mapAtoms,mapSigs);
+				
+				
 			}catch (IOException e) { System.out.println("IOException, Directory already exists!\n");}
 		}
 	
@@ -150,22 +170,32 @@ public class FileSystemBuilder {
 	 * @param		Map<String,Sig.PrimSig> mapSig
 	 * @see         buildTree
 	 */
-	private static void buildTree(A4Solution sol,String path, String atom, Expr parent,HashMap<String,ExprVar> mapAtom,Map<String,Sig.PrimSig> mapSig) throws Err, IOException
+	private static void buildTree(A4Solution sol,String path, String atom, Expr name,Expr blob,Expr parent,HashMap<String,ExprVar> mapAtom,Map<String,Sig.PrimSig> mapSig) throws Err, IOException
 	{
 		ExprVar current = mapAtom.get(atom);
-
+//TODO
+		
+	
 		A4TupleSet children = (A4TupleSet) sol.eval(parent.join(current));
 		for(A4Tuple child : children)
 		{
-			String newpath = path +"/" +child.atom(0).replace('$', '_');
+			
+			A4TupleSet names = (A4TupleSet) sol.eval(mapAtom.get(child.atom(0)).join(name));
+			String newpath = path +"/" +names.iterator().next().atom(0).replace('$', '_');
 			Path p = Paths.get(newpath);
 			if(mapSig.get(child.atom(0)).toString().equals("this/Dir"))
-			{
+			{			
 				Files.createDirectory(p);
-				buildTree(sol,newpath,child.atom(0),parent,mapAtom,mapSig);
+				buildTree(sol,newpath,child.atom(0),name,blob,parent,mapAtom,mapSig);
 			}
 			else 
+			{
+				A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtom.get(child.atom(0)).join(blob));
 				Files.createFile(p);
+				Files.write(p, blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));
+			}
+			
+			
 		}
 	}
 }
