@@ -14,7 +14,7 @@ Our case study is git.
 git clone https://github.com/eskang/validAlloy.git
 cd validAlloy
 git checkout master
-chmod u+x vallidAlloy.sh
+chmod u+x validAlloy.sh
 ```
 
 * Compile the java source files by running `makefile` .
