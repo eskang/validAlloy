@@ -1,10 +1,43 @@
-validAlloy
-==========
+# validAlloy
 
-A tool for validating Alloy specifications using test-case generation
+A tool for validating Alloy specifications using test-case generation.
 
-To compile on bash, use make.
-To run, first you must chmod u+x vallidAlloy.sh .
-Then to execute ./vallidAlloy [config_file] .
+## Case Study
 
+Our case study is git.
 
+## Installing
+
+* Download the latest code from the git repository:
+
+```
+git clone https://github.com/eskang/validAlloy.git
+cd validAlloy
+git checkout master
+chmod u+x vallidAlloy.sh
+```
+
+* Compile the java source files by running `makefile`
+
+The result will be in bin directory.
+
+## Running
+
+To run validAlloy just execute the script on bash with a config file.
+```
+./validAlloy [path_to_config_file]
+```
+
+## Info
+
+This project is being developed at University of Minho, and is the cohesive Project from Master in Computing Engineering in Formal Methods in Software Engineering. The project was proposed by CSAIL at MIT.
+
+## Authors 
+
+* José Pinheiro
+* Tiago Guimarães
+
+## Supervisors
+
+* Alcino Cunha
+* Eunsuk Kang 

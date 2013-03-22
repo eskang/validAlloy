@@ -585,12 +585,10 @@ public class BuildGitObjects {
 	}
 	
 	
-	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception
+	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception 
 	{ 
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
-	//	System.out.println("fp: "+ filePath +"\np: "+ p);
-		
 		ArrayList<String> n_cmds = new ArrayList<String>();
 		
 		n_cmds.add("git");
@@ -603,9 +601,13 @@ public class BuildGitObjects {
 			if(n_cmd.matches("#[a-zA-Z0-9]*")){
 				n_cmds.add(buildType(vars,n_cmd,sol,mapAtom,parent,name,path));
 			}else n_cmds.add(n_cmd);
+		};	
+	    
+		try {
+			gitCmd(n_cmds,p);
+		} catch (Exception e) {
+			throw new Exception("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
 		}
-			
-		System.out.println("Result from "+ n_cmds+" on path "+p+":\n\n" +gitCmd(n_cmds,p));
 		
 	
 	}
