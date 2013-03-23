@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 
+import org.pmw.tinylog.Logger;
 
 
 import edu.mit.csail.sdg.alloy4.Err;
@@ -27,7 +28,6 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 public class BuildGitObjects {
 
 	private static String pathindex;
-		
 	public static String gitInit(){
 		
 		String line = new String();
@@ -100,7 +100,7 @@ public class BuildGitObjects {
 		pr.waitFor();
 	
 		line = br.readLine();
-		System.out.println("Blob hash : " + line);
+		Logger.trace("Blob hash : " + line);
 		br.close();
 		
 	
@@ -172,7 +172,7 @@ public class BuildGitObjects {
 			pr.waitFor();
 		
 			hashcode = br.readLine();
-			System.out.println("Tree hash : " + hashcode);
+			Logger.trace("Tree hash : " + hashcode);
 			
 			br.close();
 			
@@ -259,7 +259,7 @@ public class BuildGitObjects {
 		   pr.waitFor();
 		   
 		   hashcode = br.readLine();
-		   System.out.println("Commit hash : "+ hashcode);
+		   Logger.trace("Commit hash : "+ hashcode);
 
 		   br.close();
 		  
@@ -530,6 +530,7 @@ public class BuildGitObjects {
 					line = br.readLine();
 					}
 				return_string = lines.toString();
+				Logger.error(return_string);
 				}
 			
 			br2.close();
@@ -621,9 +622,9 @@ public class BuildGitObjects {
 		String path;
 		for (A4Tuple t : ts){
 			path = buildPath(sol,parent,name,mapAtom.get(t.atom(0)),mapAtom);
-			System.out.println("Res map   :" +mapObjsHash.get(t.atom(1)));
-			System.out.println("Res path  :" +path);
-			System.out.println("Index res : "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
+			Logger.trace("Res map   :" +mapObjsHash.get(t.atom(1)));
+			Logger.trace("Res path  :" +path);
+			Logger.trace("Index res : "+ buildGitIndexEntry(mapObjsHash.get(t.atom(1)),path));
 		}
 	}
 
@@ -699,7 +700,7 @@ public class BuildGitObjects {
 		A4TupleSet commits = (A4TupleSet) sol.eval(currentCommits);
 		while(commits.size() >0)
 		{
-			//System.out.println(commits.size());
+			//Logger.trace(commits.size());
 			buildCommits(sol,commits,previous,CompUtil.parseOneExpression_fromString(world, "tree").range(domain),mapAtom,mapObjsHash);
 			for(A4Tuple tc : commits)
 			{
@@ -716,7 +717,7 @@ public class BuildGitObjects {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
 		A4Tuple tup = res.iterator().next();
-		//System.out.println(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
+		//Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
 		
 	}
 	
@@ -733,9 +734,9 @@ public class BuildGitObjects {
 		{
 			entries  = new ArrayList<String>();
 			commit = mapAtom.get(t.atom(0));
-			//System.out.println(t.atom(0));
+			//Logger.trace(t.atom(0));
 			commitTree = ((A4TupleSet)sol.eval(commit.join(tree))).iterator().next();
-		//	System.out.println(commitTree.atom(0));
+		//	Logger.trace(commitTree.atom(0));
 			prevCommits = (A4TupleSet) sol.eval(commit.join(previous));
 			
 			if(prevCommits.size()>0)
@@ -745,7 +746,7 @@ public class BuildGitObjects {
 				entries.add("FIRST_COMMIT");
 		 
 			treeHash =mapObjsHash.get(commitTree.atom(0));
-			//System.out.println(treeHash);
+			//Logger.trace(treeHash);
 			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"mensage",entries));
 		}
 	}

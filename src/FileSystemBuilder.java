@@ -20,6 +20,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 import edu.mit.csail.sdg.alloy4whole.Helper;
+import org.pmw.tinylog.Logger;
 
 
 

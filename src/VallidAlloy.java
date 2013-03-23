@@ -1,4 +1,5 @@
 import java.io.File;
+
 import java.io.IOException;
 
 import java.nio.file.Files;
@@ -6,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
@@ -20,6 +20,9 @@ import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
 import org.antlr.runtime.*;
 import org.apache.commons.io.FileUtils;
+import org.pmw.tinylog.Configurator;
+import org.pmw.tinylog.Logger;
+import org.pmw.tinylog.writers.FileWriter;
 
 
 public class VallidAlloy {
@@ -43,7 +46,7 @@ public class VallidAlloy {
 	            }
 	        };
 	        
-	        
+
 	        ArrayList<HashMap<String,String>> vars = null ; 
  			ArrayList<ArrayList<String>> arg = null;
  			ArrayList<ArrayList<String>> opts = null ;
@@ -55,7 +58,6 @@ public class VallidAlloy {
 
     		
     		FileUtils.deleteDirectory(new File("output"));
-    		
     		System.out.println("===========         Parsing + Typechecking          =========== ");
     		
     		CfgLexer lex = new CfgLexer(new ANTLRFileStream(input_text, "UTF8"));
@@ -64,6 +66,7 @@ public class VallidAlloy {
             	CfgParser g = new CfgParser(tokens);
                   	
             	try {
+            		Logger.info("Parsing Config File \n");
             		
             		CfgParser.cfg_return cfg_obj = g.cfg();
             	
@@ -76,9 +79,9 @@ public class VallidAlloy {
             		n_cmds = cfg_obj.n_comands;
             		n_runs = cfg_obj.n_runs;
             		
-            		System.out.println("Config File			: "+ input_text);
-            		System.out.println("Number of runs		: "+n_runs);
-	    			System.out.println("Number of commands	: " +n_cmds);
+            		System.out.println("Config File         : "+ input_text);
+            		System.out.println("Number of runs      : "+n_runs);
+	    			System.out.println("Number of commands  : " +n_cmds);
     			
           
     			
@@ -96,6 +99,8 @@ public class VallidAlloy {
         Utils.delTemporaryModel("src/git_dynamic.als");	
         	
         Module world = CompUtil.parseEverything_fromFile(rep, null, Utils.addPred("src/git_dynamic.als", preds.get(j), scopes.get(j)));
+       
+        Logger.info("Parsing Alloy File for "+preds.get(j));
         
         A4Solution sol=null ;
         
@@ -107,18 +112,22 @@ public class VallidAlloy {
         
         
         System.out.println("=========== Getting  solutions from git_dynamic.als =========== ");
-    	System.out.println("Variables 	: " +vars.get(j));
-      	System.out.println("Predicate 	: " +preds.get(j));
-      	System.out.println("Arguments  	: " +arg.get(j));
-		System.out.println("Scope 		: " +scopes.get(j));
-		System.out.println("Command 	: "+ cmds.get(j));
-		System.out.println("Options		: " +opts.get(j));
-        
+    	System.out.println("Variables           : " +vars.get(j));
+      	System.out.println("Predicate           : " +preds.get(j));
+      	System.out.println("Arguments           : " +arg.get(j));
+		System.out.println("Scope               : " +scopes.get(j));
+		System.out.println("Commands            : "+ cmds.get(j));
+		System.out.println("Options             : " +opts.get(j));
+		System.out.println("===========             Running Instances           =========== ");
+		
 		boolean flagerr;	
         for(int i =0; i< test_iterations;i++){
         	flagerr = false;
-        	System.out.println("********* Beginning of Instance : "+i+" ********* ");
         	
+        	System.out.print("\rInstance            : " + i);
+      
+
+        	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
   
 	        String newpath = null;
 	        Path p  = null;
@@ -162,10 +171,10 @@ public class VallidAlloy {
         		
         		String cmdpath = "output/"+preds.get(j)+"/"+Integer.toString(i);
         		
-        		System.out.println("\nInstance "+i+" preState\n________________________________________________________________");
+        		Logger.info("Instance "+i+" preState\n________________________________________________________________");
         		BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pre",preState,mapAtom);
         		
-        		System.out.println("\nInstance "+i+" posState\n________________________________________________________________");
+        		Logger.info("Instance "+i+" posState\n________________________________________________________________");
         		BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
         		
         		try {
@@ -188,22 +197,27 @@ public class VallidAlloy {
         				FileUtils.deleteDirectory(new File(cmdpath));
         			} else sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");
         		}
-        		System.out.println("********* End of Instance       : "+i+" ********* ");		
+        		Logger.info("********* End of Instance       : "+i+" ********* ");		
         		}
         	sol=sol.next();
         	
         } 
-        System.out.println("===========             Command terminated          =========== ");
+        System.out.println("\n===========             Command terminated          =========== ");
         }
         Utils.delTemporaryModel("src/git_dynamic.als");
        
+     
 	}
 
 	
 	public static void main(String[] args)  throws Err, IOException{
+	
+		System.out.println("===========                ValidAlloy               =========== ");
 
 	    	if(args.length == 1){
+	    		
 	    	executeVallidAlloy(args[0]);
+	    	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output"),false);
 	      } else System.out.println("Must provide config file to vallidAlloy");
 	}
 }	
