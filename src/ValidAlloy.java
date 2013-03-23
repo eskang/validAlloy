@@ -25,7 +25,7 @@ import org.pmw.tinylog.Logger;
 import org.pmw.tinylog.writers.FileWriter;
 
 
-public class VallidAlloy {
+public class ValidAlloy {
 	/**
 	 * Main method that buils a number of git filesystems, from a number of alloy instances.
 	 * It has two inputs, the file with the alloy model and the number of git filesystem to create
@@ -37,7 +37,7 @@ public class VallidAlloy {
 	 * @throws Err 
 	 * @see         main
 	 */
-	public static void executeVallidAlloy(String input_text) throws IOException, Err{
+	public static void executeValidAlloy(String input_text) throws IOException, Err{
 		 A4Reporter rep = new A4Reporter() {
 	            // For example, here we choose to display each "warning" by printing it to System.out
 	            @Override public void warning(ErrorWarning msg) {
@@ -216,7 +216,7 @@ public class VallidAlloy {
 
 	    	if(args.length == 1){
 	    		
-	    	executeVallidAlloy(args[0]);
+	    	executeValidAlloy(args[0]);
 	    	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output"),false);
 	      } else System.out.println("Must provide config file to vallidAlloy");
 	}
