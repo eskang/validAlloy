@@ -196,12 +196,12 @@ pred rm [s,s' : State,p : Path]{
 	
 
 	//behaviour
-	object.s' = object.s
 	index.s' = index.s - p->Blob
 	node.s' = node.s - path.p
 	
 
 	//stuff that stays the same
+	object.s' = object.s
 	head.s' = head.s
 	HEAD.s' = HEAD.s
 	root.s' = root.s
