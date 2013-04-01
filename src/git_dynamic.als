@@ -188,13 +188,21 @@ pred add [s,s' : State,p : Path] {
 	root.s' = root.s
 }
 
-pred rm [s,s' : State,p : Path]{
-	p in (index.s).Blob
 
+
+pred rm [s,s' : State,p : Path]{
+	//preconditions
+	p in (index.s).Blob
+	
+
+	//behaviour
 	object.s' = object.s
 	index.s' = index.s - p->Blob
+	node.s' = node.s - path.p
+	
+
+	//stuff that stays the same
 	head.s' = head.s
 	HEAD.s' = HEAD.s
-	node.s' = node.s
 	root.s' = root.s
 }
