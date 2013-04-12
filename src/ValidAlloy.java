@@ -213,12 +213,17 @@ public class ValidAlloy {
 	public static void main(String[] args)  throws Err, IOException{
 	
 		System.out.println("===========                ValidAlloy               =========== ");
+		
 
 	    	if(args.length == 1){
 	    		
+	    		
+	    		
 	    	executeValidAlloy(args[0]);
 	    	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output"),false);
+	    	
 	      } else System.out.println("Must provide config file to vallidAlloy");
+	    	System.out.println("===========           ValidAlloy terminated         =========== ");
 	}
 }	
 	
