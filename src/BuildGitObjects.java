@@ -36,7 +36,11 @@ public class BuildGitObjects {
 			 
 			 File path = new File(newpath);
 			
+			
+			 
 			ProcessBuilder pb = new ProcessBuilder("git","init");
+			
+			Logger.trace("Git init on output/" + pathindex);
 			
 			pb.directory(path);	
 			
@@ -75,7 +79,7 @@ public class BuildGitObjects {
 		 File path = new File(newpath);
 		
 		ProcessBuilder pb = new ProcessBuilder("git","hash-object","-w","--stdin");
-		
+		Logger.trace("Creating blob on output/" + pathindex +":" + blob);
 		pb.directory(path);	
 		
 		Process pr = pb.start();
@@ -146,6 +150,8 @@ public class BuildGitObjects {
 			 
 			File path = new File(newpath);
 			
+			Logger.trace("Building tree on output/" + pathindex +" : "+ entrys);
+			
 			ProcessBuilder pb = new ProcessBuilder("git","mktree");
 			
 			pb.directory(path);	
@@ -194,6 +200,8 @@ public class BuildGitObjects {
 		 String newpath = "output/"+pathindex;
 	    
 	     File path = new File(newpath);
+	     
+	     Logger.trace("Building commit tree on output/" + pathindex +" : "+ commits +"with"+ tree_hashcode);
 	     
 	     ProcessBuilder pb;
 		   
@@ -281,6 +289,7 @@ public class BuildGitObjects {
 			File path = new File(newpath);
 			
 			ProcessBuilder pb = new ProcessBuilder("git","symbolic-ref","HEAD",path_name);
+			Logger.trace("Setting Head output/" + pathindex +" : "+ path_name);
 			
 			pb.directory(path);	
 			
@@ -322,6 +331,8 @@ public class BuildGitObjects {
 			cmds.add(commit_hashcode);
 			
 			pb = new ProcessBuilder(cmds);
+		
+		Logger.trace("Setting heads on output/" + pathindex +" : "+ cmds);
 		
 		pb.directory(path);	
 		
@@ -377,6 +388,7 @@ public class BuildGitObjects {
 			cmds.add(file_name);
 			
 			pb = new ProcessBuilder(cmds);
+			Logger.trace("Building index entry on output/" + pathindex +" : "+ cmds);
 		
 		pb.directory(path);	
 		
