@@ -193,7 +193,7 @@ pred add [s,s' : State,p : Path] {
 pred rm [s,s' : State,p : Path]{
 	//preconditions
 	p in (index.s).Blob //path must be in index
-	/*no path.p & node.s or */one f:path.p & node.s | f.blob = p.index.s  //contents on file must match contents on index
+	/*no path.p & node.s or */one f:path.p :> node.s | f.blob = p.index.s  //contents on file must match contents on index
 	some o:(((HEAD.s).head.s).path.s).p| o in p.index.s //p must be unmodified since the last commit
 	 
 	

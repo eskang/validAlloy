@@ -870,7 +870,7 @@ public class BuildGitObjects {
 			for(A4Tuple line: lines)
 			{
 				//path = buildPath(sol,parent,name,mapAtoms.get(line.atom(0)),mapAtoms);
-				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),line.atom(0)));
+				entries.add(buildTreeEntry(line.sig(1).toString(),mapObjsHash.get(line.atom(1)),line.atom(0).replace("$", "_")));
 			}
 			mapObjsHash.put(t.atom(0),buildGitTree(entries));
 		}
