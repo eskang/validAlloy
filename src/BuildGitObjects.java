@@ -649,8 +649,17 @@ public class BuildGitObjects {
 		
 		buildIndex(sol,world,mapObjsHash,mapAtom,iState);
 		
+		buildRefs(sol,world,iState,mapObjsHash);
+		
 		placeHEAD(sol,world,iState);
 	}		
+	public static void buildRefs(A4Solution sol,Module world, ExprVar iState,HashMap<String,String> mapObjHash) throws Err
+	{
+		Expr head = CompUtil.parseOneExpression_fromString(world, "head").join(iState);
+		A4TupleSet ts = (A4TupleSet) sol.eval(head);
+		for(A4Tuple t : ts)
+			buildGitRef(mapObjHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
+	}
 	
 	public static void treeBuilder(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err
 	{
@@ -717,7 +726,7 @@ public class BuildGitObjects {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
 		A4Tuple tup = res.iterator().next();
-		//Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
+		Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
 		
 	}
 	
@@ -747,7 +756,7 @@ public class BuildGitObjects {
 		 
 			treeHash =mapObjsHash.get(commitTree.atom(0));
 			//Logger.trace(treeHash);
-			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"mensage",entries));
+			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"message",entries));
 		}
 	}
 	
