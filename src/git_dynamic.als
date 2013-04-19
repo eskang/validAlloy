@@ -102,6 +102,12 @@ sig Tag extends Object {
 	name : one Name
 }
 
+fun siblings : Path -> Path{
+	
+	{p1:Path, p2:Path | p1.parent = p2.parent and p1 != p2}
+
+}
+
 fun points : Object -> Object {
 	children + previous + tree + commit
 }
@@ -193,7 +199,7 @@ pred add [s,s' : State,p : Path] {
 pred rm [s,s' : State,p : Path]{
 	//preconditions
 	p in (index.s).Blob //path must be in index
-	/*no path.p & node.s or */one f:path.p :> node.s | f.blob = p.index.s  //contents on file must match contents on index
+	no path.p & node.s or one f:path.p & node.s | f.blob = p.index.s  //contents on file must match contents on index
 	some o:(((HEAD.s).head.s).path.s).p| o in p.index.s //p must be unmodified since the last commit
 	 
 	
@@ -201,7 +207,8 @@ pred rm [s,s' : State,p : Path]{
 	
 	
 	
-	path.p in File & node.s //not sure about this
+	some path.p & node.s => some path.(p.siblings) & node.s //too strong, because i am not yet deleting empty folders.
+	path.p in File & node.s //too strong because i am not yet processing the rm of folders
 	
 
 	/*no path.p
