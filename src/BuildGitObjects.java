@@ -83,6 +83,12 @@ public class BuildGitObjects {
 		Logger.trace("Creating blob on output/" + pathindex +":" + blob);
 		pb.directory(path);	
 		
+		
+		 Map<String, String> env = pb.environment();
+	     env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+	     env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+		
+		
 		Process pr = pb.start();
 		
 	
@@ -376,6 +382,11 @@ public class BuildGitObjects {
 			
 			pb.directory(path);	
 			
+			 Map<String, String> env = pb.environment();
+		     env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+		     env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+			
+			
 			Process pr = pb.start();
 			
 			OutputStream out = pr.getOutputStream();
@@ -418,6 +429,11 @@ public class BuildGitObjects {
 		Logger.trace("Setting heads on output/" + pathindex +" : "+ cmds);
 		
 		pb.directory(path);	
+		
+	    Map<String, String> env = pb.environment();
+	    env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+	    env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+		
 		
 		Process pr = pb.start();
 		
@@ -474,6 +490,11 @@ public class BuildGitObjects {
 			Logger.trace("Building index entry on output/" + pathindex +" : "+ cmds);
 		
 		pb.directory(path);	
+		
+	    Map<String, String> env = pb.environment();
+	    env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+	    env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+		
 		
 		Process pr = pb.start();
 		
