@@ -177,7 +177,7 @@ public class ValidAlloy {
         		BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
         		
         		try {
-					BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(j),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
+					BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
 				} catch (Exception e) {
 					Path p_e = Paths.get(cmdpath+"/git_errors.txt");
 					Files.createFile(p_e);
