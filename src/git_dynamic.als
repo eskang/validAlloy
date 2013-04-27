@@ -228,22 +228,22 @@ pred oldrm [s,s' : State,p : Path]{
 	root.s' = root.s
 }
 
+//run rmAB{} for 5 but 2 State
 
 --The files being removed have to be identical to the tip of the branch
 pred rmConditionA[s:State,p:Path]{
-		all o:(((HEAD.s).head.s).path.s).p | o = (path.p & node.s).blob
+		(((HEAD.s).head.s).path.s).p & Blob = (path.p & node.s).blob
 }
 
  --in man pages: no updates to their contents can be staged in the index. (lies)
--- porposed: if the file existes then the sentence above holds.
 pred rmConditionB[s:State,p:Path]{
-	 all f:path.p & node.s | f.blob = p.index.s 
-}
+	  (((HEAD.s).head.s).path.s).p = p.index.s 
 
+}
+/*
 pred rmConditionManPageB[s:State,p:Path]{
 	all f:path.p & File | f.blob = p.index.s
-}
-
+}*/
 
 pred rmAB[s,s':State,p:Path]{
 	rmConditionA[s,p]
@@ -253,14 +253,14 @@ pred rmAB[s,s':State,p:Path]{
 
 
 pred rmA[s,s':State,p:Path]{
-	not rmConditionA[s,p]
-	rmConditionB[s,p]
+	rmConditionA[s,p]
+	not rmConditionB[s,p]
 	rmBehaviour[s,s',p]
 }
 
 pred rmB[s,s':State,p:Path]{
-	rmConditionA[s,p]
-	not rmConditionB[s,p]
+	not rmConditionA[s,p]
+	rmConditionB[s,p]
 	rmBehaviour[s,s',p]
 }
 
@@ -274,8 +274,8 @@ pred rmNOP[s,s':State,p:Path]{
 
 pred rmBehaviour[s,s':State,p:Path]{
 
-	-- the path must be in the file system or be exist in the trees or index
-	p in (node.s).path or p in univ.(((HEAD.s).head.s).path.s) or p in (index.s).univ
+	-- the path must be in the index
+	p in (index.s).univ
 
 	some path.p & node.s => some path.(p.siblings) & node.s //too strong, because i am not yet deleting empty folders.
 	path.p in File & node.s //too strong because i am not yet processing the rm of folders
