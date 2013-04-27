@@ -196,7 +196,7 @@ pred add [s,s' : State,p : Path] {
 
 //run rm for 4 but exactly 2 State
 
-pred rm [s,s' : State,p : Path]{
+pred oldrm [s,s' : State,p : Path]{
 	//preconditions
 	p in (index.s).Blob //path must be in index
 	no path.p & node.s or one f:path.p & node.s | f.blob = p.index.s  //contents on file must match contents on index
@@ -227,3 +227,74 @@ pred rm [s,s' : State,p : Path]{
 	HEAD.s' = HEAD.s
 	root.s' = root.s
 }
+
+//run rmAB{} for 5 but 2 State
+
+--The files being removed have to be identical to the tip of the branch
+pred rmConditionA[s:State,p:Path]{
+		(((HEAD.s).head.s).path.s).p & Blob = (path.p & node.s).blob
+}
+
+ --in man pages: no updates to their contents can be staged in the index.
+pred rmConditionB[s:State,p:Path]{
+	  (((HEAD.s).head.s).path.s).p = p.index.s 
+
+}
+/*
+pred rmConditionManPageB[s:State,p:Path]{
+	all f:path.p & File | f.blob = p.index.s
+}*/
+
+pred rmAB[s,s':State,p:Path]{
+	rmConditionA[s,p]
+	rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+
+pred rmA[s,s':State,p:Path]{
+	rmConditionA[s,p]
+	not rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmB[s,s':State,p:Path]{
+	not rmConditionA[s,p]
+	rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmNOP[s,s':State,p:Path]{
+	not rmConditionA[s,p]
+	not rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+
+
+pred rmBehaviour[s,s':State,p:Path]{
+
+	-- the path must be in the index
+	p in (index.s).univ
+
+	some path.p & node.s => some path.(p.siblings) & node.s //too strong, because i am not yet deleting empty folders.
+	path.p in File & node.s //too strong because i am not yet processing the rm of folders
+	
+	
+	//behaviour
+	index.s' = index.s - p->Blob
+	node.s' = node.s - path.p
+	
+
+	//stuff that stays the same
+	object.s' = object.s
+	head.s' = head.s
+	HEAD.s' = HEAD.s
+	root.s' = root.s
+}
+
+
+
+
+
+
