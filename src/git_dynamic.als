@@ -235,7 +235,7 @@ pred rmConditionA[s:State,p:Path]{
 		(((HEAD.s).head.s).path.s).p & Blob = (path.p & node.s).blob
 }
 
- --in man pages: no updates to their contents can be staged in the index. (lies)
+ --in man pages: no updates to their contents can be staged in the index.
 pred rmConditionB[s:State,p:Path]{
 	  (((HEAD.s).head.s).path.s).p = p.index.s 
 
@@ -292,11 +292,6 @@ pred rmBehaviour[s,s':State,p:Path]{
 	HEAD.s' = HEAD.s
 	root.s' = root.s
 }
-
-
-
-
-
 
 
 
