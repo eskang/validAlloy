@@ -5,8 +5,14 @@ use File::Find;
 use File::Path qw( rmtree );
 use File::Spec::Functions qw( catfile );
 
+my @dirs;
+
+
 find(\&rm_errors, $_) for @ARGV;
 
+for my $p (@dirs){
+	rmtree($p) or die($!);
+}
 sub rm_errors{
     if ($_ eq "git_errors.txt"){
         print $File::Find::name,"\n";
@@ -14,8 +20,6 @@ sub rm_errors{
         my $path =  catfile $File::Find::dir;
         print File::Spec->path(), "\n";
         print $path,"\n";
-        rmtree( $path );
-        exec('echo',$path);
-        exec('rm','-rf',$path);
+	push @dirs, $path;
        } 
 } 
