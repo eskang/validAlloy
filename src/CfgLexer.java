@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-03-14 19:18:50
+// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-05-09 23:04:07
 
 import org.antlr.runtime.*;
 import java.util.Stack;
@@ -338,8 +338,8 @@ public class CfgLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:208:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:208:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
             {
             if ( input.LA(1)=='-'||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -351,7 +351,7 @@ public class CfgLexer extends Lexer {
             }
 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:208:35: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:35: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
             loop1:
             do {
                 int alt1=2;
@@ -401,10 +401,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = INT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:211:5: ( ( '0' .. '9' )+ )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:211:7: ( '0' .. '9' )+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:5: ( ( '0' .. '9' )+ )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:7: ( '0' .. '9' )+
             {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:211:7: ( '0' .. '9' )+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:7: ( '0' .. '9' )+
             int cnt2=0;
             loop2:
             do {
@@ -459,8 +459,8 @@ public class CfgLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:9: ( ' ' | '\\t' | '\\r' | '\\n' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:220:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:220:9: ( ' ' | '\\t' | '\\r' | '\\n' )
             {
             if ( (input.LA(1) >= '\t' && input.LA(1) <= '\n')||input.LA(1)=='\r'||input.LA(1)==' ' ) {
                 input.consume();
@@ -490,12 +490,12 @@ public class CfgLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:222:5: ( '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:222:8: '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:5: ( '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:8: '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"'
             {
             match('\"'); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:222:12: ( ESC_SEQ |~ ( '\\\\' | '\"' ) )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:12: ( ESC_SEQ |~ ( '\\\\' | '\"' ) )*
             loop3:
             do {
                 int alt3=3;
@@ -511,7 +511,7 @@ public class CfgLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:222:14: ESC_SEQ
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:14: ESC_SEQ
             	    {
             	    mESC_SEQ(); 
 
@@ -519,7 +519,7 @@ public class CfgLexer extends Lexer {
             	    }
             	    break;
             	case 2 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:222:24: ~ ( '\\\\' | '\"' )
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:24: ~ ( '\\\\' | '\"' )
             	    {
             	    if ( (input.LA(1) >= '\u0000' && input.LA(1) <= '!')||(input.LA(1) >= '#' && input.LA(1) <= '[')||(input.LA(1) >= ']' && input.LA(1) <= '\uFFFF') ) {
             	        input.consume();
@@ -558,12 +558,12 @@ public class CfgLexer extends Lexer {
         try {
             int _type = CHAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:5: ( '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\'' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:8: '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\''
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:5: ( '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\'' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:8: '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\''
             {
             match('\''); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:13: ( ESC_SEQ |~ ( '\\'' | '\\\\' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:13: ( ESC_SEQ |~ ( '\\'' | '\\\\' ) )
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -582,7 +582,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt4) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:15: ESC_SEQ
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:15: ESC_SEQ
                     {
                     mESC_SEQ(); 
 
@@ -590,7 +590,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:25: ~ ( '\\'' | '\\\\' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:25: ~ ( '\\'' | '\\\\' )
                     {
                     if ( (input.LA(1) >= '\u0000' && input.LA(1) <= '&')||(input.LA(1) >= '(' && input.LA(1) <= '[')||(input.LA(1) >= ']' && input.LA(1) <= '\uFFFF') ) {
                         input.consume();
@@ -624,7 +624,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:230:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:236:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
             // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'F')||(input.LA(1) >= 'a' && input.LA(1) <= 'f') ) {
@@ -650,7 +650,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "ESC_SEQ"
     public final void mESC_SEQ() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:234:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
             int alt5=3;
             int LA5_0 = input.LA(1);
 
@@ -703,7 +703,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt5) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:234:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
                     {
                     match('\\'); 
 
@@ -720,7 +720,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:235:9: UNICODE_ESC
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:241:9: UNICODE_ESC
                     {
                     mUNICODE_ESC(); 
 
@@ -728,7 +728,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:236:9: OCTAL_ESC
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:242:9: OCTAL_ESC
                     {
                     mOCTAL_ESC(); 
 
@@ -748,7 +748,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "OCTAL_ESC"
     public final void mOCTAL_ESC() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:241:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:247:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
             int alt6=3;
             int LA6_0 = input.LA(1);
 
@@ -799,7 +799,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt6) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:241:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:247:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -836,7 +836,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:242:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:248:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -863,7 +863,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:243:9: '\\\\' ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:249:9: '\\\\' ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -892,8 +892,8 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "UNICODE_ESC"
     public final void mUNICODE_ESC() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:248:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:248:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
             {
             match('\\'); 
 

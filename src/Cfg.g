@@ -191,7 +191,13 @@ opt returns [String op]
 	{
 	$opt.op = $arg.ag;
 	}
+	| s=STRING
+	{
+	$opt.op = $s.text;
+	}
 	;
+	
+	
 name 
 	: ID
 	;

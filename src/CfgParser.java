@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-03-14 19:18:50
+// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-05-09 23:04:07
 
 
 import java.util.ArrayList;
@@ -1049,7 +1049,7 @@ public class CfgParser extends Parser {
                 int alt8=2;
                 int LA8_0 = input.LA(1);
 
-                if ( (LA8_0==ID||LA8_0==13) ) {
+                if ( (LA8_0==ID||LA8_0==STRING||LA8_0==13) ) {
                     alt8=1;
                 }
 
@@ -1097,33 +1097,43 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "opt"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:185:1: opt returns [String op] : (i= ID | arg[false] );
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:185:1: opt returns [String op] : (i= ID | arg[false] |s= STRING );
     public final String opt() throws RecognitionException {
         String op = null;
 
 
         Token i=null;
+        Token s=null;
         String arg9 =null;
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:2: (i= ID | arg[false] )
-            int alt9=2;
-            int LA9_0 = input.LA(1);
-
-            if ( (LA9_0==ID) ) {
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:2: (i= ID | arg[false] |s= STRING )
+            int alt9=3;
+            switch ( input.LA(1) ) {
+            case ID:
+                {
                 alt9=1;
-            }
-            else if ( (LA9_0==13) ) {
+                }
+                break;
+            case 13:
+                {
                 alt9=2;
-            }
-            else {
+                }
+                break;
+            case STRING:
+                {
+                alt9=3;
+                }
+                break;
+            default:
                 NoViableAltException nvae =
                     new NoViableAltException("", 9, 0, input);
 
                 throw nvae;
 
             }
+
             switch (alt9) {
                 case 1 :
                     // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:4: i= ID
@@ -1151,6 +1161,17 @@ public class CfgParser extends Parser {
 
                     }
                     break;
+                case 3 :
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:194:4: s= STRING
+                    {
+                    s=(Token)match(input,STRING,FOLLOW_STRING_in_opt501); 
+
+
+                    	op = (s!=null?s.getText():null);
+                    	
+
+                    }
+                    break;
 
             }
         }
@@ -1172,17 +1193,17 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "name"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:195:1: name : ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:201:1: name : ID ;
     public final CfgParser.name_return name() throws RecognitionException {
         CfgParser.name_return retval = new CfgParser.name_return();
         retval.start = input.LT(1);
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:196:2: ( ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:196:4: ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:2: ( ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:4: ID
             {
-            match(input,ID,FOLLOW_ID_in_name505); 
+            match(input,ID,FOLLOW_ID_in_name519); 
 
             }
 
@@ -1205,7 +1226,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "arg"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:199:1: arg[boolean flag] returns [String ag] : '#' i= ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:205:1: arg[boolean flag] returns [String ag] : '#' i= ID ;
     public final String arg(boolean flag) throws RecognitionException {
         String ag = null;
 
@@ -1213,12 +1234,12 @@ public class CfgParser extends Parser {
         Token i=null;
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:200:2: ( '#' i= ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:200:3: '#' i= ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:206:2: ( '#' i= ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:206:3: '#' i= ID
             {
-            match(input,13,FOLLOW_13_in_arg522); 
+            match(input,13,FOLLOW_13_in_arg536); 
 
-            i=(Token)match(input,ID,FOLLOW_ID_in_arg525); 
+            i=(Token)match(input,ID,FOLLOW_ID_in_arg539); 
 
 
             	if(flag)
@@ -1286,14 +1307,15 @@ public class CfgParser extends Parser {
     public static final BitSet FOLLOW_type_in_var383 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_ID_in_type398 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_22_in_cmdgit413 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_name_in_cmdgit415 = new BitSet(new long[]{0x0000000000002080L});
+    public static final BitSet FOLLOW_name_in_cmdgit415 = new BitSet(new long[]{0x0000000000002480L});
     public static final BitSet FOLLOW_opts_in_cmdgit417 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_opt_in_opts448 = new BitSet(new long[]{0x0000000000002082L});
-    public static final BitSet FOLLOW_opt_in_opts455 = new BitSet(new long[]{0x0000000000002082L});
+    public static final BitSet FOLLOW_opt_in_opts448 = new BitSet(new long[]{0x0000000000002482L});
+    public static final BitSet FOLLOW_opt_in_opts455 = new BitSet(new long[]{0x0000000000002482L});
     public static final BitSet FOLLOW_ID_in_opt482 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_arg_in_opt490 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_name505 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_13_in_arg522 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_ID_in_arg525 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_in_opt501 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_name519 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_13_in_arg536 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_ID_in_arg539 = new BitSet(new long[]{0x0000000000000002L});
 
 }
