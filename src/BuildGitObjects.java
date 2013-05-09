@@ -580,6 +580,9 @@ public class BuildGitObjects {
 		
 		String return_string = null;
 		boolean flag = false;
+		
+		Logger.trace("Running "+ cmds + "on: " +p);
+		
 		try{
 			
 			String line;
@@ -594,7 +597,12 @@ public class BuildGitObjects {
 			
 			pb.directory(path);	
 			
+			Map<String, String> env = pb.environment();
+		    env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+		    env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
+			
 			Process pr = pb.start();
+	
 			
 			OutputStream out = pr.getOutputStream();
 			InputStream in = pr.getInputStream();
@@ -627,6 +635,7 @@ public class BuildGitObjects {
 					line = br2.readLine();
 					}
 				return_string = lines.toString();
+				Logger.trace("Ouput: " + return_string);
 				}
 		
 			if(br.ready()){
@@ -659,6 +668,9 @@ public class BuildGitObjects {
 		}
 		
 		if(flag) throw new Exception(return_string);
+		
+		
+		System.out.println("correu mesmo!");
 		
 		return return_string;
 		
@@ -716,12 +728,14 @@ public class BuildGitObjects {
 		{
 			
 			if(n_cmd.matches("#[a-zA-Z0-9]*")){
+				System.out.println("Entrou aqui");
 				n_cmds.add(buildType(vars,n_cmd,sol,mapAtom,parent,name,path));
 			}else n_cmds.add(n_cmd);
 		};	
 	    
 		try {
 			gitCmd(n_cmds,p);
+				System.out.println("correu?");
 		} catch (Exception e) {
 			throw new Exception("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
 		}
