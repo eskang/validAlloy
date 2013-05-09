@@ -237,7 +237,7 @@ pred rmConditionA[s:State,p:Path]{
 
  --in man pages: no updates to their contents can be staged in the index.
 pred rmConditionB[s:State,p:Path]{
-	  (((HEAD.s).head.s).path.s).p = p.index.s 
+	  p.index.s in (((HEAD.s).head.s).path.s).p 
 
 }
 /*
@@ -293,6 +293,32 @@ pred rmBehaviour[s,s':State,p:Path]{
 	root.s' = root.s
 }
 
+
+
+//run gitCommit for 5 but exactly 2 State
+
+
+pred gitCommit[s,s':State]{
+
+	--all il : index.s{ 
+		one t:Tree{  one c:Commit{
+			c.previous = (HEAD.s).head.s
+			(HEAD.s').head.s' = c 
+			c.tree = t
+			object.s' = object.s + t + c
+		}}
+	--}
+
+	object.s' = object.s
+
+	
+	index.s' = index.s
+	HEAD.s' = HEAD.s
+	--head.s' = head.s
+	root.s' = root.s
+
+
+}
 
 
 
