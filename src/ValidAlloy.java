@@ -181,7 +181,15 @@ public class ValidAlloy {
         		BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
         		
         		try {
-					BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
+        			
+        			if (pathSkol.isEmpty() != true)
+					
+        				BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
+        			
+					else 
+						System.out.println("runcmd " + pathSkol);
+						BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
+
 				} catch (GitException e) {
 					Path p_e = Paths.get(cmdpath+"/git_errors.txt");
 					Files.createFile(p_e);
@@ -190,8 +198,8 @@ public class ValidAlloy {
 					cmdpath = cmdpath+"_err";
 					flagerr = true;
 					sol.writeXML(cmdpath+"/instance"+i+".xml");
-				} catch (Exception e){
-					//e.printStackTrace();
+				} catch (Exception q){
+					q.printStackTrace();
 					
 				}
         		

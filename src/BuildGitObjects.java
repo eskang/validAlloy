@@ -714,6 +714,8 @@ public class BuildGitObjects {
 	
 	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception,GitException 
 	{ 
+		
+		System.out.println("e aqui???");
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
 		ArrayList<String> n_cmds = new ArrayList<String>();
@@ -731,6 +733,7 @@ public class BuildGitObjects {
 		};	
 	    
 		try {
+			System.out.println("entrou aqui!");
 			gitCmd(n_cmds,p);
 		} catch (GitException e) {
 			throw new GitException("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
