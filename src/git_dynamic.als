@@ -298,7 +298,17 @@ pred rmBehaviour[s,s':State,p:Path]{
 //run gitCommit for 5 but exactly 2 State
 
 
+pred pc[s,s':State]{
+	some c:Commit | c in object.s
+
+
+}
+
+
 pred gitCommit[s,s':State]{
+
+	pc[s,s']
+	
 
 	--all il : index.s{ 
 		one t:Tree{  one c:Commit{
@@ -311,10 +321,10 @@ pred gitCommit[s,s':State]{
 
 	object.s' = object.s
 
-	
+	node.s' = node.s
 	index.s' = index.s
 	HEAD.s' = HEAD.s
-	--head.s' = head.s
+	all p:(Ref - HEAD.s) | p.head.s = p.head.s'
 	root.s' = root.s
 
 
