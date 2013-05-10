@@ -187,7 +187,7 @@ public class ValidAlloy {
         				BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
         			
 					else 
-						System.out.println("runcmd " + pathSkol);
+				
 						BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
 
 				} catch (GitException e) {
