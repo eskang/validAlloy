@@ -576,7 +576,7 @@ public class BuildGitObjects {
 	return file_name;
 	
 }
-	public static String gitCmd(ArrayList<String> cmds,String p) throws Exception{
+	public static String gitCmd(ArrayList<String> cmds,String p) throws Exception,GitException{
 		
 		String return_string = null;
 		boolean flag = false;
@@ -667,7 +667,7 @@ public class BuildGitObjects {
 			exc.printStackTrace();
 		}
 		
-		if(flag) throw new Exception(return_string);
+		if(flag) throw new GitException(return_string);
 		
 		
 		return return_string;
@@ -695,7 +695,7 @@ public class BuildGitObjects {
 	}
 	
 	
-	public static String buildType(HashMap<String,String> vars,String cmd,A4Solution sol,HashMap<String,ExprVar> mapAtom,Expr parent,Expr name,ExprVar path) throws Err{
+	public static String buildType(HashMap<String,String> vars,String cmd,A4Solution sol,HashMap<String,ExprVar> mapAtom,Expr parent,Expr name,ExprVar path) throws Err,GitException{
 		
 		String type = null;
 
@@ -712,7 +712,7 @@ public class BuildGitObjects {
 	}
 	
 	
-	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception 
+	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception,GitException 
 	{ 
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
 		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
@@ -732,8 +732,8 @@ public class BuildGitObjects {
 	    
 		try {
 			gitCmd(n_cmds,p);
-		} catch (Exception e) {
-			throw new Exception("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
+		} catch (GitException e) {
+			throw new GitException("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
 		}
 		
 	

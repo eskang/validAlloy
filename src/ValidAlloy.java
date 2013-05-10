@@ -23,6 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.pmw.tinylog.Logger;
 
 
+
+
 public class ValidAlloy {
 	/**
 	 * Main method that buils a number of git filesystems, from a number of alloy instances.
@@ -180,10 +182,7 @@ public class ValidAlloy {
         		
         		try {
 					BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
-				} catch (Exception e) {
-					e.printStackTrace();
-					
-			
+				} catch (GitException e) {
 					Path p_e = Paths.get(cmdpath+"/git_errors.txt");
 					Files.createFile(p_e);
 					Files.write(p_e, e.getMessage().getBytes("ISO-8859-1"));
@@ -191,6 +190,9 @@ public class ValidAlloy {
 					cmdpath = cmdpath+"_err";
 					flagerr = true;
 					sol.writeXML(cmdpath+"/instance"+i+".xml");
+				} catch (Exception e){
+					//e.printStackTrace();
+					
 				}
         		
         		if(!flagerr)
