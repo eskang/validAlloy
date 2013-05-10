@@ -155,13 +155,15 @@ public class ValidAlloy {
 
        // 		System.out.println("See: " + skolems);
         		
-        		
+        		if(arg.get(j) != null){
+        			System.out.println(arg);
         		for(int t = 0;t<arg.get(j).size();t++){
         			
         			String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
       //  		System.out.println("Skool " + skol);
         			pathSkol.add(Utils.getEFromIterable(skolems, skol));
         		
+        		}
         		}
      //   		System.out.println("Pre it :" +preState);
      //   		System.out.println("Pos it :" +posState);
@@ -179,6 +181,9 @@ public class ValidAlloy {
         		try {
 					BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
 				} catch (Exception e) {
+					e.printStackTrace();
+					
+			
 					Path p_e = Paths.get(cmdpath+"/git_errors.txt");
 					Files.createFile(p_e);
 					Files.write(p_e, e.getMessage().getBytes("ISO-8859-1"));
