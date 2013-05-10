@@ -158,7 +158,7 @@ public class ValidAlloy {
        // 		System.out.println("See: " + skolems);
         		
         		if(arg.get(j) != null){
-        			System.out.println(arg);
+        			
         		for(int t = 0;t<arg.get(j).size();t++){
         			
         			String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
