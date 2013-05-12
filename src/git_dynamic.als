@@ -302,6 +302,8 @@ pred pc[s,s':State]{
 
 some index.s
 
+one Tree
+
 }
 
 
@@ -310,34 +312,30 @@ fun child: Path -> Path
 	~parent :> Path
 }
  
-pred index2tree[t:Tree, s:State]{
 
-	
-	all b:(root.s).path.^child.index.s | b in object.s => b in t.^children
-
-}
-
---run gitCommit for 4 but exactly 2 State
+--run gitCommit
 
 pred gitCommit[s,s':State]{
 
 	pc[s,s']
 	
 
-	--all il : index.s{ 
+	
 		one t:Tree |  one c:Commit{
-			index2tree[t,s]
+			all b:univ.index.s | b in object.s => b in t.^children
+			(t.^children&Blob).(c.path.s') in (index.s).univ
+			(t.^children&Tree).(c.path.s') in ((index.s).univ).^parent
 			t not in object.s
 			c not in object.s
 			c.previous = (HEAD.s).head.s
 			(HEAD.s').head.s' = c 
 			c.tree = t
-			object.s + t + c in object.s'
-			object.s' in object.s + Tree + c
+			object.s' = object.s + t + c + t.^children
+ 
  		}
-	--}
 
-	--object.s' = object.s
+
+	 
 
 	node.s' = node.s
 	index.s' = index.s
