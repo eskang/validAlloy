@@ -114,6 +114,7 @@ public static boolean diffPosPre(String pathindex){
 				cmds.add("-r");
 				cmds.add("--exclude=index");
 				cmds.add("--exclude=COMMIT_EDITMSG");
+				cmds.add("--exclude=logs");
 				cmds.add("pre");
 				cmds.add("pos");
 				
