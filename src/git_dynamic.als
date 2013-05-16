@@ -298,23 +298,49 @@ pred rmBehaviour[s,s':State,p:Path]{
 //run gitCommit for 5 but exactly 2 State
 
 
+pred pc[s,s':State]{
+
+some index.s
+
+one Tree
+
+}
+
+
+fun child: Path -> Path
+{
+	~parent :> Path
+}
+ 
+
+--run gitCommit
+
 pred gitCommit[s,s':State]{
 
-	--all il : index.s{ 
-		one t:Tree{  one c:Commit{
+	pc[s,s']
+	
+
+	
+		one t:Tree |  one c:Commit{
+			all b:univ.index.s | b in object.s => b in t.^children
+			(t.^children&Blob).(c.path.s') in (index.s).univ
+			(t.^children&Tree).(c.path.s') in ((index.s).univ).^parent
+			t not in object.s
+			c not in object.s
 			c.previous = (HEAD.s).head.s
 			(HEAD.s').head.s' = c 
 			c.tree = t
-			object.s' = object.s + t + c
-		}}
-	--}
+			object.s' = object.s + t + c + t.^children
+ 
+ 		}
 
-	object.s' = object.s
 
-	
+	 
+
+	node.s' = node.s
 	index.s' = index.s
 	HEAD.s' = HEAD.s
-	--head.s' = head.s
+	all p:(Ref - HEAD.s) | p.head.s = p.head.s'
 	root.s' = root.s
 
 

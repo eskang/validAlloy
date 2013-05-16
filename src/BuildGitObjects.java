@@ -887,7 +887,7 @@ public class BuildGitObjects {
 		 
 			treeHash =mapObjsHash.get(commitTree.atom(0));
 			//Logger.trace(treeHash);
-			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"message",entries));
+			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"message\n",entries));
 		}
 	}
 	
