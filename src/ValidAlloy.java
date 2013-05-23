@@ -219,7 +219,10 @@ public class ValidAlloy {
         			if(Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i)))
         			{
         				FileUtils.deleteDirectory(new File(cmdpath));
-        			} else sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");
+        			} else{ 
+        				try {sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");}
+        				catch(Err e){e.printStackTrace();System.out.println(e.getMessage());}
+        			}
         		}
         		Logger.info("********* End of Instance       : "+i+" ********* ");		
         	

@@ -303,7 +303,7 @@ pred pc[s:State]{
 some index.s
 
 
-some Commit &object.s
+some Commit & object.s & (HEAD.s).head.s
 
 --one Tree
 
@@ -323,16 +323,20 @@ pred gitCommit[s,s':State]{
 	pc[s]
 	
 
-
-
+			--There are differences
+			((((HEAD.s).head.s).tree.^children&Blob).(((HEAD.s).head.s).path.s') != (index.s).univ or
+			(((HEAD.s).head.s).tree.^children&Tree).(((HEAD.s).head.s).path.s') != ((index.s).univ).^parent)
 
 
 		one t:Tree |  one c:Commit {
 			all b:univ.index.s | b in object.s => b in t.^children
-			(t.^children&Blob).(c.path.s') in (index.s).univ
-			(t.^children&Tree).(c.path.s') in ((index.s).univ).^parent
-			t not in object.s
-			c not in object.s
+			
+		
+			
+			(t.^children&Blob).(c.path.s') = (index.s).univ
+			(t.^children&Tree).(c.path.s') = ((index.s).univ).^parent
+	--		t not in object.s
+	--		c not in object.s
 			c.previous = (HEAD.s).head.s
 			(HEAD.s').head.s' = c 
 			c.tree = t
