@@ -20,7 +20,10 @@ import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
 import org.antlr.runtime.*;
 import org.apache.commons.io.FileUtils;
+import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Logger;
+import org.pmw.tinylog.LoggingLevel;
+import org.pmw.tinylog.writers.FileWriter;
 
 
 
@@ -95,6 +98,13 @@ public class ValidAlloy {
 
         
         for(int j = 0 ; j<n_cmds;j++){
+
+        	
+        	Configurator.defaultConfig()
+        	 .writer(new FileWriter("log.txt"))
+        	 .level(LoggingLevel.TRACE) 
+        	 .activate();
+        		
         
         Utils.delTemporaryModel("src/git_dynamic.als");	
         	
@@ -218,7 +228,8 @@ public class ValidAlloy {
         		flagcontinue = false;
         	
         	
-        } 
+        }
+    	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output/"+preds.get(j)),false);
         System.out.println("\n===========             Command terminated          =========== ");
         }
         Utils.delTemporaryModel("src/git_dynamic.als");
@@ -234,11 +245,8 @@ public class ValidAlloy {
 
 	    	if(args.length == 1){
 	    		
-	    		
-	    		
-	    	executeValidAlloy(args[0]);
-	    	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output"),false);
-	    	
+	   	    executeValidAlloy(args[0]);
+	    	    	
 	      } else System.out.println("Must provide config file to vallidAlloy");
 	    	System.out.println("===========           ValidAlloy terminated         =========== ");
 	}
