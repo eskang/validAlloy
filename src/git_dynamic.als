@@ -301,8 +301,7 @@ pred rmBehaviour[s,s':State,p:Path]{
 pred pc[s:State]{
 
 some index.s
-
-
+#head.s > 2 
 some Commit & object.s & (HEAD.s).head.s
 
 --one Tree
@@ -354,6 +353,26 @@ pred gitCommit[s,s':State]{
 	root.s' = root.s
 
 
+}
+
+
+pred branchPC[s:State, b:Ref]
+{
+	some (HEAD.s).head.s
+	b not in (head.s).univ
+}
+
+pred gitBranch[s,s': State , n:Ref ]{
+
+	branchPC[s,n]
+
+	one c:Commit | head.s' = head.s +  (n->c)	
+	
+	HEAD.s' = HEAD.s	
+	object.s' = object.s
+	node.s' = node.s
+	index.s' = index.s
+	root.s' = root.s
 }
 
 
