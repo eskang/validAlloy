@@ -1,4 +1,3 @@
-
 sig State {}
 
 // paths
@@ -362,11 +361,13 @@ pred branchPC[s:State, b:Ref]
 	b not in (head.s).univ
 }
 
+
+
 pred gitBranch[s,s': State , n:Ref ]{
 
 	branchPC[s,n]
 
-	one c:Commit | head.s' = head.s +  (n->c)	
+	head.s' = head.s +  (n->((HEAD.s).head.s))
 	
 	HEAD.s' = HEAD.s	
 	object.s' = object.s
@@ -375,7 +376,27 @@ pred gitBranch[s,s': State , n:Ref ]{
 	root.s' = root.s
 }
 
+pred checkoutPC[s:State,r:Ref]
+{
+	r != HEAD.s
+	one c:Commit | r in (head.s).c
+}
 
 
+
+
+pred gitCheckout[s,s':State, r:Ref]
+{
+	checkoutPC[s,r]
+
+	HEAD.s' = r
+
+	
+	one c:r.head.s' | (root.s').path = (c.tree).(c.path).s'
+	
+	head.s' = head.s
+	object.s' = object.s
+	--index.s' = index.s
+}
 
 
