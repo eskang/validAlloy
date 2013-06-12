@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<projection> <type name="State"/> </projection>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Int"/>
+   <type name="State"/>
+   <type name="String"/>
+   <type name="Tag"/>
+   <type name="Tree"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+   <set name="$add_p" type="Path"/>
+   <set name="$add_s" type="State"/>
+   <set name="$add_s&apos;" type="State"/>
+</node>
+
+<node color="Green" label="">
+   <set name="$staged" type="Path"/>
+</node>
+
+<node label="">
+   <set name="root" type="Dir"/>
+</node>
+
+<node numberatoms="no" color="White" label="">
+   <type name="Path"/>
+</node>
+
+<node numberatoms="no" color="Yellow" label="">
+   <type name="Dir"/>
+</node>
+
+<node numberatoms="no" shape="Ellipse" color="Yellow" label="">
+   <type name="File"/>
+</node>
+
+<node shape="Ellipse">
+   <type name="Blob"/>
+</node>
+
+<node shape="Trapezoid">
+   <type name="Commit"/>
+</node>
+
+<node visible="no" color="Blue">
+   <type name="Object"/>
+</node>
+
+<node visible="no" hideunconnected="yes">
+   <type name="Name"/>
+</node>
+
+<node visible="no" label="">
+   <type name="Node"/>
+</node>
+
+<node visible="yes" hideunconnected="no" color="Blue">
+   <set name="head" type="Name"/>
+</node>
+
+<node visible="yes" hideunconnected="yes" color="Blue">
+   <type name="Ref"/>
+</node>
+
+<node visible="yes" label="">
+   <set name="node" type="Node"/>
+</node>
+
+<node visible="yes" showlabel="yes" color="Blue" label="">
+   <set name="object" type="Object"/>
+</node>
+
+<edge attribute="no" label="">
+   <relation name="ref"> <type name="Ref"/> <type name="Object"/> </relation>
+</edge>
+
+<edge label=" ">
+   <relation name="content"> <type name="Tree"/> <type name="Name"/> <type name="Blob"/> </relation>
+   <relation name="content"> <type name="Tree"/> <type name="Name"/> <type name="Tree"/> </relation>
+</edge>
+
+<edge label="">
+   <relation name="commit"> <type name="Tag"/> <type name="Commit"/> </relation>
+   <relation name="tree"> <type name="Commit"/> <type name="Tree"/> </relation>
+</edge>
+
+<edge layout="yes" label="">
+   <relation name="parent"> <type name="Node"/> <type name="Dir"/> </relation>
+   <relation name="parent"> <type name="Path"/> <type name="Path"/> </relation>
+</edge>
+
+<edge visible="no">
+   <relation name="$points"> <type name="Object"/> <type name="Object"/> </relation>
+</edge>
+
+<edge visible="no" attribute="no">
+   <relation name="path"> <type name="Node"/> <type name="Path"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes">
+   <relation name="name"> <type name="Tag"/> <type name="Name"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes" label="">
+   <relation name="blob"> <type name="File"/> <type name="Blob"/> </relation>
+   <relation name="index"> <type name="Path"/> <type name="Blob"/> </relation>
+   <relation name="name"> <type name="Node"/> <type name="Name"/> </relation>
+   <relation name="name"> <type name="Path"/> <type name="Name"/> </relation>
+</edge>
+
+<edge visible="yes" label="">
+   <relation name="previous"> <type name="Commit"/> <type name="Commit"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
