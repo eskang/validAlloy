@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-05-09 23:04:07
+// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-06-14 16:03:50
 
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @SuppressWarnings({"all", "warnings", "unchecked"})
 public class CfgParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "CHAR", "ESC_SEQ", "HEX_DIGIT", "ID", "INT", "OCTAL_ESC", "STRING", "UNICODE_ESC", "WS", "'#'", "','", "':'", "';'", "'['", "']'", "'but exactly'", "'cmd'", "'for'", "'git'", "'pred'", "'runs'", "'scope'"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "CHAR", "ESC_SEQ", "HEX_DIGIT", "ID", "INT", "OCTAL_ESC", "STRING", "UNICODE_ESC", "WS", "'#'", "'('", "')'", "','", "':'", "';'", "'['", "']'", "'but exactly'", "'cmd'", "'errors'", "'for'", "'git'", "'pred'", "'runs'", "'scope'"
     };
 
     public static final int EOF=-1;
@@ -32,6 +32,9 @@ public class CfgParser extends Parser {
     public static final int T__23=23;
     public static final int T__24=24;
     public static final int T__25=25;
+    public static final int T__26=26;
+    public static final int T__27=27;
+    public static final int T__28=28;
     public static final int CHAR=4;
     public static final int ESC_SEQ=5;
     public static final int HEX_DIGIT=6;
@@ -70,11 +73,12 @@ public class CfgParser extends Parser {
         public ArrayList<String> cmds;
         public int n_runs;
         public int n_comands;
+        public ArrayList<ArrayList<String>> errors;
     };
 
 
     // $ANTLR start "cfg"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:1: cfg returns [ArrayList<HashMap<String,String>> vars,ArrayList<ArrayList<String>> args ,ArrayList<ArrayList<String>> opts, ArrayList<String> preds,ArrayList<String> scopes, ArrayList<String> cmds ,int n_runs,int n_comands] : a= comand ( ';' b= comand )* r= runs ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:1: cfg returns [ArrayList<HashMap<String,String>> vars,ArrayList<ArrayList<String>> args ,ArrayList<ArrayList<String>> opts, ArrayList<String> preds,ArrayList<String> scopes, ArrayList<String> cmds ,int n_runs,int n_comands,ArrayList<ArrayList<String>> errors] : a= comand ( ';' b= comand )* r= runs ;
     public final CfgParser.cfg_return cfg() throws RecognitionException {
         CfgParser.cfg_return retval = new CfgParser.cfg_return();
         retval.start = input.LT(1);
@@ -94,11 +98,12 @@ public class CfgParser extends Parser {
         ArrayList<String> preds = new ArrayList<String>();
         ArrayList<String> scopes = new ArrayList<String>();
         ArrayList<String> cmds = new ArrayList<String>();
+        ArrayList<ArrayList<String>> errors = new ArrayList<ArrayList<String>>();
         int n_comands = 0;
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:24:2: (a= comand ( ';' b= comand )* r= runs )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:24:4: a= comand ( ';' b= comand )* r= runs
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:25:2: (a= comand ( ';' b= comand )* r= runs )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:25:4: a= comand ( ';' b= comand )* r= runs
             {
             pushFollow(FOLLOW_comand_in_cfg28);
             a=comand();
@@ -113,25 +118,26 @@ public class CfgParser extends Parser {
             	preds.add((a!=null?a.pred:null));
             	scopes.add((a!=null?a.scope:null));
             	cmds.add((a!=null?a.cmd:null));
+            	errors.add((a!=null?a.err:null));
             	n_comands++;
             	
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:34:3: ( ';' b= comand )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:36:3: ( ';' b= comand )*
             loop1:
             do {
                 int alt1=2;
                 int LA1_0 = input.LA(1);
 
-                if ( (LA1_0==16) ) {
+                if ( (LA1_0==18) ) {
                     alt1=1;
                 }
 
 
                 switch (alt1) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:34:5: ';' b= comand
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:36:5: ';' b= comand
             	    {
-            	    match(input,16,FOLLOW_16_in_cfg37); 
+            	    match(input,18,FOLLOW_18_in_cfg37); 
 
             	    pushFollow(FOLLOW_comand_in_cfg41);
             	    b=comand();
@@ -146,6 +152,7 @@ public class CfgParser extends Parser {
             	    	 preds.add((b!=null?b.pred:null));
             	    	 scopes.add((b!=null?b.scope:null));
             	    	 cmds.add((b!=null?b.cmd:null));
+            	    	 errors.add((b!=null?b.err:null));
             	    	 n_comands++;
             	    	 
 
@@ -173,6 +180,7 @@ public class CfgParser extends Parser {
             	 	retval.cmds = cmds;
             	 	retval.n_runs = r;
             	 	retval.n_comands = n_comands;
+            	 	retval.errors = errors;
             	
             	 
 
@@ -202,11 +210,12 @@ public class CfgParser extends Parser {
         public String pred;
         public String scope;
         public String cmd;
+        public ArrayList<String> err;
     };
 
 
     // $ANTLR start "comand"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:58:1: comand returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList<String> opts, String pred,String scope, String cmd] : ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:62:1: comand returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList<String> opts, String pred,String scope, String cmd, ArrayList<String> err] : ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit ( errors )? ;
     public final CfgParser.comand_return comand() throws RecognitionException {
         CfgParser.comand_return retval = new CfgParser.comand_return();
         retval.start = input.LT(1);
@@ -220,12 +229,14 @@ public class CfgParser extends Parser {
 
         String sp4 =null;
 
+        ArrayList<String> errors5 =null;
+
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:59:2: ( ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:59:4: ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:2: ( ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit ( errors )? )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:4: ( vars )? 'pred' pred 'scope' sp 'cmd' cmdgit ( errors )?
             {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:59:4: ( vars )?
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:4: ( vars )?
             int alt2=2;
             int LA2_0 = input.LA(1);
 
@@ -234,7 +245,7 @@ public class CfgParser extends Parser {
             }
             switch (alt2) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:59:4: vars
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:4: vars
                     {
                     pushFollow(FOLLOW_vars_in_comand74);
                     vars1=vars();
@@ -248,7 +259,7 @@ public class CfgParser extends Parser {
             }
 
 
-            match(input,23,FOLLOW_23_in_comand77); 
+            match(input,26,FOLLOW_26_in_comand77); 
 
             pushFollow(FOLLOW_pred_in_comand79);
             pred2=pred();
@@ -256,7 +267,7 @@ public class CfgParser extends Parser {
             state._fsp--;
 
 
-            match(input,25,FOLLOW_25_in_comand82); 
+            match(input,28,FOLLOW_28_in_comand82); 
 
             pushFollow(FOLLOW_sp_in_comand85);
             sp4=sp();
@@ -264,12 +275,35 @@ public class CfgParser extends Parser {
             state._fsp--;
 
 
-            match(input,20,FOLLOW_20_in_comand87); 
+            match(input,22,FOLLOW_22_in_comand87); 
 
             pushFollow(FOLLOW_cmdgit_in_comand90);
             cmdgit3=cmdgit();
 
             state._fsp--;
+
+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:51: ( errors )?
+            int alt3=2;
+            int LA3_0 = input.LA(1);
+
+            if ( (LA3_0==23) ) {
+                alt3=1;
+            }
+            switch (alt3) {
+                case 1 :
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:63:51: errors
+                    {
+                    pushFollow(FOLLOW_errors_in_comand94);
+                    errors5=errors();
+
+                    state._fsp--;
+
+
+                    }
+                    break;
+
+            }
 
 
 
@@ -279,7 +313,7 @@ public class CfgParser extends Parser {
             	  	retval.pred = (pred2!=null?pred2.name:null);
             	  	retval.scope = sp4;
             		retval.cmd = (cmdgit3!=null?cmdgit3.cmd:null);
-            	
+            		retval.err = errors5;
             	 
 
             }
@@ -302,8 +336,166 @@ public class CfgParser extends Parser {
 
 
 
+    // $ANTLR start "errors"
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:75:1: errors returns [ArrayList<String> e_rror] : 'errors' '(' l= list_errors ')' ;
+    public final ArrayList<String> errors() throws RecognitionException {
+        ArrayList<String> e_rror = null;
+
+
+        ArrayList<String> l =null;
+
+
+        try {
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:76:3: ( 'errors' '(' l= list_errors ')' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:76:4: 'errors' '(' l= list_errors ')'
+            {
+            match(input,23,FOLLOW_23_in_errors115); 
+
+            match(input,14,FOLLOW_14_in_errors117); 
+
+            pushFollow(FOLLOW_list_errors_in_errors121);
+            l=list_errors();
+
+            state._fsp--;
+
+
+            match(input,15,FOLLOW_15_in_errors123); 
+
+            e_rror = l;
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+
+        finally {
+        	// do for sure before leaving
+        }
+        return e_rror;
+    }
+    // $ANTLR end "errors"
+
+
+
+    // $ANTLR start "list_errors"
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:80:1: list_errors returns [ArrayList<String> e_rror] : a= error ( ',' b= error )* ;
+    public final ArrayList<String> list_errors() throws RecognitionException {
+        ArrayList<String> e_rror = null;
+
+
+        String a =null;
+
+        String b =null;
+
+
+
+        ArrayList<String>  err = new ArrayList<String>();
+
+        try {
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:84:2: (a= error ( ',' b= error )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:84:3: a= error ( ',' b= error )*
+            {
+            pushFollow(FOLLOW_error_in_list_errors147);
+            a=error();
+
+            state._fsp--;
+
+
+            err.add(a);
+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:84:27: ( ',' b= error )*
+            loop4:
+            do {
+                int alt4=2;
+                int LA4_0 = input.LA(1);
+
+                if ( (LA4_0==16) ) {
+                    alt4=1;
+                }
+
+
+                switch (alt4) {
+            	case 1 :
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:84:28: ',' b= error
+            	    {
+            	    match(input,16,FOLLOW_16_in_list_errors151); 
+
+            	    pushFollow(FOLLOW_error_in_list_errors155);
+            	    b=error();
+
+            	    state._fsp--;
+
+
+            	    err.add(b);
+
+            	    }
+            	    break;
+
+            	default :
+            	    break loop4;
+                }
+            } while (true);
+
+
+            e_rror = err;
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+
+        finally {
+        	// do for sure before leaving
+        }
+        return e_rror;
+    }
+    // $ANTLR end "list_errors"
+
+
+
+    // $ANTLR start "error"
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:88:1: error returns [String e] : s= STRING ;
+    public final String error() throws RecognitionException {
+        String e = null;
+
+
+        Token s=null;
+
+        try {
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:89:3: (s= STRING )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:89:4: s= STRING
+            {
+            s=(Token)match(input,STRING,FOLLOW_STRING_in_error177); 
+
+
+            	 e = (s!=null?s.getText():null);
+            	
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+
+        finally {
+        	// do for sure before leaving
+        }
+        return e;
+    }
+    // $ANTLR end "error"
+
+
+
     // $ANTLR start "runs"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:71:1: runs returns [int n_runs] : 'runs' i= INT ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:94:1: runs returns [int n_runs] : 'runs' i= INT ;
     public final int runs() throws RecognitionException {
         int n_runs = 0;
 
@@ -311,12 +503,12 @@ public class CfgParser extends Parser {
         Token i=null;
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:72:2: ( 'runs' i= INT )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:72:4: 'runs' i= INT
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:95:2: ( 'runs' i= INT )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:95:4: 'runs' i= INT
             {
-            match(input,24,FOLLOW_24_in_runs112); 
+            match(input,27,FOLLOW_27_in_runs197); 
 
-            i=(Token)match(input,INT,FOLLOW_INT_in_runs116); 
+            i=(Token)match(input,INT,FOLLOW_INT_in_runs201); 
 
 
             	 n_runs = Integer.parseInt((i!=null?i.getText():null));
@@ -340,7 +532,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "vars"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:78:1: vars returns [HashMap<String,String> a_vars] : a= var (b= var )* ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:101:1: vars returns [HashMap<String,String> a_vars] : a= var (b= var )* ;
     public final HashMap<String,String> vars() throws RecognitionException {
         HashMap<String,String> a_vars = null;
 
@@ -354,10 +546,10 @@ public class CfgParser extends Parser {
         HashMap<String,String> vars = new HashMap<String,String>();
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:82:2: (a= var (b= var )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:82:4: a= var (b= var )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:105:2: (a= var (b= var )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:105:4: a= var (b= var )*
             {
-            pushFollow(FOLLOW_var_in_vars141);
+            pushFollow(FOLLOW_var_in_vars226);
             a=var();
 
             state._fsp--;
@@ -365,22 +557,22 @@ public class CfgParser extends Parser {
 
             vars.put((a!=null?a.arg:null),(a!=null?a.type:null));
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:82:39: (b= var )*
-            loop3:
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:105:39: (b= var )*
+            loop5:
             do {
-                int alt3=2;
-                int LA3_0 = input.LA(1);
+                int alt5=2;
+                int LA5_0 = input.LA(1);
 
-                if ( (LA3_0==13) ) {
-                    alt3=1;
+                if ( (LA5_0==13) ) {
+                    alt5=1;
                 }
 
 
-                switch (alt3) {
+                switch (alt5) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:82:40: b= var
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:105:40: b= var
             	    {
-            	    pushFollow(FOLLOW_var_in_vars149);
+            	    pushFollow(FOLLOW_var_in_vars234);
             	    b=var();
 
             	    state._fsp--;
@@ -392,7 +584,7 @@ public class CfgParser extends Parser {
             	    break;
 
             	default :
-            	    break loop3;
+            	    break loop5;
                 }
             } while (true);
 
@@ -422,7 +614,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "pred"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:86:1: pred returns [String name, ArrayList<String> args] : n= name a= arguments ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:109:1: pred returns [String name, ArrayList<String> args] : n= name a= arguments ;
     public final CfgParser.pred_return pred() throws RecognitionException {
         CfgParser.pred_return retval = new CfgParser.pred_return();
         retval.start = input.LT(1);
@@ -434,16 +626,16 @@ public class CfgParser extends Parser {
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:87:2: (n= name a= arguments )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:87:4: n= name a= arguments
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:110:2: (n= name a= arguments )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:110:4: n= name a= arguments
             {
-            pushFollow(FOLLOW_name_in_pred174);
+            pushFollow(FOLLOW_name_in_pred259);
             n=name();
 
             state._fsp--;
 
 
-            pushFollow(FOLLOW_arguments_in_pred178);
+            pushFollow(FOLLOW_arguments_in_pred263);
             a=arguments();
 
             state._fsp--;
@@ -475,7 +667,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "arguments"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:95:1: arguments returns [ArrayList<String> args] : '[' (g= args )? ']' ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:118:1: arguments returns [ArrayList<String> args] : '[' (g= args )? ']' ;
     public final ArrayList<String> arguments() throws RecognitionException {
         ArrayList<String> args = null;
 
@@ -484,23 +676,23 @@ public class CfgParser extends Parser {
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:96:2: ( '[' (g= args )? ']' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:96:3: '[' (g= args )? ']'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:119:2: ( '[' (g= args )? ']' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:119:3: '[' (g= args )? ']'
             {
-            match(input,17,FOLLOW_17_in_arguments198); 
+            match(input,19,FOLLOW_19_in_arguments283); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:96:8: (g= args )?
-            int alt4=2;
-            int LA4_0 = input.LA(1);
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:119:8: (g= args )?
+            int alt6=2;
+            int LA6_0 = input.LA(1);
 
-            if ( (LA4_0==13) ) {
-                alt4=1;
+            if ( (LA6_0==13) ) {
+                alt6=1;
             }
-            switch (alt4) {
+            switch (alt6) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:96:8: g= args
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:119:8: g= args
                     {
-                    pushFollow(FOLLOW_args_in_arguments202);
+                    pushFollow(FOLLOW_args_in_arguments287);
                     g=args();
 
                     state._fsp--;
@@ -512,7 +704,7 @@ public class CfgParser extends Parser {
             }
 
 
-            match(input,18,FOLLOW_18_in_arguments205); 
+            match(input,20,FOLLOW_20_in_arguments290); 
 
 
             	  args = g;
@@ -536,7 +728,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "args"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:102:1: args returns [ArrayList<String> n_ag] : a= arg[true] ( ',' b= arg[true] )* ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:125:1: args returns [ArrayList<String> n_ag] : a= arg[true] ( ',' b= arg[true] )* ;
     public final ArrayList<String> args() throws RecognitionException {
         ArrayList<String> n_ag = null;
 
@@ -550,10 +742,10 @@ public class CfgParser extends Parser {
         ArrayList<String> args = new ArrayList<String>();
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:106:2: (a= arg[true] ( ',' b= arg[true] )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:106:3: a= arg[true] ( ',' b= arg[true] )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:129:2: (a= arg[true] ( ',' b= arg[true] )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:129:3: a= arg[true] ( ',' b= arg[true] )*
             {
-            pushFollow(FOLLOW_arg_in_args228);
+            pushFollow(FOLLOW_arg_in_args313);
             a=arg(true);
 
             state._fsp--;
@@ -561,24 +753,24 @@ public class CfgParser extends Parser {
 
              args.add(a);
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:106:35: ( ',' b= arg[true] )*
-            loop5:
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:129:35: ( ',' b= arg[true] )*
+            loop7:
             do {
-                int alt5=2;
-                int LA5_0 = input.LA(1);
+                int alt7=2;
+                int LA7_0 = input.LA(1);
 
-                if ( (LA5_0==14) ) {
-                    alt5=1;
+                if ( (LA7_0==16) ) {
+                    alt7=1;
                 }
 
 
-                switch (alt5) {
+                switch (alt7) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:106:36: ',' b= arg[true]
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:129:36: ',' b= arg[true]
             	    {
-            	    match(input,14,FOLLOW_14_in_args234); 
+            	    match(input,16,FOLLOW_16_in_args319); 
 
-            	    pushFollow(FOLLOW_arg_in_args238);
+            	    pushFollow(FOLLOW_arg_in_args323);
             	    b=arg(true);
 
             	    state._fsp--;
@@ -590,7 +782,7 @@ public class CfgParser extends Parser {
             	    break;
 
             	default :
-            	    break loop5;
+            	    break loop7;
                 }
             } while (true);
 
@@ -617,41 +809,41 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "sp"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:113:1: sp returns [String sp] : ( 'for' i= INT sigs | 'for' j= INT 'but exactly' sigs );
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:136:1: sp returns [String sp] : ( 'for' i= INT sigs | 'for' j= INT 'but exactly' sigs );
     public final String sp() throws RecognitionException {
         String sp = null;
 
 
         Token i=null;
         Token j=null;
-        ArrayList<String> sigs5 =null;
-
         ArrayList<String> sigs6 =null;
+
+        ArrayList<String> sigs7 =null;
 
 
 
         StringBuilder scope = new StringBuilder();
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:117:2: ( 'for' i= INT sigs | 'for' j= INT 'but exactly' sigs )
-            int alt6=2;
-            int LA6_0 = input.LA(1);
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:140:2: ( 'for' i= INT sigs | 'for' j= INT 'but exactly' sigs )
+            int alt8=2;
+            int LA8_0 = input.LA(1);
 
-            if ( (LA6_0==21) ) {
-                int LA6_1 = input.LA(2);
+            if ( (LA8_0==24) ) {
+                int LA8_1 = input.LA(2);
 
-                if ( (LA6_1==INT) ) {
-                    int LA6_2 = input.LA(3);
+                if ( (LA8_1==INT) ) {
+                    int LA8_2 = input.LA(3);
 
-                    if ( (LA6_2==19) ) {
-                        alt6=2;
+                    if ( (LA8_2==21) ) {
+                        alt8=2;
                     }
-                    else if ( (LA6_2==INT) ) {
-                        alt6=1;
+                    else if ( (LA8_2==INT) ) {
+                        alt8=1;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("", 6, 2, input);
+                            new NoViableAltException("", 8, 2, input);
 
                         throw nvae;
 
@@ -659,7 +851,7 @@ public class CfgParser extends Parser {
                 }
                 else {
                     NoViableAltException nvae =
-                        new NoViableAltException("", 6, 1, input);
+                        new NoViableAltException("", 8, 1, input);
 
                     throw nvae;
 
@@ -667,28 +859,28 @@ public class CfgParser extends Parser {
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("", 6, 0, input);
+                    new NoViableAltException("", 8, 0, input);
 
                 throw nvae;
 
             }
-            switch (alt6) {
+            switch (alt8) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:117:4: 'for' i= INT sigs
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:140:4: 'for' i= INT sigs
                     {
-                    match(input,21,FOLLOW_21_in_sp267); 
+                    match(input,24,FOLLOW_24_in_sp352); 
 
-                    i=(Token)match(input,INT,FOLLOW_INT_in_sp272); 
+                    i=(Token)match(input,INT,FOLLOW_INT_in_sp357); 
 
-                    pushFollow(FOLLOW_sigs_in_sp275);
-                    sigs5=sigs();
+                    pushFollow(FOLLOW_sigs_in_sp360);
+                    sigs6=sigs();
 
                     state._fsp--;
 
 
 
                     	 scope.append("for  " + (i!=null?i.getText():null)+ " ");
-                    	 for (String sig : sigs5)
+                    	 for (String sig : sigs6)
                     	  {
                     	   scope.append(sig +" ");  	
                     	  }
@@ -698,23 +890,23 @@ public class CfgParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:126:4: 'for' j= INT 'but exactly' sigs
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:149:4: 'for' j= INT 'but exactly' sigs
                     {
-                    match(input,21,FOLLOW_21_in_sp283); 
+                    match(input,24,FOLLOW_24_in_sp368); 
 
-                    j=(Token)match(input,INT,FOLLOW_INT_in_sp287); 
+                    j=(Token)match(input,INT,FOLLOW_INT_in_sp372); 
 
-                    match(input,19,FOLLOW_19_in_sp290); 
+                    match(input,21,FOLLOW_21_in_sp375); 
 
-                    pushFollow(FOLLOW_sigs_in_sp292);
-                    sigs6=sigs();
+                    pushFollow(FOLLOW_sigs_in_sp377);
+                    sigs7=sigs();
 
                     state._fsp--;
 
 
 
                     	 scope.append("for "  +(j!=null?j.getText():null)+ " but exactly ");
-                    	 for (String sig : sigs6)
+                    	 for (String sig : sigs7)
                     	  {
                     	   scope.append(sig +" ");  	
                     	  }
@@ -741,7 +933,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "sigs"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:137:1: sigs returns [ArrayList<String> n_sigs] : a= sig ( ',' b= sig )* ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:160:1: sigs returns [ArrayList<String> n_sigs] : a= sig ( ',' b= sig )* ;
     public final ArrayList<String> sigs() throws RecognitionException {
         ArrayList<String> n_sigs = null;
 
@@ -755,10 +947,10 @@ public class CfgParser extends Parser {
         ArrayList<String> sigs = new ArrayList<String>();
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:141:2: (a= sig ( ',' b= sig )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:141:4: a= sig ( ',' b= sig )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:164:2: (a= sig ( ',' b= sig )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:164:4: a= sig ( ',' b= sig )*
             {
-            pushFollow(FOLLOW_sig_in_sigs318);
+            pushFollow(FOLLOW_sig_in_sigs403);
             a=sig();
 
             state._fsp--;
@@ -766,24 +958,24 @@ public class CfgParser extends Parser {
 
              sigs.add(a);
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:141:30: ( ',' b= sig )*
-            loop7:
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:164:30: ( ',' b= sig )*
+            loop9:
             do {
-                int alt7=2;
-                int LA7_0 = input.LA(1);
+                int alt9=2;
+                int LA9_0 = input.LA(1);
 
-                if ( (LA7_0==14) ) {
-                    alt7=1;
+                if ( (LA9_0==16) ) {
+                    alt9=1;
                 }
 
 
-                switch (alt7) {
+                switch (alt9) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:141:31: ',' b= sig
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:164:31: ',' b= sig
             	    {
-            	    match(input,14,FOLLOW_14_in_sigs322); 
+            	    match(input,16,FOLLOW_16_in_sigs407); 
 
-            	    pushFollow(FOLLOW_sig_in_sigs326);
+            	    pushFollow(FOLLOW_sig_in_sigs411);
             	    b=sig();
 
             	    state._fsp--;
@@ -795,7 +987,7 @@ public class CfgParser extends Parser {
             	    break;
 
             	default :
-            	    break loop7;
+            	    break loop9;
                 }
             } while (true);
 
@@ -822,7 +1014,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "sig"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:147:1: sig returns [String sig] : i= INT s= ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:170:1: sig returns [String sig] : i= INT s= ID ;
     public final String sig() throws RecognitionException {
         String sig = null;
 
@@ -831,12 +1023,12 @@ public class CfgParser extends Parser {
         Token s=null;
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:148:2: (i= INT s= ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:148:3: i= INT s= ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:171:2: (i= INT s= ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:171:3: i= INT s= ID
             {
-            i=(Token)match(input,INT,FOLLOW_INT_in_sig351); 
+            i=(Token)match(input,INT,FOLLOW_INT_in_sig436); 
 
-            s=(Token)match(input,ID,FOLLOW_ID_in_sig356); 
+            s=(Token)match(input,ID,FOLLOW_ID_in_sig441); 
 
 
             	 sig = (i!=null?i.getText():null) +" " + (s!=null?s.getText():null);
@@ -865,7 +1057,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "var"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:154:1: var returns [String arg, String type] : a= arg[false] ':' t= type ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:177:1: var returns [String arg, String type] : a= arg[false] ':' t= type ;
     public final CfgParser.var_return var() throws RecognitionException {
         CfgParser.var_return retval = new CfgParser.var_return();
         retval.start = input.LT(1);
@@ -877,18 +1069,18 @@ public class CfgParser extends Parser {
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:155:2: (a= arg[false] ':' t= type )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:155:4: a= arg[false] ':' t= type
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:178:2: (a= arg[false] ':' t= type )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:178:4: a= arg[false] ':' t= type
             {
-            pushFollow(FOLLOW_arg_in_var376);
+            pushFollow(FOLLOW_arg_in_var461);
             a=arg(false);
 
             state._fsp--;
 
 
-            match(input,15,FOLLOW_15_in_var379); 
+            match(input,17,FOLLOW_17_in_var464); 
 
-            pushFollow(FOLLOW_type_in_var383);
+            pushFollow(FOLLOW_type_in_var468);
             t=type();
 
             state._fsp--;
@@ -923,17 +1115,17 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "type"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:162:1: type : ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:185:1: type : ID ;
     public final CfgParser.type_return type() throws RecognitionException {
         CfgParser.type_return retval = new CfgParser.type_return();
         retval.start = input.LT(1);
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:163:2: ( ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:163:3: ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:2: ( ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:3: ID
             {
-            match(input,ID,FOLLOW_ID_in_type398); 
+            match(input,ID,FOLLOW_ID_in_type483); 
 
             }
 
@@ -962,39 +1154,39 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "cmdgit"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:166:1: cmdgit returns [String pg,String cmd,ArrayList<String> opts] : 'git' name opts ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:189:1: cmdgit returns [String pg,String cmd,ArrayList<String> opts] : 'git' name opts ;
     public final CfgParser.cmdgit_return cmdgit() throws RecognitionException {
         CfgParser.cmdgit_return retval = new CfgParser.cmdgit_return();
         retval.start = input.LT(1);
 
 
-        CfgParser.name_return name7 =null;
+        CfgParser.name_return name8 =null;
 
-        ArrayList<String> opts8 =null;
+        ArrayList<String> opts9 =null;
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:167:2: ( 'git' name opts )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:167:3: 'git' name opts
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:190:2: ( 'git' name opts )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:190:3: 'git' name opts
             {
-            match(input,22,FOLLOW_22_in_cmdgit413); 
+            match(input,25,FOLLOW_25_in_cmdgit498); 
 
-            pushFollow(FOLLOW_name_in_cmdgit415);
-            name7=name();
+            pushFollow(FOLLOW_name_in_cmdgit500);
+            name8=name();
 
             state._fsp--;
 
 
-            pushFollow(FOLLOW_opts_in_cmdgit417);
-            opts8=opts();
+            pushFollow(FOLLOW_opts_in_cmdgit502);
+            opts9=opts();
 
             state._fsp--;
 
 
 
             	 retval.pg = "git";
-            	 retval.cmd = (name7!=null?input.toString(name7.start,name7.stop):null);
-            	 retval.opts = opts8;
+            	 retval.cmd = (name8!=null?input.toString(name8.start,name8.stop):null);
+            	 retval.opts = opts9;
             	
 
             }
@@ -1018,7 +1210,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "opts"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:175:1: opts returns [ArrayList<String> n_opts] : a= opt (b= opt )* ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:198:1: opts returns [ArrayList<String> n_opts] : a= opt (b= opt )* ;
     public final ArrayList<String> opts() throws RecognitionException {
         ArrayList<String> n_opts = null;
 
@@ -1032,10 +1224,10 @@ public class CfgParser extends Parser {
         ArrayList<String> opts = new ArrayList<String>();
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:179:10: (a= opt (b= opt )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:179:11: a= opt (b= opt )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:10: (a= opt (b= opt )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:11: a= opt (b= opt )*
             {
-            pushFollow(FOLLOW_opt_in_opts448);
+            pushFollow(FOLLOW_opt_in_opts533);
             a=opt();
 
             state._fsp--;
@@ -1043,22 +1235,22 @@ public class CfgParser extends Parser {
 
             opts.add(a); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:179:37: (b= opt )*
-            loop8:
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:37: (b= opt )*
+            loop10:
             do {
-                int alt8=2;
-                int LA8_0 = input.LA(1);
+                int alt10=2;
+                int LA10_0 = input.LA(1);
 
-                if ( (LA8_0==ID||LA8_0==STRING||LA8_0==13) ) {
-                    alt8=1;
+                if ( (LA10_0==ID||LA10_0==STRING||LA10_0==13) ) {
+                    alt10=1;
                 }
 
 
-                switch (alt8) {
+                switch (alt10) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:179:38: b= opt
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:38: b= opt
             	    {
-            	    pushFollow(FOLLOW_opt_in_opts455);
+            	    pushFollow(FOLLOW_opt_in_opts540);
             	    b=opt();
 
             	    state._fsp--;
@@ -1070,7 +1262,7 @@ public class CfgParser extends Parser {
             	    break;
 
             	default :
-            	    break loop8;
+            	    break loop10;
                 }
             } while (true);
 
@@ -1097,48 +1289,48 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "opt"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:185:1: opt returns [String op] : (i= ID | arg[false] |s= STRING );
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:208:1: opt returns [String op] : (i= ID | arg[false] |s= STRING );
     public final String opt() throws RecognitionException {
         String op = null;
 
 
         Token i=null;
         Token s=null;
-        String arg9 =null;
+        String arg10 =null;
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:2: (i= ID | arg[false] |s= STRING )
-            int alt9=3;
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:209:2: (i= ID | arg[false] |s= STRING )
+            int alt11=3;
             switch ( input.LA(1) ) {
             case ID:
                 {
-                alt9=1;
+                alt11=1;
                 }
                 break;
             case 13:
                 {
-                alt9=2;
+                alt11=2;
                 }
                 break;
             case STRING:
                 {
-                alt9=3;
+                alt11=3;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("", 9, 0, input);
+                    new NoViableAltException("", 11, 0, input);
 
                 throw nvae;
 
             }
 
-            switch (alt9) {
+            switch (alt11) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:186:4: i= ID
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:209:4: i= ID
                     {
-                    i=(Token)match(input,ID,FOLLOW_ID_in_opt482); 
+                    i=(Token)match(input,ID,FOLLOW_ID_in_opt567); 
 
 
                     	op = (i!=null?i.getText():null);
@@ -1147,24 +1339,24 @@ public class CfgParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:190:3: arg[false]
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:213:3: arg[false]
                     {
-                    pushFollow(FOLLOW_arg_in_opt490);
-                    arg9=arg(false);
+                    pushFollow(FOLLOW_arg_in_opt575);
+                    arg10=arg(false);
 
                     state._fsp--;
 
 
 
-                    	op = arg9;
+                    	op = arg10;
                     	
 
                     }
                     break;
                 case 3 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:194:4: s= STRING
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:4: s= STRING
                     {
-                    s=(Token)match(input,STRING,FOLLOW_STRING_in_opt501); 
+                    s=(Token)match(input,STRING,FOLLOW_STRING_in_opt586); 
 
 
                     	op = (s!=null?s.getText():null);
@@ -1193,17 +1385,17 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "name"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:201:1: name : ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:224:1: name : ID ;
     public final CfgParser.name_return name() throws RecognitionException {
         CfgParser.name_return retval = new CfgParser.name_return();
         retval.start = input.LT(1);
 
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:2: ( ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:202:4: ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:2: ( ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:225:4: ID
             {
-            match(input,ID,FOLLOW_ID_in_name519); 
+            match(input,ID,FOLLOW_ID_in_name604); 
 
             }
 
@@ -1226,7 +1418,7 @@ public class CfgParser extends Parser {
 
 
     // $ANTLR start "arg"
-    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:205:1: arg[boolean flag] returns [String ag] : '#' i= ID ;
+    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:1: arg[boolean flag] returns [String ag] : '#' i= ID ;
     public final String arg(boolean flag) throws RecognitionException {
         String ag = null;
 
@@ -1234,12 +1426,12 @@ public class CfgParser extends Parser {
         Token i=null;
 
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:206:2: ( '#' i= ID )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:206:3: '#' i= ID
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:229:2: ( '#' i= ID )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:229:3: '#' i= ID
             {
-            match(input,13,FOLLOW_13_in_arg536); 
+            match(input,13,FOLLOW_13_in_arg621); 
 
-            i=(Token)match(input,ID,FOLLOW_ID_in_arg539); 
+            i=(Token)match(input,ID,FOLLOW_ID_in_arg624); 
 
 
             	if(flag)
@@ -1267,55 +1459,64 @@ public class CfgParser extends Parser {
 
  
 
-    public static final BitSet FOLLOW_comand_in_cfg28 = new BitSet(new long[]{0x0000000001010000L});
-    public static final BitSet FOLLOW_16_in_cfg37 = new BitSet(new long[]{0x0000000000802000L});
-    public static final BitSet FOLLOW_comand_in_cfg41 = new BitSet(new long[]{0x0000000001010000L});
+    public static final BitSet FOLLOW_comand_in_cfg28 = new BitSet(new long[]{0x0000000008040000L});
+    public static final BitSet FOLLOW_18_in_cfg37 = new BitSet(new long[]{0x0000000004002000L});
+    public static final BitSet FOLLOW_comand_in_cfg41 = new BitSet(new long[]{0x0000000008040000L});
     public static final BitSet FOLLOW_runs_in_cfg51 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_vars_in_comand74 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_23_in_comand77 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_pred_in_comand79 = new BitSet(new long[]{0x0000000002000000L});
-    public static final BitSet FOLLOW_25_in_comand82 = new BitSet(new long[]{0x0000000000200000L});
-    public static final BitSet FOLLOW_sp_in_comand85 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_20_in_comand87 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_cmdgit_in_comand90 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_24_in_runs112 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_INT_in_runs116 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_var_in_vars141 = new BitSet(new long[]{0x0000000000002002L});
-    public static final BitSet FOLLOW_var_in_vars149 = new BitSet(new long[]{0x0000000000002002L});
-    public static final BitSet FOLLOW_name_in_pred174 = new BitSet(new long[]{0x0000000000020000L});
-    public static final BitSet FOLLOW_arguments_in_pred178 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_17_in_arguments198 = new BitSet(new long[]{0x0000000000042000L});
-    public static final BitSet FOLLOW_args_in_arguments202 = new BitSet(new long[]{0x0000000000040000L});
-    public static final BitSet FOLLOW_18_in_arguments205 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_arg_in_args228 = new BitSet(new long[]{0x0000000000004002L});
-    public static final BitSet FOLLOW_14_in_args234 = new BitSet(new long[]{0x0000000000002000L});
-    public static final BitSet FOLLOW_arg_in_args238 = new BitSet(new long[]{0x0000000000004002L});
-    public static final BitSet FOLLOW_21_in_sp267 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_INT_in_sp272 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_sigs_in_sp275 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_21_in_sp283 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_INT_in_sp287 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_19_in_sp290 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_sigs_in_sp292 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_sig_in_sigs318 = new BitSet(new long[]{0x0000000000004002L});
-    public static final BitSet FOLLOW_14_in_sigs322 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_sig_in_sigs326 = new BitSet(new long[]{0x0000000000004002L});
-    public static final BitSet FOLLOW_INT_in_sig351 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_ID_in_sig356 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_arg_in_var376 = new BitSet(new long[]{0x0000000000008000L});
-    public static final BitSet FOLLOW_15_in_var379 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_type_in_var383 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_type398 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_22_in_cmdgit413 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_name_in_cmdgit415 = new BitSet(new long[]{0x0000000000002480L});
-    public static final BitSet FOLLOW_opts_in_cmdgit417 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_opt_in_opts448 = new BitSet(new long[]{0x0000000000002482L});
-    public static final BitSet FOLLOW_opt_in_opts455 = new BitSet(new long[]{0x0000000000002482L});
-    public static final BitSet FOLLOW_ID_in_opt482 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_arg_in_opt490 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_in_opt501 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_name519 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_13_in_arg536 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_ID_in_arg539 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_vars_in_comand74 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_26_in_comand77 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_pred_in_comand79 = new BitSet(new long[]{0x0000000010000000L});
+    public static final BitSet FOLLOW_28_in_comand82 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_sp_in_comand85 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_22_in_comand87 = new BitSet(new long[]{0x0000000002000000L});
+    public static final BitSet FOLLOW_cmdgit_in_comand90 = new BitSet(new long[]{0x0000000000800002L});
+    public static final BitSet FOLLOW_errors_in_comand94 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_23_in_errors115 = new BitSet(new long[]{0x0000000000004000L});
+    public static final BitSet FOLLOW_14_in_errors117 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_list_errors_in_errors121 = new BitSet(new long[]{0x0000000000008000L});
+    public static final BitSet FOLLOW_15_in_errors123 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_error_in_list_errors147 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_16_in_list_errors151 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_error_in_list_errors155 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_STRING_in_error177 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_27_in_runs197 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_INT_in_runs201 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_var_in_vars226 = new BitSet(new long[]{0x0000000000002002L});
+    public static final BitSet FOLLOW_var_in_vars234 = new BitSet(new long[]{0x0000000000002002L});
+    public static final BitSet FOLLOW_name_in_pred259 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_arguments_in_pred263 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_19_in_arguments283 = new BitSet(new long[]{0x0000000000102000L});
+    public static final BitSet FOLLOW_args_in_arguments287 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_20_in_arguments290 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_arg_in_args313 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_16_in_args319 = new BitSet(new long[]{0x0000000000002000L});
+    public static final BitSet FOLLOW_arg_in_args323 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_24_in_sp352 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_INT_in_sp357 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_sigs_in_sp360 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_24_in_sp368 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_INT_in_sp372 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_21_in_sp375 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_sigs_in_sp377 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_sig_in_sigs403 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_16_in_sigs407 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_sig_in_sigs411 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_INT_in_sig436 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_ID_in_sig441 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_arg_in_var461 = new BitSet(new long[]{0x0000000000020000L});
+    public static final BitSet FOLLOW_17_in_var464 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_type_in_var468 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_type483 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_25_in_cmdgit498 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_name_in_cmdgit500 = new BitSet(new long[]{0x0000000000002480L});
+    public static final BitSet FOLLOW_opts_in_cmdgit502 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_opt_in_opts533 = new BitSet(new long[]{0x0000000000002482L});
+    public static final BitSet FOLLOW_opt_in_opts540 = new BitSet(new long[]{0x0000000000002482L});
+    public static final BitSet FOLLOW_ID_in_opt567 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_arg_in_opt575 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_in_opt586 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_name604 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_13_in_arg621 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_ID_in_arg624 = new BitSet(new long[]{0x0000000000000002L});
 
 }

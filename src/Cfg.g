@@ -11,7 +11,7 @@ import java.lang.StringBuilder;
 
 
 
-cfg returns[ArrayList<HashMap<String,String>> vars,ArrayList<ArrayList<String>> args ,ArrayList<ArrayList<String>> opts, ArrayList<String> preds,ArrayList<String> scopes, ArrayList<String> cmds ,int n_runs,int n_comands]
+cfg returns[ArrayList<HashMap<String,String>> vars,ArrayList<ArrayList<String>> args ,ArrayList<ArrayList<String>> opts, ArrayList<String> preds,ArrayList<String> scopes, ArrayList<String> cmds ,int n_runs,int n_comands,ArrayList<ArrayList<String>> errors]
 @init{
 ArrayList<HashMap<String,String>> vars = new ArrayList<HashMap<String,String>>();
 ArrayList<ArrayList<String>> args = new ArrayList<ArrayList<String>>();
@@ -19,6 +19,7 @@ ArrayList<ArrayList<String>> opts = new ArrayList<ArrayList<String>>();
 ArrayList<String> preds = new ArrayList<String>();
 ArrayList<String> scopes = new ArrayList<String>();
 ArrayList<String> cmds = new ArrayList<String>();
+ArrayList<ArrayList<String>> errors = new ArrayList<ArrayList<String>>();
 int n_comands = 0;
 }
 	: a=comand{
@@ -28,6 +29,7 @@ int n_comands = 0;
 	preds.add($a.pred);
 	scopes.add($a.scope);
 	cmds.add($a.cmd);
+	errors.add($a.err);
 	n_comands++;
 	}
 	
@@ -38,6 +40,7 @@ int n_comands = 0;
 	 preds.add($b.pred);
 	 scopes.add($b.scope);
 	 cmds.add($b.cmd);
+	 errors.add($b.err);
 	 n_comands++;
 	 }
 	 )* r=runs
@@ -50,13 +53,14 @@ int n_comands = 0;
 	 	$cfg.cmds = cmds;
 	 	$cfg.n_runs = $r.n_runs;
 	 	$cfg.n_comands = n_comands;
+	 	$cfg.errors = errors;
 	
 	 }
 	;	
 
 
-comand   returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList<String> opts, String pred,String scope, String cmd]
-	: vars? 'pred' pred  'scope'  sp 'cmd'  cmdgit 
+comand   returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList<String> opts, String pred,String scope, String cmd, ArrayList<String> err]
+	: vars? 'pred' pred  'scope'  sp 'cmd'  cmdgit   errors?
 	 {
 	 	$comand.vars = $vars.a_vars;
 		$comand.args = $pred.args;
@@ -64,10 +68,29 @@ comand   returns [HashMap<String,String> vars, ArrayList<String> args, ArrayList
 	  	$comand.pred = $pred.name;
 	  	$comand.scope = $sp.sp;
 		$comand.cmd = $cmdgit.cmd;
-	
+		$comand.err = $errors.e_rror;
 	 }
 	; 
 
+errors returns [ArrayList<String> e_rror]
+ 	:'errors' '(' l=list_errors ')'
+ 	{$errors.e_rror = $l.e_rror;}
+	;	
+
+list_errors returns[ArrayList<String> e_rror]
+@init{
+ArrayList<String>  err = new ArrayList<String>();
+}
+	:a=error{err.add($a.e);} (','b= error{err.add($b.e);})*
+	{$list_errors.e_rror = err;}
+	;
+
+error returns[String e]
+ 	:s=STRING
+ 	{
+	 $error.e = $s.text;
+	}
+ 	;
 runs  returns [int n_runs]
 	: 'runs' i=INT
 	{

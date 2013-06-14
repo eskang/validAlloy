@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-05-09 23:04:07
+// $ANTLR 3.4 /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g 2013-06-14 16:03:51
 
 import org.antlr.runtime.*;
 import java.util.Stack;
@@ -21,6 +21,9 @@ public class CfgLexer extends Lexer {
     public static final int T__23=23;
     public static final int T__24=24;
     public static final int T__25=25;
+    public static final int T__26=26;
+    public static final int T__27=27;
+    public static final int T__28=28;
     public static final int CHAR=4;
     public static final int ESC_SEQ=5;
     public static final int HEX_DIGIT=6;
@@ -72,10 +75,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__14;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:3:7: ( ',' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:3:9: ','
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:3:7: ( '(' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:3:9: '('
             {
-            match(','); 
+            match('('); 
 
             }
 
@@ -93,10 +96,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__15;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:4:7: ( ':' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:4:9: ':'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:4:7: ( ')' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:4:9: ')'
             {
-            match(':'); 
+            match(')'); 
 
             }
 
@@ -114,10 +117,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__16;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:5:7: ( ';' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:5:9: ';'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:5:7: ( ',' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:5:9: ','
             {
-            match(';'); 
+            match(','); 
 
             }
 
@@ -135,10 +138,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__17;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:6:7: ( '[' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:6:9: '['
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:6:7: ( ':' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:6:9: ':'
             {
-            match('['); 
+            match(':'); 
 
             }
 
@@ -156,10 +159,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__18;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:7:7: ( ']' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:7:9: ']'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:7:7: ( ';' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:7:9: ';'
             {
-            match(']'); 
+            match(';'); 
 
             }
 
@@ -177,12 +180,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__19;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:8:7: ( 'but exactly' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:8:9: 'but exactly'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:8:7: ( '[' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:8:9: '['
             {
-            match("but exactly"); 
-
-
+            match('['); 
 
             }
 
@@ -200,12 +201,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__20;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:9:7: ( 'cmd' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:9:9: 'cmd'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:9:7: ( ']' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:9:9: ']'
             {
-            match("cmd"); 
-
-
+            match(']'); 
 
             }
 
@@ -223,10 +222,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__21;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:10:7: ( 'for' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:10:9: 'for'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:10:7: ( 'but exactly' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:10:9: 'but exactly'
             {
-            match("for"); 
+            match("but exactly"); 
 
 
 
@@ -246,10 +245,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__22;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:11:7: ( 'git' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:11:9: 'git'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:11:7: ( 'cmd' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:11:9: 'cmd'
             {
-            match("git"); 
+            match("cmd"); 
 
 
 
@@ -269,10 +268,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__23;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:12:7: ( 'pred' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:12:9: 'pred'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:12:7: ( 'errors' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:12:9: 'errors'
             {
-            match("pred"); 
+            match("errors"); 
 
 
 
@@ -292,10 +291,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__24;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:13:7: ( 'runs' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:13:9: 'runs'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:13:7: ( 'for' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:13:9: 'for'
             {
-            match("runs"); 
+            match("for"); 
 
 
 
@@ -315,10 +314,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = T__25;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:7: ( 'scope' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:9: 'scope'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:7: ( 'git' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:14:9: 'git'
             {
-            match("scope"); 
+            match("git"); 
 
 
 
@@ -333,13 +332,82 @@ public class CfgLexer extends Lexer {
     }
     // $ANTLR end "T__25"
 
+    // $ANTLR start "T__26"
+    public final void mT__26() throws RecognitionException {
+        try {
+            int _type = T__26;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:15:7: ( 'pred' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:15:9: 'pred'
+            {
+            match("pred"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "T__26"
+
+    // $ANTLR start "T__27"
+    public final void mT__27() throws RecognitionException {
+        try {
+            int _type = T__27;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:16:7: ( 'runs' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:16:9: 'runs'
+            {
+            match("runs"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "T__27"
+
+    // $ANTLR start "T__28"
+    public final void mT__28() throws RecognitionException {
+        try {
+            int _type = T__28;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:17:7: ( 'scope' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:17:9: 'scope'
+            {
+            match("scope"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "T__28"
+
     // $ANTLR start "ID"
     public final void mID() throws RecognitionException {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )* )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:237:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )* )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:237:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '-' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
             {
             if ( input.LA(1)=='-'||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -351,7 +419,7 @@ public class CfgLexer extends Lexer {
             }
 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:214:35: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:237:35: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' )*
             loop1:
             do {
                 int alt1=2;
@@ -401,10 +469,10 @@ public class CfgLexer extends Lexer {
         try {
             int _type = INT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:5: ( ( '0' .. '9' )+ )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:7: ( '0' .. '9' )+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:5: ( ( '0' .. '9' )+ )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:7: ( '0' .. '9' )+
             {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:217:7: ( '0' .. '9' )+
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:7: ( '0' .. '9' )+
             int cnt2=0;
             loop2:
             do {
@@ -459,8 +527,8 @@ public class CfgLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:220:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:220:9: ( ' ' | '\\t' | '\\r' | '\\n' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:243:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:243:9: ( ' ' | '\\t' | '\\r' | '\\n' )
             {
             if ( (input.LA(1) >= '\t' && input.LA(1) <= '\n')||input.LA(1)=='\r'||input.LA(1)==' ' ) {
                 input.consume();
@@ -490,12 +558,12 @@ public class CfgLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:5: ( '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:8: '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"'
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:251:5: ( '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:251:8: '\"' ( ESC_SEQ |~ ( '\\\\' | '\"' ) )* '\"'
             {
             match('\"'); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:12: ( ESC_SEQ |~ ( '\\\\' | '\"' ) )*
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:251:12: ( ESC_SEQ |~ ( '\\\\' | '\"' ) )*
             loop3:
             do {
                 int alt3=3;
@@ -511,7 +579,7 @@ public class CfgLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:14: ESC_SEQ
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:251:14: ESC_SEQ
             	    {
             	    mESC_SEQ(); 
 
@@ -519,7 +587,7 @@ public class CfgLexer extends Lexer {
             	    }
             	    break;
             	case 2 :
-            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:228:24: ~ ( '\\\\' | '\"' )
+            	    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:251:24: ~ ( '\\\\' | '\"' )
             	    {
             	    if ( (input.LA(1) >= '\u0000' && input.LA(1) <= '!')||(input.LA(1) >= '#' && input.LA(1) <= '[')||(input.LA(1) >= ']' && input.LA(1) <= '\uFFFF') ) {
             	        input.consume();
@@ -558,12 +626,12 @@ public class CfgLexer extends Lexer {
         try {
             int _type = CHAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:5: ( '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\'' )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:8: '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\''
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:5: ( '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\'' )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:8: '\\'' ( ESC_SEQ |~ ( '\\'' | '\\\\' ) ) '\\''
             {
             match('\''); 
 
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:13: ( ESC_SEQ |~ ( '\\'' | '\\\\' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:13: ( ESC_SEQ |~ ( '\\'' | '\\\\' ) )
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -582,7 +650,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt4) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:15: ESC_SEQ
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:15: ESC_SEQ
                     {
                     mESC_SEQ(); 
 
@@ -590,7 +658,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:231:25: ~ ( '\\'' | '\\\\' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:25: ~ ( '\\'' | '\\\\' )
                     {
                     if ( (input.LA(1) >= '\u0000' && input.LA(1) <= '&')||(input.LA(1) >= '(' && input.LA(1) <= '[')||(input.LA(1) >= ']' && input.LA(1) <= '\uFFFF') ) {
                         input.consume();
@@ -624,7 +692,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:236:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:259:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
             // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'F')||(input.LA(1) >= 'a' && input.LA(1) <= 'f') ) {
@@ -650,7 +718,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "ESC_SEQ"
     public final void mESC_SEQ() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:263:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
             int alt5=3;
             int LA5_0 = input.LA(1);
 
@@ -703,7 +771,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt5) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:240:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:263:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
                     {
                     match('\\'); 
 
@@ -720,7 +788,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:241:9: UNICODE_ESC
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:264:9: UNICODE_ESC
                     {
                     mUNICODE_ESC(); 
 
@@ -728,7 +796,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:242:9: OCTAL_ESC
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:265:9: OCTAL_ESC
                     {
                     mOCTAL_ESC(); 
 
@@ -748,7 +816,7 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "OCTAL_ESC"
     public final void mOCTAL_ESC() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:247:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:270:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
             int alt6=3;
             int LA6_0 = input.LA(1);
 
@@ -799,7 +867,7 @@ public class CfgLexer extends Lexer {
             }
             switch (alt6) {
                 case 1 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:247:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:270:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -836,7 +904,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:248:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:271:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -863,7 +931,7 @@ public class CfgLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:249:9: '\\\\' ( '0' .. '7' )
+                    // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:272:9: '\\\\' ( '0' .. '7' )
                     {
                     match('\\'); 
 
@@ -892,8 +960,8 @@ public class CfgLexer extends Lexer {
     // $ANTLR start "UNICODE_ESC"
     public final void mUNICODE_ESC() throws RecognitionException {
         try {
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
-            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:254:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:277:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
+            // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:277:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
             {
             match('\\'); 
 
@@ -922,246 +990,303 @@ public class CfgLexer extends Lexer {
     // $ANTLR end "UNICODE_ESC"
 
     public void mTokens() throws RecognitionException {
-        // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:8: ( T__13 | T__14 | T__15 | T__16 | T__17 | T__18 | T__19 | T__20 | T__21 | T__22 | T__23 | T__24 | T__25 | ID | INT | WS | STRING | CHAR )
-        int alt7=18;
+        // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:8: ( T__13 | T__14 | T__15 | T__16 | T__17 | T__18 | T__19 | T__20 | T__21 | T__22 | T__23 | T__24 | T__25 | T__26 | T__27 | T__28 | ID | INT | WS | STRING | CHAR )
+        int alt7=21;
         switch ( input.LA(1) ) {
         case '#':
             {
             alt7=1;
             }
             break;
-        case ',':
+        case '(':
             {
             alt7=2;
             }
             break;
-        case ':':
+        case ')':
             {
             alt7=3;
             }
             break;
-        case ';':
+        case ',':
             {
             alt7=4;
             }
             break;
-        case '[':
+        case ':':
             {
             alt7=5;
             }
             break;
-        case ']':
+        case ';':
             {
             alt7=6;
             }
             break;
+        case '[':
+            {
+            alt7=7;
+            }
+            break;
+        case ']':
+            {
+            alt7=8;
+            }
+            break;
         case 'b':
             {
-            int LA7_7 = input.LA(2);
+            int LA7_9 = input.LA(2);
 
-            if ( (LA7_7=='u') ) {
-                int LA7_19 = input.LA(3);
+            if ( (LA7_9=='u') ) {
+                int LA7_22 = input.LA(3);
 
-                if ( (LA7_19=='t') ) {
-                    int LA7_26 = input.LA(4);
+                if ( (LA7_22=='t') ) {
+                    int LA7_30 = input.LA(4);
 
-                    if ( (LA7_26==' ') ) {
-                        alt7=7;
+                    if ( (LA7_30==' ') ) {
+                        alt7=9;
                     }
                     else {
-                        alt7=14;
+                        alt7=17;
                     }
                 }
                 else {
-                    alt7=14;
+                    alt7=17;
                 }
             }
             else {
-                alt7=14;
+                alt7=17;
             }
             }
             break;
         case 'c':
             {
-            int LA7_8 = input.LA(2);
-
-            if ( (LA7_8=='m') ) {
-                int LA7_20 = input.LA(3);
-
-                if ( (LA7_20=='d') ) {
-                    int LA7_27 = input.LA(4);
-
-                    if ( (LA7_27=='-'||(LA7_27 >= '0' && LA7_27 <= '9')||(LA7_27 >= 'A' && LA7_27 <= 'Z')||LA7_27=='_'||(LA7_27 >= 'a' && LA7_27 <= 'z')) ) {
-                        alt7=14;
-                    }
-                    else {
-                        alt7=8;
-                    }
-                }
-                else {
-                    alt7=14;
-                }
-            }
-            else {
-                alt7=14;
-            }
-            }
-            break;
-        case 'f':
-            {
-            int LA7_9 = input.LA(2);
-
-            if ( (LA7_9=='o') ) {
-                int LA7_21 = input.LA(3);
-
-                if ( (LA7_21=='r') ) {
-                    int LA7_28 = input.LA(4);
-
-                    if ( (LA7_28=='-'||(LA7_28 >= '0' && LA7_28 <= '9')||(LA7_28 >= 'A' && LA7_28 <= 'Z')||LA7_28=='_'||(LA7_28 >= 'a' && LA7_28 <= 'z')) ) {
-                        alt7=14;
-                    }
-                    else {
-                        alt7=9;
-                    }
-                }
-                else {
-                    alt7=14;
-                }
-            }
-            else {
-                alt7=14;
-            }
-            }
-            break;
-        case 'g':
-            {
             int LA7_10 = input.LA(2);
 
-            if ( (LA7_10=='i') ) {
-                int LA7_22 = input.LA(3);
+            if ( (LA7_10=='m') ) {
+                int LA7_23 = input.LA(3);
 
-                if ( (LA7_22=='t') ) {
-                    int LA7_29 = input.LA(4);
+                if ( (LA7_23=='d') ) {
+                    int LA7_31 = input.LA(4);
 
-                    if ( (LA7_29=='-'||(LA7_29 >= '0' && LA7_29 <= '9')||(LA7_29 >= 'A' && LA7_29 <= 'Z')||LA7_29=='_'||(LA7_29 >= 'a' && LA7_29 <= 'z')) ) {
-                        alt7=14;
+                    if ( (LA7_31=='-'||(LA7_31 >= '0' && LA7_31 <= '9')||(LA7_31 >= 'A' && LA7_31 <= 'Z')||LA7_31=='_'||(LA7_31 >= 'a' && LA7_31 <= 'z')) ) {
+                        alt7=17;
                     }
                     else {
                         alt7=10;
                     }
                 }
                 else {
-                    alt7=14;
+                    alt7=17;
                 }
             }
             else {
-                alt7=14;
+                alt7=17;
+            }
+            }
+            break;
+        case 'e':
+            {
+            int LA7_11 = input.LA(2);
+
+            if ( (LA7_11=='r') ) {
+                int LA7_24 = input.LA(3);
+
+                if ( (LA7_24=='r') ) {
+                    int LA7_32 = input.LA(4);
+
+                    if ( (LA7_32=='o') ) {
+                        int LA7_40 = input.LA(5);
+
+                        if ( (LA7_40=='r') ) {
+                            int LA7_46 = input.LA(6);
+
+                            if ( (LA7_46=='s') ) {
+                                int LA7_50 = input.LA(7);
+
+                                if ( (LA7_50=='-'||(LA7_50 >= '0' && LA7_50 <= '9')||(LA7_50 >= 'A' && LA7_50 <= 'Z')||LA7_50=='_'||(LA7_50 >= 'a' && LA7_50 <= 'z')) ) {
+                                    alt7=17;
+                                }
+                                else {
+                                    alt7=11;
+                                }
+                            }
+                            else {
+                                alt7=17;
+                            }
+                        }
+                        else {
+                            alt7=17;
+                        }
+                    }
+                    else {
+                        alt7=17;
+                    }
+                }
+                else {
+                    alt7=17;
+                }
+            }
+            else {
+                alt7=17;
+            }
+            }
+            break;
+        case 'f':
+            {
+            int LA7_12 = input.LA(2);
+
+            if ( (LA7_12=='o') ) {
+                int LA7_25 = input.LA(3);
+
+                if ( (LA7_25=='r') ) {
+                    int LA7_33 = input.LA(4);
+
+                    if ( (LA7_33=='-'||(LA7_33 >= '0' && LA7_33 <= '9')||(LA7_33 >= 'A' && LA7_33 <= 'Z')||LA7_33=='_'||(LA7_33 >= 'a' && LA7_33 <= 'z')) ) {
+                        alt7=17;
+                    }
+                    else {
+                        alt7=12;
+                    }
+                }
+                else {
+                    alt7=17;
+                }
+            }
+            else {
+                alt7=17;
+            }
+            }
+            break;
+        case 'g':
+            {
+            int LA7_13 = input.LA(2);
+
+            if ( (LA7_13=='i') ) {
+                int LA7_26 = input.LA(3);
+
+                if ( (LA7_26=='t') ) {
+                    int LA7_34 = input.LA(4);
+
+                    if ( (LA7_34=='-'||(LA7_34 >= '0' && LA7_34 <= '9')||(LA7_34 >= 'A' && LA7_34 <= 'Z')||LA7_34=='_'||(LA7_34 >= 'a' && LA7_34 <= 'z')) ) {
+                        alt7=17;
+                    }
+                    else {
+                        alt7=13;
+                    }
+                }
+                else {
+                    alt7=17;
+                }
+            }
+            else {
+                alt7=17;
             }
             }
             break;
         case 'p':
             {
-            int LA7_11 = input.LA(2);
+            int LA7_14 = input.LA(2);
 
-            if ( (LA7_11=='r') ) {
-                int LA7_23 = input.LA(3);
+            if ( (LA7_14=='r') ) {
+                int LA7_27 = input.LA(3);
 
-                if ( (LA7_23=='e') ) {
-                    int LA7_30 = input.LA(4);
+                if ( (LA7_27=='e') ) {
+                    int LA7_35 = input.LA(4);
 
-                    if ( (LA7_30=='d') ) {
-                        int LA7_37 = input.LA(5);
+                    if ( (LA7_35=='d') ) {
+                        int LA7_43 = input.LA(5);
 
-                        if ( (LA7_37=='-'||(LA7_37 >= '0' && LA7_37 <= '9')||(LA7_37 >= 'A' && LA7_37 <= 'Z')||LA7_37=='_'||(LA7_37 >= 'a' && LA7_37 <= 'z')) ) {
-                            alt7=14;
+                        if ( (LA7_43=='-'||(LA7_43 >= '0' && LA7_43 <= '9')||(LA7_43 >= 'A' && LA7_43 <= 'Z')||LA7_43=='_'||(LA7_43 >= 'a' && LA7_43 <= 'z')) ) {
+                            alt7=17;
                         }
                         else {
-                            alt7=11;
+                            alt7=14;
                         }
                     }
                     else {
-                        alt7=14;
+                        alt7=17;
                     }
                 }
                 else {
-                    alt7=14;
+                    alt7=17;
                 }
             }
             else {
-                alt7=14;
+                alt7=17;
             }
             }
             break;
         case 'r':
             {
-            int LA7_12 = input.LA(2);
+            int LA7_15 = input.LA(2);
 
-            if ( (LA7_12=='u') ) {
-                int LA7_24 = input.LA(3);
+            if ( (LA7_15=='u') ) {
+                int LA7_28 = input.LA(3);
 
-                if ( (LA7_24=='n') ) {
-                    int LA7_31 = input.LA(4);
+                if ( (LA7_28=='n') ) {
+                    int LA7_36 = input.LA(4);
 
-                    if ( (LA7_31=='s') ) {
-                        int LA7_38 = input.LA(5);
+                    if ( (LA7_36=='s') ) {
+                        int LA7_44 = input.LA(5);
 
-                        if ( (LA7_38=='-'||(LA7_38 >= '0' && LA7_38 <= '9')||(LA7_38 >= 'A' && LA7_38 <= 'Z')||LA7_38=='_'||(LA7_38 >= 'a' && LA7_38 <= 'z')) ) {
-                            alt7=14;
+                        if ( (LA7_44=='-'||(LA7_44 >= '0' && LA7_44 <= '9')||(LA7_44 >= 'A' && LA7_44 <= 'Z')||LA7_44=='_'||(LA7_44 >= 'a' && LA7_44 <= 'z')) ) {
+                            alt7=17;
                         }
                         else {
-                            alt7=12;
+                            alt7=15;
                         }
                     }
                     else {
-                        alt7=14;
+                        alt7=17;
                     }
                 }
                 else {
-                    alt7=14;
+                    alt7=17;
                 }
             }
             else {
-                alt7=14;
+                alt7=17;
             }
             }
             break;
         case 's':
             {
-            int LA7_13 = input.LA(2);
+            int LA7_16 = input.LA(2);
 
-            if ( (LA7_13=='c') ) {
-                int LA7_25 = input.LA(3);
+            if ( (LA7_16=='c') ) {
+                int LA7_29 = input.LA(3);
 
-                if ( (LA7_25=='o') ) {
-                    int LA7_32 = input.LA(4);
+                if ( (LA7_29=='o') ) {
+                    int LA7_37 = input.LA(4);
 
-                    if ( (LA7_32=='p') ) {
-                        int LA7_39 = input.LA(5);
+                    if ( (LA7_37=='p') ) {
+                        int LA7_45 = input.LA(5);
 
-                        if ( (LA7_39=='e') ) {
-                            int LA7_42 = input.LA(6);
+                        if ( (LA7_45=='e') ) {
+                            int LA7_49 = input.LA(6);
 
-                            if ( (LA7_42=='-'||(LA7_42 >= '0' && LA7_42 <= '9')||(LA7_42 >= 'A' && LA7_42 <= 'Z')||LA7_42=='_'||(LA7_42 >= 'a' && LA7_42 <= 'z')) ) {
-                                alt7=14;
+                            if ( (LA7_49=='-'||(LA7_49 >= '0' && LA7_49 <= '9')||(LA7_49 >= 'A' && LA7_49 <= 'Z')||LA7_49=='_'||(LA7_49 >= 'a' && LA7_49 <= 'z')) ) {
+                                alt7=17;
                             }
                             else {
-                                alt7=13;
+                                alt7=16;
                             }
                         }
                         else {
-                            alt7=14;
+                            alt7=17;
                         }
                     }
                     else {
-                        alt7=14;
+                        alt7=17;
                     }
                 }
                 else {
-                    alt7=14;
+                    alt7=17;
                 }
             }
             else {
-                alt7=14;
+                alt7=17;
             }
             }
             break;
@@ -1195,7 +1320,6 @@ public class CfgLexer extends Lexer {
         case '_':
         case 'a':
         case 'd':
-        case 'e':
         case 'h':
         case 'i':
         case 'j':
@@ -1213,7 +1337,7 @@ public class CfgLexer extends Lexer {
         case 'y':
         case 'z':
             {
-            alt7=14;
+            alt7=17;
             }
             break;
         case '0':
@@ -1227,7 +1351,7 @@ public class CfgLexer extends Lexer {
         case '8':
         case '9':
             {
-            alt7=15;
+            alt7=18;
             }
             break;
         case '\t':
@@ -1235,17 +1359,17 @@ public class CfgLexer extends Lexer {
         case '\r':
         case ' ':
             {
-            alt7=16;
+            alt7=19;
             }
             break;
         case '\"':
             {
-            alt7=17;
+            alt7=20;
             }
             break;
         case '\'':
             {
-            alt7=18;
+            alt7=21;
             }
             break;
         default:
@@ -1362,39 +1486,63 @@ public class CfgLexer extends Lexer {
                 }
                 break;
             case 14 :
-                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:88: ID
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:88: T__26
+                {
+                mT__26(); 
+
+
+                }
+                break;
+            case 15 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:94: T__27
+                {
+                mT__27(); 
+
+
+                }
+                break;
+            case 16 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:100: T__28
+                {
+                mT__28(); 
+
+
+                }
+                break;
+            case 17 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:106: ID
                 {
                 mID(); 
 
 
                 }
                 break;
-            case 15 :
-                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:91: INT
+            case 18 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:109: INT
                 {
                 mINT(); 
 
 
                 }
                 break;
-            case 16 :
-                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:95: WS
+            case 19 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:113: WS
                 {
                 mWS(); 
 
 
                 }
                 break;
-            case 17 :
-                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:98: STRING
+            case 20 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:116: STRING
                 {
                 mSTRING(); 
 
 
                 }
                 break;
-            case 18 :
-                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:105: CHAR
+            case 21 :
+                // /home/jpinheiro/Work/mfes/validAlloy/src/Cfg.g:1:123: CHAR
                 {
                 mCHAR(); 
 
