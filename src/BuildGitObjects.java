@@ -698,7 +698,9 @@ public class BuildGitObjects {
 		if(vars.get(cmd).equals("path")){
 			type = buildPath(sol,parent,name,path,mapAtom);
 			
-		} else{
+		} else if(vars.get(cmd).equals("branch")){
+			type = buildBranch(sol,path);
+		}else{
 			
 			type = buildPath(sol,parent,name,path,mapAtom);
 		}
@@ -707,7 +709,13 @@ public class BuildGitObjects {
 		
 	}
 	
-	
+	public static String buildBranch(A4Solution sol, ExprVar branch) throws Err{
+		A4TupleSet ts = (A4TupleSet) sol.eval(branch);
+		A4Tuple t = ts.iterator().next();
+		return t.atom(0).replace("$","_");
+
+	}	
+
 	public static void runCmd(A4Solution sol, Module world, String p,ExprVar path, HashMap<String,ExprVar> mapAtom,String cmd,ArrayList<String> options, HashMap<String,String> vars) throws Exception,GitException 
 	{ 
 		

@@ -108,56 +108,69 @@ public class FileSystemBuilder {
 			//Get all Node's Fields and map them to their names(string)
 			HashMap<String,Sig.Field> mapNodeFields = atom2ObjectMapE(nodeSig.getFields());
 			
-			//Get the root relation from the sig Dir
-			Sig.Field root = getEFromIterable(dir.getFields(),"field (this/Dir <: root)");
-			
 		
 			//Get the node relation from the sig Node (node maps Node with state)
-			Sig.Field nodeField = mapNodeFields.get("field (this/Node <: node)");
-		
+			Expr nodeField = CompUtil.parseOneExpression_fromString(world, "node");
 			//Get blob and name relation
 			Expr name = CompUtil.parseOneExpression_fromString(world, "Node <: name");
 			Expr blob = CompUtil.parseOneExpression_fromString(world,"blob"); 
 			
 			//Get the true root
-			A4TupleSet preRootDir = (A4TupleSet) sol.eval((root.join(preState)).intersect(nodeField.join(preState)));
-			A4TupleSet posRootDir = (A4TupleSet) sol.eval((root.join(posState)).intersect(nodeField.join(posState)));
-			A4TupleSet preRootName= (A4TupleSet) sol.eval((root.join(preState)).intersect(nodeField.join(preState)).join(name));
-			A4TupleSet posRootName = (A4TupleSet) sol.eval((root.join(posState)).intersect(nodeField.join(posState)).join(name));
 			//Get the parent relation
 			Sig.Field parent = mapNodeFields.get("field (this/Node <: parent)");
+			
+			 //x:Node | x in node.univ and no (x.parent) && node.univ}
+			Expr preRootNodes = nodeSig.decl.get().in(nodeField.join(preState)).and(
+					nodeSig.decl.get().join(parent).intersect(nodeField.join(preState)).no()).
+					comprehensionOver(nodeSig.decl);
+			Expr posRootNodes = nodeSig.decl.get().in(nodeField.join(posState)).and(
+					nodeSig.decl.get().join(parent).intersect(nodeField.join(posState)).no()).
+					comprehensionOver(nodeSig.decl);
+			
+			
+			A4TupleSet preRoots = (A4TupleSet) sol.eval(preRootNodes);
+			A4TupleSet posRoots = (A4TupleSet) sol.eval(posRootNodes);
 			
 			//Get the nodes in state0 that are parents
 			Expr preParents = nodeField.join(preState).domain(parent);
 			Expr posParents = nodeField.join(posState).domain(parent);
 			
 			
-			//defining output path
-			A4Tuple preTupleRoot = preRootDir.iterator().next();
-			A4Tuple posTupleRoot = posRootDir.iterator().next();
-			A4Tuple preTupleRootName = preRootName.iterator().next();
-			A4Tuple posTupleRootName = posRootName.iterator().next();
-			
-			
 			String path = "output/"+pred_name+"/"+i+"/";
-			String prePath = path + "pre/" + preTupleRootName.atom(0).replace('$', '_');
-			String posPath = path + "pos/" + posTupleRootName.atom(0).replace('$', '_');
 			
-			Path preP = Paths.get( prePath);
-			Path posP = Paths.get(posPath);
+			try{				
+				
+				Files.createDirectories(Paths.get(path+"pre"));
+				Files.createDirectories(Paths.get(path+"pos"));
+				makeRoots(sol,preRoots,path+"pre",preParents,blob,name,mapAtoms,mapSigs);
+				makeRoots(sol,posRoots,path+"pos",posParents,blob,name,mapAtoms,mapSigs);
+				
+			}catch(IOException e){System.out.println("first section"); e.printStackTrace();}
 			
-			try {				
-				Files.createDirectories(preP);
-				buildTree(sol,prePath, preTupleRoot.atom(0), name,blob,preParents,mapAtoms,mapSigs);
-				
-				Files.createDirectories(posP);
-				buildTree(sol,posPath, posTupleRoot.atom(0), name,blob,posParents,mapAtoms,mapSigs);
-				
-				
-				
-			}catch (IOException e) { System.out.println("IOException, Directory already exists!\n");}
 		}
 	
+	public static void makeRoots(A4Solution sol, A4TupleSet roots,String path,Expr parents,Expr blob,Expr name,HashMap<String,ExprVar> mapAtoms,Map<String,Sig.PrimSig> mapSigs) throws Err, IOException
+	{
+		Path p = null;
+		String newpath = null;
+		for (A4Tuple tuple : roots)
+		{
+			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(name));
+			newpath = path +"/" +names.iterator().next().atom(0).replace('$', '_');
+			p = Paths.get(newpath);
+			if(mapSigs.get(tuple.atom(0)).toString().equals("this/Dir"))
+			{
+				Files.createDirectories(p);
+				buildTree(sol,newpath,tuple.atom(0), name,blob,parents,mapAtoms,mapSigs);
+			}
+			else
+			{
+				A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(blob));
+				Files.createFile(p);
+				Files.write(p, blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));					
+			}
+		};
+	}
 	
 	/**
 	 * 
@@ -175,8 +188,6 @@ public class FileSystemBuilder {
 	{
 		ExprVar current = mapAtom.get(atom);
 //TODO
-		
-	
 		A4TupleSet children = (A4TupleSet) sol.eval(parent.join(current));
 		for(A4Tuple child : children)
 		{

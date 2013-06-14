@@ -1,4 +1,3 @@
-
 sig State {}
 
 // paths
@@ -30,28 +29,22 @@ abstract sig Node {
 }
 
 sig Dir extends Node {
-	root : set State
 }
 
 sig File extends Node {
 	blob : one Blob
 }
 
+
 fact {
-	all s : State {
-		// one root
-		one root.s & node.s
-		// root has no parent
-		no (root.s).parent
-		// everyone else has one
-		all o : node.s - root.s | some o.parent & node.s
-	}
 	// parent is acyclic
 	no n : Node | n in n.^parent
 	// siblings have different names
+	all s:State , n:node.s | no n.parent => all n2:node.s - n | n.name != n2.name 
 	all d : Dir | no disj o1,o2 : parent.d | o1.name = o2.name
 	// paths are correct
 	all n : Node | n.name = n.path.name and n.parent.path = n.path.parent
+	all s:State, n:node.s | one n.parent => n.parent in node.s
 }
 
 // git objects and index (see path)
@@ -175,7 +168,6 @@ pred other [s,s' : State] {
 	index.s' = index.s
 //	ref.s' = ref.s
 	head.s' = head.s
-	not (node.s' = node.s and root.s' = root.s)
 }
 
 //run other for 4 but 2 State
@@ -191,7 +183,6 @@ pred add [s,s' : State,p : Path] {
 	head.s' = head.s
 	HEAD.s' = HEAD.s
 	node.s' = node.s
-	root.s' = root.s
 }
 
 //run rm for 4 but exactly 2 State
@@ -225,7 +216,6 @@ pred oldrm [s,s' : State,p : Path]{
 	object.s' = object.s
 	head.s' = head.s
 	HEAD.s' = HEAD.s
-	root.s' = root.s
 }
 
 //run rmAB{} for 5 but 2 State
@@ -290,7 +280,6 @@ pred rmBehaviour[s,s':State,p:Path]{
 	object.s' = object.s
 	head.s' = head.s
 	HEAD.s' = HEAD.s
-	root.s' = root.s
 }
 
 
@@ -301,8 +290,7 @@ pred rmBehaviour[s,s':State,p:Path]{
 pred pc[s:State]{
 
 some index.s
-
-
+#head.s > 2 
 some Commit & object.s & (HEAD.s).head.s
 
 --one Tree
@@ -351,12 +339,51 @@ pred gitCommit[s,s':State]{
 	index.s' = index.s
 	HEAD.s' = HEAD.s
 	all p:(Ref - HEAD.s) | p.head.s = p.head.s'
-	root.s' = root.s
-
 
 }
 
 
+pred branchPC[s:State, b:Ref]
+{
+	some (HEAD.s).head.s
+	b not in (head.s).univ
+}
 
+
+
+pred gitBranch[s,s': State , n:Ref ]{
+
+	branchPC[s,n]
+
+	head.s' = head.s +  (n->((HEAD.s).head.s))
+	
+	HEAD.s' = HEAD.s	
+	object.s' = object.s
+	node.s' = node.s
+	index.s' = index.s
+}
+
+pred checkoutPC[s:State,r:Ref]
+{
+	r != HEAD.s
+	one c:Commit | r in (head.s).c
+}
+
+
+--run gitCheckout for 4 but 2 State, 15 Node
+
+pred gitCheckout[s,s':State, r:Ref]
+{
+	checkoutPC[s,r]
+
+	HEAD.s' = r
+
+	
+
+	
+	head.s' = head.s
+	object.s' = object.s
+	--index.s' = index.s
+}
 
 
