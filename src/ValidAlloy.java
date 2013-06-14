@@ -56,6 +56,7 @@ public class ValidAlloy {
  			ArrayList<String> preds = null ;
  			ArrayList<String> scopes = null ;
  			ArrayList<String> cmds = null ;
+ 			ArrayList<ArrayList<String>> errors = null ;
  			int n_cmds = 0 ;
  			int n_runs = 0 ;
 
@@ -81,6 +82,7 @@ public class ValidAlloy {
             		cmds = cfg_obj.cmds;
             		n_cmds = cfg_obj.n_comands;
             		n_runs = cfg_obj.n_runs;
+            		errors = cfg_obj.errors;
             		
             		System.out.println("Config File         : "+ input_text);
             		System.out.println("Number of runs      : "+n_runs);
@@ -128,6 +130,7 @@ public class ValidAlloy {
 		System.out.println("Scope               : " +scopes.get(j));
 		System.out.println("Commands            : "+ cmds.get(j));
 		System.out.println("Options             : " +opts.get(j));
+		System.out.println("Expected Errors     : " +errors.get(j));
 		System.out.println("===========             Running Instances           =========== ");
 		
 		boolean flagerr;	
@@ -146,6 +149,7 @@ public class ValidAlloy {
 	        ExprVar preState = null;
 	        ExprVar posState = null;
 	        ArrayList<ExprVar> pathSkol = new ArrayList<ExprVar>();
+	        ArrayList<String> dirs2remove = new ArrayList<String>();
         	
 	
         	if (sol.satisfiable())
@@ -201,6 +205,7 @@ public class ValidAlloy {
 						BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
 
 				} catch (GitException e) {
+					if(!Utils.ContainsExpectedErrors(e.getMessage(),errors.get(j))){
 					Path p_e = Paths.get(cmdpath+"/git_errors.txt");
 					Files.createFile(p_e);
 					Files.write(p_e, e.getMessage().getBytes("ISO-8859-1"));
@@ -208,6 +213,7 @@ public class ValidAlloy {
 					cmdpath = cmdpath+"_err";
 					flagerr = true;
 					sol.writeXML(cmdpath+"/instance"+i+".xml");
+					} else dirs2remove.add(cmdpath);
 				} catch (Exception q){
 					q.printStackTrace();
 					
@@ -219,6 +225,7 @@ public class ValidAlloy {
         			if(Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i)))
         			{
         				FileUtils.deleteDirectory(new File(cmdpath));
+        				
         			} else{ 
         				try {sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");}
         				catch(Err e){e.printStackTrace();System.out.println(e.getMessage());}
@@ -230,6 +237,10 @@ public class ValidAlloy {
         	}else
         		flagcontinue = false;
         	
+        	  
+    		if(!dirs2remove.isEmpty()){
+				Utils.RemoveDirs(dirs2remove);
+				}        	
         	
         }
     	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output/"+preds.get(j)),false);
@@ -250,7 +261,7 @@ public class ValidAlloy {
 	    		
 	   	    executeValidAlloy(args[0]);
 	    	    	
-	      } else System.out.println("Must provide config file to vallidAlloy");
+	      } else System.out.println("Must provide config file to ValidAlloy");
 	    	System.out.println("===========           ValidAlloy terminated         =========== ");
 	}
 }	

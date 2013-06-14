@@ -15,7 +15,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static java.nio.file.StandardCopyOption.*;
+
+import org.apache.commons.io.FileUtils;
 import org.pmw.tinylog.Logger;
 
 
@@ -60,6 +65,29 @@ public class Utils {
 		return res;
 	}
 	
+	
+public static boolean ContainsExpectedErrors(String e,ArrayList<String> errors){
+	
+	boolean found = false;
+	
+	for (String error :errors){
+		found = e.toLowerCase().contains(error.toLowerCase().replaceAll("\"", ""));
+		if(found ) break;
+		
+	}
+	return found;
+}
+	
+public static void RemoveDirs(ArrayList<String> dirs){
+	for (String dir : dirs){
+		try {
+			FileUtils.deleteDirectory(new File(dir));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
 public static void setGitDate(String pathindex){
 		
 		try{

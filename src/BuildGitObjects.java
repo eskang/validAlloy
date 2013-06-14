@@ -587,7 +587,7 @@ public class BuildGitObjects {
 			
 			String line;
 			
-			StringBuilder lines = null;
+			StringBuilder lines = new StringBuilder();
 			 
 			File path = new File(p);
 			
@@ -627,8 +627,6 @@ public class BuildGitObjects {
 				
 				line = br2.readLine();
 				
-				if(line != null) lines = new StringBuilder();
-				
 				while(line != null){
 					lines.append(line+"\n");
 					
@@ -639,9 +637,7 @@ public class BuildGitObjects {
 				}
 		
 			if(br.ready()){
-				
-				
-				
+							
 				line = br.readLine();
 				
 				if(line != null){
