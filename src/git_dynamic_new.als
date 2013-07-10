@@ -1,67 +1,60 @@
+/**
+	* Model of the Git
+	* Authors: Jose Pinheiro, Tiago, Guimaraes, Eunsuk Kang, Alcino Cunha
+	*
+	* Changes from git_dynamics.als:
+	* - removed "name" from Path and Node, simplified relevant constraints
+	**/
 
 sig State {}
 
 // Paths
-
 sig Name {
 	HEAD : set State
 }
 
 sig Path {
-	name : one Name,
 	parent : lone Path,
 	index : Blob lone -> State
 }
 
 fact {
-	// normalization
-	no disj p1,p2 : Path | p1.name = p2.name and p1.parent = p2.parent
-	// paths are acyclic
+	// Paths are acyclic
 	no p : Path | p in p.^parent
 }
 
-// file system
-
+// File system
 abstract sig Node {
 	node : set State,
-	name : one Name,
 	parent : lone Dir,
-	path : one Path -- auxiliary relation
+	path : one Path		-- auxiliary relation
 }
 
-sig Dir extends Node {
-}
-
+sig Dir extends Node {}
 sig File extends Node {
 	blob : one Blob
 }
 
-
 fact {
-	// parent is acyclic
+	// Parent is acyclic
 	no n : Node | n in n.^parent
-	// siblings have different names
-	all s:State , n:node.s | no n.parent => all n2:node.s - n | n.name != n2.name 
-	all d : Dir | no disj o1,o2 : parent.d | o1.name = o2.name
-	// paths are correct
-	all n : Node | n.name = n.path.name and n.parent.path = n.path.parent
-	all s:State, n:node.s | one n.parent => n.parent in node.s
+	// Paths are correct
+	all n : Node | n.parent.path = n.path.parent
+	all s : State, n : node.s | one n.parent => n.parent in node.s
 }
 
-// git objects and index (see path)
-
+// Git objects and index (see path)
 abstract sig Object {
 	object : set State,
 }
 
 sig Blob extends Object {}
-
 sig Tree extends Object {
-	content : Name -> lone (Blob+Tree)
+	content : Path -> lone (Blob+Tree)
 }
 
 fun children : Object -> Object {
-	{t : Tree, o : Object | some n : Name | t->n->o in content} 
+	{t : Tree, o : Object | some p : Path | t->p->o in content} 
 }
 
 sig Commit extends Object {
@@ -71,20 +64,34 @@ sig Commit extends Object {
 }
 
 fact MatichingObjectsToPaths {
-	all s : State {
-		path.s in object.s -> object.s -> Path
-	}
+	all s : State | path.s in object.s -> object.s -> Path
+	
 	all s : State, c : Commit & object.s { 
-		c.path.s in (c.tree.^children -> some Path)
-		all o : c.tree.children {
-			one o.(c.path.s) and no o.(c.path.s).parent and o.(c.path.s).name = c.tree.content.o
-		}
-		all o : c.tree.children.^children {
-			all p : (children.o).(c.path.s) | one p' : o.(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
-			all p' : o.(c.path.s) | one p : (children.o).(c.path.s) | p'.parent = p and p'.name = (children.o).content.o
+		// maps each stored obj to path
+		let obj2path = c.path.s {
+			obj2path in (c.tree.^children -> some Path)
+
+			all o : c.tree.children {
+				one o.(obj2path)
+				no o.(obj2path).parent
+				o.(obj2path) = c.tree.content.o
+			}
+
+			all o : c.tree.children.^children {
+				let ps = children.o {
+				all p : ps.(obj2path) | 
+					one p' : o.(obj2path) | 
+						p'.parent = p and p' = ps.content.o
+				all p' : o.(obj2path) | 
+					one p : ps.(obj2path) | 
+						p'.parent = p and p' = ps.content.o
+				}
+			}
 		}
 	}
 }
+
+run add for 5
 
 /*
 check {
@@ -97,9 +104,7 @@ sig Tag extends Object {
 }
 
 fun siblings : Path -> Path{
-	
 	{p1:Path, p2:Path | p1.parent = p2.parent and p1 != p2}
-
 }
 
 fun points : Object -> Object {
