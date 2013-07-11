@@ -15,6 +15,7 @@ sig Name {
 
 sig Path {
 	parent : lone Path,
+	-- Eunsuk: Shouldn't this be (Blob + Tree) lone -> State?
 	index : Blob lone -> State
 }
 
@@ -59,7 +60,9 @@ fun children : Object -> Object {
 
 sig Commit extends Object {
 	previous : set Commit,
+	// Eunsuk: Why do we need tree? Already part of path?
 	tree : one Tree,
+	// Eunsuk: Why is commit indexed on state?
 	path : (Tree+Blob) -> Path -> State
 }
 
@@ -90,8 +93,6 @@ fact MatichingObjectsToPaths {
 		}
 	}
 }
-
-run add for 5
 
 /*
 check {
@@ -161,9 +162,6 @@ fact {
 	}
 }
 
-
-
-
 //run {} for 4 but exactly 1 State
 
 //run {all s : State | some modified.s and some deleted.s and some untracked.s} for 4 but exactly 1 State
@@ -190,6 +188,26 @@ pred add [s,s' : State,p : Path] {
 	HEAD.s' = HEAD.s
 	node.s' = node.s
 }
+
+
+pred commit[s, s' : State] {
+	s != s'
+	// precondition
+	// There are some changes to be committed in the index
+	some index.s
+	let oldHead = (HEAD.s).head.s,
+		newHead = (HEAD.s').head.s' {
+		// Eunsuk: Not sure why we need previous?
+		oldHead in newHead.previous
+		newHead.path.s' = {o : Object, p : Path | p -> o in index.s}
+	}
+	// postcondiiton
+	// The index is empty
+	no index.s'
+		
+}
+
+run commit for 5
 
 //run rm for 4 but exactly 2 State
 
@@ -312,6 +330,7 @@ fun child: Path -> Path
 
 --run gitCommit
 
+/*
 pred gitCommit[s,s':State]{
 
 	pc[s]
@@ -347,7 +366,7 @@ pred gitCommit[s,s':State]{
 	all p:(Ref - HEAD.s) | p.head.s = p.head.s'
 
 }
-
+*/
 
 pred branchPC[s:State, b:Ref]
 {
