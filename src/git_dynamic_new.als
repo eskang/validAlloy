@@ -6,109 +6,129 @@
 	* - removed "name" from Path and Node, simplified relevant constraints
 	**/
 
+open util/ordering[State] as SO
+
 sig State {}
 
 // Paths
 sig Path {
 	parent : lone Path,
-	-- Eunsuk: Shouldn't this be (Blob + Tree) lone -> State? Can you put an entire directory in index?
-	index : Blob lone -> State
-}
-
-fact {
-	// Paths are acyclic
-	no p : Path | p in p.^parent
+	-- Eunsuk: Shouldn't this be (Blob + Tree) lone -> State? Can you stage an entire directory?
+	index : (Blob  + Tree) lone -> State
 }
 
 // File system
 abstract sig Node {
 	node : set State,
-	path : one Path		-- auxiliary relation
+	path : Path,				-- auxiliary relation
+	obj : Object
 }
 
-sig Dir extends Node {}
-sig File extends Node {
-	blob : one Blob
+sig Dir extends Node {}{
+	obj in Tree
+}
+sig File extends Node {}{
+	obj in Blob
 }
 
--- Eunsuk: Add relationship between Dir + File
-fact {
-	// Parent is acyclic
-	//no n : Node | n in n.^parent
-	// Paths are correct
-	//all n : Node | n.parent.path = n.path.parent
+fact FilesystemConstraints {
+	-- Paths are acyclic
+	no p : Path | p in p.^parent
+
+	-- Only directories can contain other objects
+	all p1, p2 : Path |
+		p1 -> p2 in parent implies path.p2 in Dir
+
+	-- For every non-root node in a state, there must be exactly one parent node in the state
 	all s : State, n : node.s | 
 		let parentPath = n.path.parent | 
-			some parentPath => path.parentPath in node.s
+			some parentPath => one path.parentPath & node.s
 }
 
 // Git objects and index (see path)
 abstract sig Object {
-	object : set State,
+	-- Eunsuk: Do we need this?
+	//object : set State,
 }
 
 sig Blob extends Object {}
 sig Tree extends Object {
 	content : Path -> lone (Blob+Tree)
 }
-
 fun children : Object -> Object {
 	{t : Tree, o : Object | some p : Path | t->p->o in content} 
 }
-
 sig Commit extends Object {
 	head : set State,
 	previous : set Commit,
-	// Eunsuk: Why do we need tree? Already part of path?
-	tree : Tree,
-	// Eunsuk: Why is commit indexed on state?
-	//path : (Tree+Blob) -> Path -> State
+	tree : Tree
 }
-
-// Eunsuk: Rewrite 
-// - if you have a tree as one of its children as /A/B,
-// this should be contained inside /A 
-fact MatichingObjectsToPaths {
+fact CommitConstraints {
+	-- commit trees have no cycles
+	no iden & ^children
+	-- objects in each commit maps to nodes that actually exist in the file system
 	all s : State | 
-		let headCommit = head.s | 
-			headCommit.tree.^children in object.s
-	
-	all s : State, c : Commit & object.s { 
-		// maps each stored obj to path
-		let obj2path = c.path.s {
-			obj2path in (c.tree.^children -> some Path)
-
-			all o : c.tree.children {
-				one o.(obj2path)
-				no o.(obj2path).parent
-				o.(obj2path) = c.tree.content.o
-			}
-
-			all o : c.tree.children.^children {
-				let ps = children.o {
-				all p : ps.(obj2path) | 
-					one p' : o.(obj2path) | 
-						p'.parent = p and p' = ps.content.o
-				all p' : o.(obj2path) | 
-					one p : ps.(obj2path) | 
-						p'.parent = p and p' = ps.content.o
-				}
-			}
-		}
-	}
+		let headCommit = head.s,
+			objs = headCommit.tree.^children |
+				obj.objs in node.s
+	-- there always exists one head
+	all s : State | one head.s
 }
 
-/*
-check {
-	all s : State, c : object.s & Commit, o : Object | lone o.(c.path.s)
-} for 6 but 1 State
-*/
 sig Tag extends Object {
-	commit : one Commit
+	commit : Commit
 }
 
+pred pathExists [s : State, p : Path] {
+	p in (node.s).path
+}
+
+// git add
+pred add [s,s' : State,p : Path] {
+	// precondition
+	s != s'
+	pathExists[s, p]
+	// postcondition
+	index.s' = index.s ++ p->(path.p).obj
+	head.s' = head.s
+	node.s' = node.s
+}
+
+run {
+	some p : Path | add[SO/first, SO/first.next, p]
+} for 5 but 2 State
+
+
+pred commit[s, s' : State] {
+	s != s'
+	// precondition
+	// There are some changes to be committed in the index
+	some index.s
+	let oldHead = head.s,
+		newHead = head.s' {
+			oldHead in newHead.previous
+			((newHead.tree).^children + newHead.tree).content = index.s
+		}
+	// postcondiiton
+	// The index is empty
+	no index.s'
+}
+
+run {
+	commit[SO/first, SO/first.next]
+	head.SO/first.tree != head.(SO/first.next).tree
+} for 5 but 2 State
+
+
+
+
+
+
+/**
+	* Older stuff
+	*/
 fun siblings : Path -> Path{
-	{p1:Path, p2:Path | p1.parent = p2.parent and p1 != p2}
+	{p1:Path, p2:Path | some p1.parent and p1.parent = p2.parent and p1 != p2}
 }
 
 fun points : Object -> Object {
@@ -116,11 +136,11 @@ fun points : Object -> Object {
 }
 
 fun staged : Path -> State {
-	{p : Path, s : State | p in (index.s).(object.s)}
+	{p : Path, s : State | p in (index.s).Object}
 }
 
 fun modified : Path -> State {
-	{p : Path, s : State | p in staged.s and p.index.s != (path.p & node.s).blob}
+	{p : Path, s : State | p in staged.s and p.index.s != (path.p & node.s).obj}
 }
 
 fun deleted : Path -> State {
@@ -131,83 +151,26 @@ fun untracked : Path -> State {
 	{p : Path, s : State | some path.p & File & node.s and no p.index.s}
 }
 
-//check {all s : State | deleted.s in modified.s} for 5
-
 fact {
 	// object is closed under refs
-	all s : State | (object.s).points in object.s
+	//all s : State | (object.s).points in object.s
 	// no different trees with the same content
-	no disj t1,t2 : Tree | t1.content = t2.content
+	//no disj t1,t2 : Tree | t1.content = t2.content
 	// no different commits with the same previous and tree
-	no disj c1,c2 : Commit | c1.previous = c2.previous and c1.tree = c2.tree
+	//no disj c1,c2 : Commit | c1.previous = c2.previous and c1.tree = c2.tree
 	// no different tags with the same commit and name
 	//no disj t1,t2 : Tag | t1.commit = t2.commit and t1.name = t2.name
 	// all refs are acyclic
-	no ^points & iden
+	//no ^points & iden
 	// indexed blobs are in the objects
-	all s : State | index.s in Path -> object.s
+	//all s : State | index.s in Path -> object.s
 	// if a path is in the index none of its ancestors can be
 	all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
 }
 
 // git references and head
 
-fact {
-	all s : State {
-		// there always exists one head
-		one head.s
-		// refs point to an object in the database
-		head.s in object.s
-	}
-}
 
-//run {} for 4 but exactly 1 State
-
-//run {all s : State | some modified.s and some deleted.s and some untracked.s} for 4 but exactly 1 State
-
-// non git command
-/*
-pred other [s,s' : State] {
-	object.s' = object.s 
-	index.s' = index.s
-//	ref.s' = ref.s
-	head.s' = head.s
-}
-*/
-
-//run other for 4 but 2 State
-
-// git add
-pred add [s,s' : State,p : Path] {
-	s != s'
-	p in (node.s).path
-	path.p in File
-	object.s' = object.s + (path.p).blob
-	index.s' = index.s ++ p->(path.p).blob
-//	ref.s' = ref.s
-	head.s' = head.s
-	node.s' = node.s
-}
-
-
-pred commit[s, s' : State] {
-	s != s'
-	// precondition
-	// There are some changes to be committed in the index
-	some index.s
-	let oldHead = head.s,
-		newHead = head.s' {
-		// Eunsuk: Not sure why we need previous?
-		oldHead in newHead.previous
-		(newHead.tree).^children.content = index.s
-	}
-	// postcondiiton
-	// The index is empty
-	no index.s'
-		
-}
-
-run commit for 5
 
 //run rm for 4 but exactly 2 State
 
@@ -292,11 +255,9 @@ pred rmBehaviour[s,s':State,p:Path]{
 	
 
 	//stuff that stays the same
-	object.s' = object.s
+//	object.s' = object.s
 	head.s' = head.s
 }
-
-
 
 //run gitCommit for 5 but exactly 2 State
 
@@ -305,19 +266,17 @@ pred pc[s:State]{
 
 some index.s
 #head.s > 2 
-some Commit & object.s & head.s
+//some Commit & object.s & head.s
 
 --one Tree
 
 }
-
 
 fun child: Path -> Path
 {
 	~parent :> Path
 }
  
-
 --run gitCommit
 
 /*
