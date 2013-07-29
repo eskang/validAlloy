@@ -721,7 +721,7 @@ public class BuildGitObjects {
 		
 		
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
-		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
+		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: iden");
 		ArrayList<String> n_cmds = new ArrayList<String>();
 		
 		n_cmds.add("git");
@@ -750,7 +750,7 @@ public class BuildGitObjects {
 	{
 		Expr nodeBlob = CompUtil.parseOneExpression_fromString(world, "index").join(state);
 		Expr parent =  CompUtil.parseOneExpression_fromString(world,"Path <: parent");
-		Expr name =  CompUtil.parseOneExpression_fromString(world,"Path <: name");
+		Expr name =  CompUtil.parseOneExpression_fromString(world,"Path <: iden");
 		A4TupleSet ts =  (A4TupleSet) sol.eval(nodeBlob);
 		String path;
 		for (A4Tuple t : ts){
@@ -774,26 +774,26 @@ public class BuildGitObjects {
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 		gitInit();
 		
-		for(A4Tuple t :ts )
+		for(A4Tuple t :ts)
 			mapObjsHash.put(t.atom(0),buildGitHashObject(t.atom(0)));
 		
 		treeBuilder(sol,world,mapAtom,mapObjsHash,iState);
-		
-		
+				
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		
 		buildIndex(sol,world,mapObjsHash,mapAtom,iState);
 		
-		buildRefs(sol,world,iState,mapObjsHash);
+		//buildRefs(sol,world,iState,mapObjsHash);
 		
-		placeHEAD(sol,world,iState);
+		//placeHEAD(sol,world,iState);
 	}		
 	public static void buildRefs(A4Solution sol,Module world, ExprVar iState,HashMap<String,String> mapObjHash) throws Err
 	{
 		Expr head = CompUtil.parseOneExpression_fromString(world, "head").join(iState);
 		A4TupleSet ts = (A4TupleSet) sol.eval(head);
-		for(A4Tuple t : ts)
-			buildGitRef(mapObjHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
+		for(A4Tuple t : ts) {
+                    buildGitRef(mapObjHash.get(t.atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
+                }
 	}
 	
 	public static void treeBuilder(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err
@@ -802,7 +802,7 @@ public class BuildGitObjects {
 		Expr content = CompUtil.parseOneExpression_fromString(world, "content");
 		Expr Tree = CompUtil.parseOneExpression_fromString(world, "Tree").domain(domain);
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
-		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: name");
+		Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: iden");
 		
 		LinkedList<ExprVar> aux = new LinkedList<ExprVar>();
 		aux.add(ExprVar.make(null, "t",Tree.type()));

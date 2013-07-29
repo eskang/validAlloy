@@ -110,7 +110,7 @@ public class ValidAlloy {
         
         Utils.delTemporaryModel("src/git_dynamic.als");	
         	
-        Module world = CompUtil.parseEverything_fromFile(rep, null, Utils.addPred("src/git_dynamic.als", preds.get(j), scopes.get(j)));
+        Module world = CompUtil.parseEverything_fromFile(rep, null, Utils.addPred("src/git.als", preds.get(j), scopes.get(j)));
        
         Logger.info("Parsing Alloy File for "+preds.get(j));
         

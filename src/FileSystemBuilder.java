@@ -112,12 +112,12 @@ public class FileSystemBuilder {
 			//Get the node relation from the sig Node (node maps Node with state)
 			Expr nodeField = CompUtil.parseOneExpression_fromString(world, "node");
 			//Get blob and name relation
-			Expr name = CompUtil.parseOneExpression_fromString(world, "Node <: name");
-			Expr blob = CompUtil.parseOneExpression_fromString(world,"blob"); 
+			Expr name = CompUtil.parseOneExpression_fromString(world, "Node <: path");
+			Expr blob = CompUtil.parseOneExpression_fromString(world,"File <: obj"); 
 			
 			//Get the true root
 			//Get the parent relation
-			Sig.Field parent = mapNodeFields.get("field (this/Node <: parent)");
+                        Expr parent = CompUtil.parseOneExpression_fromString(world, "(Node <: path).parent.~(Node <: path)");
 			
 			 //x:Node | x in node.univ and no (x.parent) && node.univ}
 			Expr preRootNodes = nodeSig.decl.get().in(nodeField.join(preState)).and(
@@ -153,21 +153,22 @@ public class FileSystemBuilder {
 	{
 		Path p = null;
 		String newpath = null;
+                System.out.println(roots.toString());
 		for (A4Tuple tuple : roots)
 		{
-			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(name));
-			newpath = path +"/" +names.iterator().next().atom(0).replace('$', '_');
-			p = Paths.get(newpath);
-			if(mapSigs.get(tuple.atom(0)).toString().equals("this/Dir"))
+                    A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(name));
+                    newpath = path +"/" +names.iterator().next().atom(0).replace('$', '_');
+                    p = Paths.get(newpath);
+                    if(mapSigs.get(tuple.atom(0)).toString().equals("this/Dir"))
 			{
-				Files.createDirectories(p);
-				buildTree(sol,newpath,tuple.atom(0), name,blob,parents,mapAtoms,mapSigs);
+                            Files.createDirectories(p);
+                            buildTree(sol,newpath,tuple.atom(0), name,blob,parents,mapAtoms,mapSigs);
 			}
-			else
+                    else
 			{
-				A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(blob));
-				Files.createFile(p);
-				Files.write(p, blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));					
+                            A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(blob));
+                            Files.createFile(p);
+                            Files.write(p, blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));					
 			}
 		};
 	}
