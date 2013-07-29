@@ -1,6 +1,6 @@
 /**
 	* Model of the Git
-	* Authors: Jose Pinheiro, Tiago, Guimaraes, Eunsuk Kang, Alcino Cunha
+	* Authors: Jose Pinheiro, Tiago Guimaraes, Eunsuk Kang, Alcino Cunha
 	*
 	* Changes from git_dynamics.als:
 	* - removed "name" from Path and Node, simplified relevant constraints
@@ -33,6 +33,8 @@ sig File extends Node {}{
 }
 
 fact FilesystemConstraints {
+	all s : State | no disj n1, n2 : node.s | n1.path = n2.path
+
 	-- Paths are acyclic
 	no p : Path | p in p.^parent
 
@@ -47,16 +49,13 @@ fact FilesystemConstraints {
 }
 
 // Git objects and index (see path)
-abstract sig Object {}
-fun object : Object -> State {
-	// object exists in a state iff
-	{o : Object, s : State |
-		// it belongs to the tree of the current head commit or 
-		(let c = head.s | o in c.tree + c.tree.^children) or
-		// it belongs to the index
-		o in Path.index.s
-	}
+abstract sig Object {
+	object : set State
 }
+fact {
+	Path.index in object
+	all s : State | let c = HEAD.s | c.tree + c.tree.^children in object.s
+}	
 
 sig Blob extends Object {}
 sig Tree extends Object {
@@ -69,11 +68,13 @@ fun children : Object -> Object {
 	{t : Tree, o : Object | some p : Path | t->p->o in content} 
 }
 sig Commit extends Object {
-	head : set State,
+	HEAD : set State,
 	previous : set Commit,
 	tree : Tree
 }
 fact CommitConstraints {
+	no c : Commit | c in c.^previous
+
 	-- commit trees have no cycles
 	no iden & ^children
 	-- objects in each commit maps to nodes that actually exist in the file system
@@ -83,7 +84,7 @@ fact CommitConstraints {
 	//		objs = headCommit.tree.^children |
 	//			obj.objs in node.s
 	-- there always exists one head
-	all s : State | one head.s
+	all s : State | one HEAD.s
 }
 
 sig Tag extends Object {
@@ -102,8 +103,8 @@ pred add [s,s' : State,p : Path] {
 	s != s'
 	pathExists[s, p]
 	// postcondition
-	index.s' = index.s ++ p->(path.p).obj
-	head.s' = head.s
+	index.s' = index.s ++ p->(path.p).obj	
+	HEAD.s' = HEAD.s
 	// working directory doesn't change
 	node.s' = node.s
 }
@@ -125,8 +126,8 @@ pred commit[s, s' : State] {
 	// precondition
 	// There are some changes to be committed in the index
 	some index.s
-	let oldHead = head.s,
-		newHead = head.s',
+	let oldHead = HEAD.s,
+		newHead = HEAD.s',
 		newCommitObjs = newHead.tree.^children {
 			oldHead in newHead.previous
 			// the set of blobs that appear in commit are exactly those from the index			
@@ -163,12 +164,12 @@ pred commit[s, s' : State] {
 
 run {
 	commit[SO/first, SO/first.next]
-	head.SO/first.tree != head.(SO/first.next).tree
+	HEAD.SO/first.tree != HEAD.(SO/first.next).tree
 } for 5 but 2 State
 
 
 pred equalToHeadCommit[s : State, p : Path] {
-	let c = head.s,
+	let c = HEAD.s,
 		indexObj = p.index.s,
 		workingObj = ((node.s <: path).p).obj, 
 		commitObj = findObjAtPath[c.tree, p] |
@@ -188,7 +189,7 @@ pred rm [s,s' : State, p : Path] {
 	equalToHeadCommit[s, p]
 	// postcondition
 	index.s' = index.s - p->(path.p).obj
-	head.s' = head.s
+	HEAD.s' = HEAD.s
 	node.s' = node.s - path.p
 }
 
