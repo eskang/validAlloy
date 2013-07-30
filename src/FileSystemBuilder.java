@@ -153,7 +153,7 @@ public class FileSystemBuilder {
 	{
 		Path p = null;
 		String newpath = null;
-                System.out.println(roots.toString());
+                // System.out.println(roots.toString());
 		for (A4Tuple tuple : roots)
 		{
                     A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(name));

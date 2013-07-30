@@ -783,13 +783,14 @@ public class BuildGitObjects {
 		
 		buildIndex(sol,world,mapObjsHash,mapAtom,iState);
 		
-		//buildRefs(sol,world,iState,mapObjsHash);
+                // Only adds HEAD if it points to an existing commit
+		buildRefs(sol,world,iState,mapObjsHash);
 		
-		//placeHEAD(sol,world,iState);
+		placeHEAD(sol,world,iState);
 	}		
 	public static void buildRefs(A4Solution sol,Module world, ExprVar iState,HashMap<String,String> mapObjHash) throws Err
 	{
-		Expr head = CompUtil.parseOneExpression_fromString(world, "head").join(iState);
+		Expr head = CompUtil.parseOneExpression_fromString(world, "HEAD & object").join(iState);
 		A4TupleSet ts = (A4TupleSet) sol.eval(head);
 		for(A4Tuple t : ts) {
                     buildGitRef(mapObjHash.get(t.atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
