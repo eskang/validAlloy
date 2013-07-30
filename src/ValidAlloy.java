@@ -84,9 +84,9 @@ public class ValidAlloy {
             		n_runs = cfg_obj.n_runs;
             		errors = cfg_obj.errors;
             		
-            		System.out.println("Config File         : "+ input_text);
-            		System.out.println("Number of runs      : "+n_runs);
-	    			System.out.println("Number of commands  : " +n_cmds);
+            		System.out.println("Config File         : " + input_text);
+            		System.out.println("Number of runs      : " + n_runs);
+	    			System.out.println("Number of commands  : " + n_cmds);
     			
           
     			
