@@ -103,7 +103,10 @@ pred add [s,s' : State,p : Path] {
 	s != s'
 	pathExists[s, p]
 	// postcondition
-	index.s' = index.s ++ p->(path.p).obj	
+	index.s' = index.s ++ p->(path.p).obj
+	// add new objects to git database
+	object.s' = object.s ++ (path.p).obj
+	// HEAD doesn't change
 	HEAD.s' = HEAD.s
 	// working directory doesn't change
 	node.s' = node.s
@@ -112,6 +115,55 @@ pred add [s,s' : State,p : Path] {
 run {
 	some p : Path | add[SO/first, SO/first.next, p]
 } for 5 but 2 State
+
+// Unit tests
+
+// Not allowed because object must always contain at least one tree, since commits must point 
+// to one even if they do not belong to object, and since HEAD must point to a commit that might not
+// belong to object (the initial dettached HEAD, for example)...
+run Add1 {
+	some f : File {
+		node.first = f
+		no object.first
+		no index.first
+		add[first, first.next, f.path]
+	}
+}
+
+// Not allowed because the path cannot belong to a Dir due to first postcondition: it tries to add a Tree
+// object to the index, which is not possible
+run Add2 {
+	some d : Dir {
+		node.first = d
+		no object.first
+		no index.first
+		add[first, first.next, d.path]
+	}
+}
+
+// Similar to the previous, to remind us that we need to recursively add to the index all pairs path->blob
+// that descend from the given directory.
+run Add3 {
+	some disj d1, d2 : Dir, disj f1, f2 : File {
+		node.first = d1+d2+f1+f2
+		f1.path.parent = d1.path
+		d2.path.parent = d1.path
+		f2.path.parent = d2.path
+		no object.first
+		no index.first
+		add[first, first.next, d.path]
+	}
+}
+
+// In this case s could be equal to s', so that pre-condition might be too strong
+run Add4 {
+	some f : File {
+		node.first = f
+		object.first = f.obj
+		index.first = f.path -> f.obj
+		add[first, first.next, f.path]
+	}
+}
 
 // returns the path of the node that corresponds to the object
 fun pathOf[o : Object, s : State] : Path {
