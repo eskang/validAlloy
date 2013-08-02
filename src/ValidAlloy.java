@@ -128,25 +128,25 @@ public class ValidAlloy {
             
             boolean flagerr;	
             boolean flagcontinue = true;
-            for(int i =0; i< test_iterations && flagcontinue ;i++){
-        	flagerr = false;
+            for (int i=0; i<test_iterations && flagcontinue; i++) {
+            	flagerr = false;
         	
-        	System.out.print("\rInstance            : " + i);
+            	System.out.print("\rInstance            : " + i);
                 
                 
-        	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
+            	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
   
-	        String newpath = null;
-	        Path p  = null;
-	        Iterable<ExprVar> skolems = null;
-	        ExprVar preState = null;
-	        ExprVar posState = null;
-	        ArrayList<ExprVar> pathSkol = new ArrayList<ExprVar>();
-	        ArrayList<String> dirs2remove = new ArrayList<String>();
+            	String newpath = null;
+            	Path p  = null;
+            	Iterable<ExprVar> skolems = null;
+            	ExprVar preState = null;
+            	ExprVar posState = null;
+            	ArrayList<ExprVar> pathSkol = new ArrayList<ExprVar>();
+            	ArrayList<String> dirs2remove = new ArrayList<String>();
         	
 	
-        	if (sol.satisfiable()) {
-                    HashMap<String,ExprVar> mapAtom =Utils.atom2ObjectMapE(sol.getAllAtoms());
+            	if (sol.satisfiable()) {
+            		HashMap<String,ExprVar> mapAtom = Utils.atom2ObjectMapE(sol.getAllAtoms());
                     newpath = "output/"+preds.get(j)+"/"+Integer.toString(i);
                     p = Paths.get(newpath);
                     skolems = sol.getAllSkolems();
@@ -158,21 +158,21 @@ public class ValidAlloy {
                     // System.out.println("PreS: " +preS);
                     // System.out.println("PosS: " +posS);
         		
-                    preState= Utils.getEFromIterable(skolems, preS);
+                    preState = Utils.getEFromIterable(skolems, preS);
                     posState = Utils.getEFromIterable(skolems, posS);
                     
                     // System.out.println("See: " + skolems);
                     
-                    if(arg.get(j) != null){
+                    if (arg.get(j) != null) {
                         
-        		for(int t = 0;t<arg.get(j).size();t++){
+                    	for (int t=0; t<arg.get(j).size(); t++) {
                             
                             String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
                             //  		System.out.println("Skool " + skol);
                             pathSkol.add(Utils.getEFromIterable(skolems, skol));
                             
-        		}
-                    }
+                    	}
+                	}
                     //   		System.out.println("Pre it :" +preState);
                     //   		System.out.println("Pos it :" +posState);
                     
@@ -188,12 +188,9 @@ public class ValidAlloy {
                     
                     try {
                         
-                        if (pathSkol.isEmpty() != true)
-					
+                        if (!pathSkol.isEmpty())					
                             BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",pathSkol.get(0),mapAtom,cmds.get(j),opts.get(j),vars.get(j));
-        		
                         else 
-                            
                             BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
                         
                     } catch (GitException e) {
@@ -211,35 +208,31 @@ public class ValidAlloy {
 			
                     }
                     
-                    if(!flagerr)
-        		{
-                            Utils.diffIndex(preds.get(j)+"/"+Integer.toString(i));
-                            if(Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i)))
-        			{
-                                    FileUtils.deleteDirectory(new File(cmdpath));
-                                    
-        			} else{ 
-                                try {sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");}
-                                catch(Err e){e.printStackTrace();System.out.println(e.getMessage());}
-                            }
-        		}
+                    if (!flagerr) {
+                    	Utils.diffIndex(preds.get(j)+"/"+Integer.toString(i));
+                    	if (Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i))) {
+                    		FileUtils.deleteDirectory(new File(cmdpath)); 	                
+                    	} else { 
+                            try {sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");}
+                            catch(Err e){e.printStackTrace();System.out.println(e.getMessage());}
+                    	}
+                    }
                     Logger.info("********* End of Instance       : "+i+" ********* ");		
                     
                     sol=sol.next();
-        	}else
+            	} else
                     flagcontinue = false;
         	
         	
-    		if(!dirs2remove.isEmpty()){
-                    Utils.RemoveDirs(dirs2remove);
+            	if (!dirs2remove.isEmpty()){
+            		Utils.RemoveDirs(dirs2remove);
                 }        	
         	
             }
-            FileUtils.moveFileToDirectory(new File("log.txt"), new File("output/"+preds.get(j)),false);
+        	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output/"+preds.get(j)),false);
             System.out.println("\n===========             Command terminated          =========== ");
         }
         Utils.delTemporaryModel(model);
-        
         
     }
     
