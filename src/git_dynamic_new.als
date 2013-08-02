@@ -151,7 +151,7 @@ run Add3 {
 		f2.path.parent = d2.path
 		no object.first
 		no index.first
-		add[first, first.next, d.path]
+		add[first, first.next, d1.path]
 	}
 }
 
@@ -242,6 +242,7 @@ pred rm [s,s' : State, p : Path] {
 	// postcondition
 	index.s' = index.s - p->(path.p).obj
 	HEAD.s' = HEAD.s
+	object.s' = object.s
 	node.s' = node.s - path.p
 }
 

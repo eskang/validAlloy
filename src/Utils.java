@@ -70,12 +70,14 @@ public static boolean ContainsExpectedErrors(String e,ArrayList<String> errors){
 	
 	boolean found = false;
 	
-	for (String error :errors){
+        if (errors != null) {
+            for (String error :errors){
 		found = e.toLowerCase().contains(error.toLowerCase().replaceAll("\"", ""));
-		if(found ) break;
+		if (found) break;
 		
-	}
-	return found;
+            }
+        }
+        return found;
 }
 	
 public static void RemoveDirs(ArrayList<String> dirs){
