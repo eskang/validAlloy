@@ -32,30 +32,10 @@ sig File extends Node {}{
 	obj in Blob
 }
 
-fact FilesystemConstraints {
-	all s : State | no disj n1, n2 : node.s | n1.path = n2.path
-
-	-- Paths are acyclic
-	no p : Path | p in p.^parent
-
-	-- Only directories can contain other objects
-	all p1, p2 : Path |
-		p1 -> p2 in parent implies path.p2 in Dir
-
-	-- For every non-root node in a state, there must be exactly one parent node in the state
-	all s : State, n : node.s | 
-		let parentPath = n.path.parent | 
-			some parentPath => one path.parentPath & node.s
-}
-
 // Git objects and index (see path)
 abstract sig Object {
 	object : set State
 }
-fact {
-	Path.index in object
-	all s : State | let c = HEAD.s | c.tree + c.tree.^children in object.s
-}	
 
 sig Blob extends Object {}
 sig Tree extends Object {
@@ -69,22 +49,8 @@ fun children : Object -> Object {
 }
 sig Commit extends Object {
 	HEAD : set State,
-	previous : set Commit,
-	tree : Tree
-}
-fact CommitConstraints {
-	no c : Commit | c in c.^previous
-
-	-- commit trees have no cycles
-	no iden & ^children
-	-- objects in each commit maps to nodes that actually exist in the file system
-	// Eunsuk: Too strong! Not necessarily true if a file is removed from index before changes are committed
-	//all s : State | 
-	//	let headCommit = head.s,
-	//		objs = headCommit.tree.^children |
-	//			obj.objs in node.s
-	-- there always exists one head
-	all s : State | one HEAD.s
+	previous : lone Commit,
+	tree : lone Tree
 }
 
 sig Tag extends Object {
@@ -95,17 +61,79 @@ pred pathExists [s : State, p : Path] {
 	p in (node.s).path
 }
 
+fun path2node[s : State, p : Path] : Node {
+	node.s & path.p
+}
+
+pred pointsToFile[s : State, p : Path] {
+	path2node[s, p] in File
+}
+
+pred isDescendant[p1, p2 : Path] {
+	p2 in p1.^parent
+}
+
+// returns the set of all path-blob pairs for every file that resides under the directory pointed by "p"
+fun descendantPairs[s : State, p : Path] : Path -> Blob {
+	{p2 : Path, o : Object |
+		pointsToFile[s, p2] and 
+		isDescendant[p2, p] and
+		o = path2node[s, p2].obj
+	}
+}
+
+/**
+	* Invariant
+	*/
+
+pred invariant[s : State] {
+	fsysInvariant[s]
+	objectInvariant[s]
+	commitInvariant[s]
+}
+
+pred fsysInvariant[s : State] {
+	no disj n1, n2 : node.s | n1.path = n2.path
+
+	-- Paths are acyclic
+	no p : Path | p in p.^parent
+
+	-- Only directories can contain other objects
+	all p1, p2 : Path |
+		p1 -> p2 in parent implies path.p2 in Dir
+
+	-- For every non-root node in a state, there must be exactly one parent node in the state
+	all n : node.s | 
+		let parentPath = n.path.parent | 
+			some parentPath => one path.parentPath & node.s
+}
+
+pred objectInvariant[s : State] {
+	Path.index in object
+ 	let c = HEAD.s | c.tree + c.tree.^children in object.s
+}
+
+pred commitInvariant[s : State] {
+	no c : Commit | c in c.^previous
+	-- commit trees have no cycles
+	no iden & ^children
+	one HEAD.s
+}
+
 /**
 	* Add operation
 	*/
 pred add [s,s' : State,p : Path] {
 	// precondition
+	invariant[s]
 	s != s'
 	pathExists[s, p]
 	// postcondition
-	index.s' = index.s ++ p->(path.p).obj
-	// add new objects to git database
-	object.s' = object.s ++ (path.p).obj
+	let path2obj = pointsToFile[s, p] implies p -> (path.p).obj else descendantPairs[s, p] {
+		index.s' = index.s ++ path2obj
+		// add new objects to git database
+		object.s' = object.s + Path.path2obj
+	}
 	// HEAD doesn't change
 	HEAD.s' = HEAD.s
 	// working directory doesn't change
@@ -121,6 +149,7 @@ run {
 // Not allowed because object must always contain at least one tree, since commits must point 
 // to one even if they do not belong to object, and since HEAD must point to a commit that might not
 // belong to object (the initial dettached HEAD, for example)...
+// Eunsuk: Fixed by making "tree" in "sig Commit" optional 
 run Add1 {
 	some f : File {
 		node.first = f
@@ -132,6 +161,7 @@ run Add1 {
 
 // Not allowed because the path cannot belong to a Dir due to first postcondition: it tries to add a Tree
 // object to the index, which is not possible
+// Eunsuk: Fixed add operation to work over directories as well
 run Add2 {
 	some d : Dir {
 		node.first = d
@@ -153,7 +183,7 @@ run Add3 {
 		no index.first
 		add[first, first.next, d1.path]
 	}
-}
+} for 5
 
 // In this case s could be equal to s', so that pre-condition might be too strong
 run Add4 {
@@ -176,6 +206,7 @@ fun pathOf[o : Object, s : State] : Path {
 pred commit[s, s' : State] {
 	s != s'
 	// precondition
+	invariant[s]
 	// There are some changes to be committed in the index
 	some index.s
 	let oldHead = HEAD.s,
@@ -184,7 +215,7 @@ pred commit[s, s' : State] {
 			oldHead in newHead.previous
 			// the set of blobs that appear in commit are exactly those from the index			
 			newCommitObjs & Blob = Path.index.s
-			
+
 			all o : newCommitObjs |
 				let p = pathOf[o, s],
 					p2 = p.parent |
@@ -208,6 +239,11 @@ pred commit[s, s' : State] {
 						}
 	}
 	// postcondiiton
+	// add objects in the database
+	let newHead = HEAD.s' {
+		object.s' = object.s + newHead.tree + newHead.tree.^children
+		one newHead
+	}
 	// The index is empty
 	no index.s'
 	// working directory doesn't change
@@ -223,7 +259,7 @@ run {
 pred equalToHeadCommit[s : State, p : Path] {
 	let c = HEAD.s,
 		indexObj = p.index.s,
-		workingObj = ((node.s <: path).p).obj, 
+		workingObj = path2node[s, p].obj, 
 		commitObj = findObjAtPath[c.tree, p] |
 			// file being removed have to be identical to the tip of the branch (i.e. obj in head commit)
 			workingObj = commitObj and  
@@ -237,12 +273,15 @@ pred equalToHeadCommit[s : State, p : Path] {
 pred rm [s,s' : State, p : Path] {
 	// precondition
 	s != s'
+	invariant[s]
 	pathExists[s, p]
 	equalToHeadCommit[s, p]
 	// postcondition
 	index.s' = index.s - p->(path.p).obj
 	HEAD.s' = HEAD.s
-	object.s' = object.s
+	// Eunsuk: What's the right behavior here? Can't always remove, because object might live in an existing commit.
+	// For now, assume that object db remains the same and unnecessary objects later get "garbage-collected".
+	object.s' = object.s 
 	node.s' = node.s - path.p
 }
 
@@ -250,6 +289,61 @@ run {
 	some p : Path | rm[SO/first, SO/first.next, p]
 } for 5 but 2 State
 
+
+/**
+	* Invariant check
+	*/
+pred invariantPreserved[s, s' : State] {
+	(invariant[s] and 
+		(commit[s, s'] or 
+		some p : Path | add[s, s', p] or rm[s, s', p])) implies
+	invariant[s']
+}
+
+check InvariantPreservation {
+	all s : State - last | invariantPreserved[s, s.next]
+} for 8 but 2 State
+
+/** 
+	* Facts (no longer enforced, replaced with invariant to be checked
+	*/
+/*
+fact FilesystemConstraints {
+	all s : State | no disj n1, n2 : node.s | n1.path = n2.path
+
+	-- Paths are acyclic
+	no p : Path | p in p.^parent
+
+	-- Only directories can contain other objects
+	all p1, p2 : Path |
+		p1 -> p2 in parent implies path.p2 in Dir
+
+	-- For every non-root node in a state, there must be exactly one parent node in the state
+	all s : State, n : node.s | 
+		let parentPath = n.path.parent | 
+			some parentPath => one path.parentPath & node.s
+}
+
+fact ObjectConstraints {
+	Path.index in object
+	all s : State | let c = HEAD.s | c.tree + c.tree.^children in object.s
+}	
+
+fact CommitConstraints {
+	no c : Commit | c in c.^previous
+
+	-- commit trees have no cycles
+	no iden & ^children
+	-- objects in each commit maps to nodes that actually exist in the file system
+	// Eunsuk: Too strong! Not necessarily true if a file is removed from index before changes are committed
+	//all s : State | 
+	//	let headCommit = head.s,
+	//		objs = headCommit.tree.^children |
+	//			obj.objs in node.s
+	-- there always exists one head
+	all s : State | one HEAD.s
+}
+*/
 
 /**
 	* Older stuff

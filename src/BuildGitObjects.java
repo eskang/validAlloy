@@ -790,7 +790,7 @@ public class BuildGitObjects {
 	}		
 	public static void buildRefs(A4Solution sol,Module world, ExprVar iState,HashMap<String,String> mapObjHash) throws Err
 	{
-		Expr head = CompUtil.parseOneExpression_fromString(world, "HEAD & object").join(iState);
+		Expr head = CompUtil.parseOneExpression_fromString(world, "branch").join(iState);
 		A4TupleSet ts = (A4TupleSet) sol.eval(head);
 		for(A4Tuple t : ts) {
                     buildGitRef(mapObjHash.get(t.atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
@@ -861,9 +861,12 @@ public class BuildGitObjects {
 	{
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
-		A4Tuple tup = res.iterator().next();
-		Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
-		
+                if (res.size() > 0) {
+                    A4Tuple tup = res.iterator().next();
+                    Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
+                } else {
+                    Logger.trace(setHead("refs/heads/master"));
+                }		
 	}
 	
 	
