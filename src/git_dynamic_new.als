@@ -150,7 +150,7 @@ run {
 // to one even if they do not belong to object, and since HEAD must point to a commit that might not
 // belong to object (the initial dettached HEAD, for example)...
 // Eunsuk: Fixed by making "tree" in "sig Commit" optional 
-run Add1 {
+run add1 {
 	some f : File {
 		node.first = f
 		no object.first
@@ -162,7 +162,7 @@ run Add1 {
 // Not allowed because the path cannot belong to a Dir due to first postcondition: it tries to add a Tree
 // object to the index, which is not possible
 // Eunsuk: Fixed add operation to work over directories as well
-run Add2 {
+run add2 {
 	some d : Dir {
 		node.first = d
 		no object.first
@@ -173,7 +173,7 @@ run Add2 {
 
 // Similar to the previous, to remind us that we need to recursively add to the index all pairs path->blob
 // that descend from the given directory.
-run Add3 {
+run add3 {
 	some disj d1, d2 : Dir, disj f1, f2 : File {
 		node.first = d1+d2+f1+f2
 		f1.path.parent = d1.path
@@ -185,8 +185,8 @@ run Add3 {
 	}
 } for 5
 
-// In this case s could be equal to s', so that pre-condition might be too strong
-run Add4 {
+// Adding something that is already in the index should do nothing
+run add4 {
 	some f : File {
 		node.first = f
 		object.first = f.obj
@@ -289,6 +289,16 @@ run {
 	some p : Path | rm[SO/first, SO/first.next, p]
 } for 5 but 2 State
 
+// Very simple rm test
+run rm1 {
+	some f : File {
+		node.first = f
+		some HEAD.first
+		object.first = HEAD.first + (HEAD.first).tree + f.obj
+		index.first = f.path -> f.obj
+		rm[first, first.next, f.path]
+	}
+} for 3 but 2 State
 
 /**
 	* Invariant check
