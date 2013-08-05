@@ -6,8 +6,6 @@
 	* - removed "name" from Path and Node, simplified relevant constraints
 	**/
 
--- Alcino: HEAD might not exist in some state
--- Alcino: Every HEAD must point to tree
 -- Alcino: Commit also goes in object
 
 open util/ordering[State] as SO
@@ -52,13 +50,8 @@ fun children : Object -> Object {
 	{t : Tree, o : Object | some p : Path | t->p->o in content} 
 }
 sig Commit extends Object {
-	HEAD : set State,
 	previous : lone Commit,
-	tree : lone Tree
-}
-
-sig Tag extends Object {
-	commit : Commit
+	tree : Tree
 }
 
 pred pathExists [s : State, p : Path] {
@@ -87,9 +80,18 @@ fun descendantPairs[s : State, p : Path] : Path -> Blob {
 }
 
 /**
+	* Git references (branches + tag)
+	*/
+sig Reference {
+	refs : set State,
+	HEAD : set State,
+	c : Commit
+}
+
+
+/**
 	* Invariant
 	*/
-
 pred invariant[s : State] {
 	fsysInvariant[s]
 	objectInvariant[s]
@@ -112,16 +114,23 @@ pred fsysInvariant[s : State] {
 			some parentPath => one path.parentPath & node.s
 }
 
+fun getHEAD[s : State] : Commit {
+	(HEAD.s).c
+}
+
 pred objectInvariant[s : State] {
 	Path.index in object
- 	let c = HEAD.s | c.tree + c.tree.^children in object.s
+	let c = getHEAD[s] | c.tree + c.tree.^children in object.s
+	// if a path is in the index none of its ancestors can be
+	all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
+
 }
 
 pred commitInvariant[s : State] {
 	no c : Commit | c in c.^previous
 	-- commit trees have no cycles
 	no iden & ^children
-	one HEAD.s
+	lone HEAD.s
 }
 
 /**
@@ -134,7 +143,10 @@ pred add [s,s' : State,p : Path] {
 	pathExists[s, p]
 	// postcondition
 	let path2obj = pointsToFile[s, p] implies p -> (path.p).obj else descendantPairs[s, p] {
-		index.s' = index.s ++ path2obj
+		-- entries in index that point to files that no longer exist in the file system
+		let danglingEntries = { badPath : Path, o : Blob | 
+												isDescendant[badPath, p] and badPath -> o in index.s and not pathExists[s, badPath]} |
+			index.s' = (index.s ++ path2obj) - danglingEntries
 		// add new objects to git database
 		object.s' = object.s + Path.path2obj
 	}
@@ -142,6 +154,8 @@ pred add [s,s' : State,p : Path] {
 	HEAD.s' = HEAD.s
 	// working directory doesn't change
 	node.s' = node.s
+	// refs don't change
+	refs.s' = refs.s
 }
 
 run {
@@ -153,7 +167,7 @@ run {
 // Not allowed because object must always contain at least one tree, since commits must point 
 // to one even if they do not belong to object, and since HEAD must point to a commit that might not
 // belong to object (the initial dettached HEAD, for example)...
-// Eunsuk: Fixed by making "tree" in "sig Commit" optional 
+// Eunsuk: Fixed by making "HEAD" optional
 run add1 {
 	some f : File {
 		node.first = f
@@ -213,8 +227,8 @@ pred commit[s, s' : State] {
 	invariant[s]
 	// There are some changes to be committed in the index
 	some index.s
-	let oldHead = HEAD.s,
-		newHead = HEAD.s',
+	let oldHead = getHEAD[s],
+		newHead = getHEAD[s'],
 		newCommitObjs = newHead.tree.^children {
 			oldHead in newHead.previous
 			// the set of blobs that appear in commit are exactly those from the index			
@@ -244,24 +258,26 @@ pred commit[s, s' : State] {
 	}
 	// postcondiiton
 	// add objects in the database
-	let newHead = HEAD.s' {
-		object.s' = object.s + newHead.tree + newHead.tree.^children
-		one newHead
+	let newHead = getHEAD[s'] {
+		object.s' = object.s + newHead + newHead.tree + newHead.tree.^children
+		one HEAD.s'
 	}
 	// The index is empty
 	no index.s'
 	// working directory doesn't change
 	node.s' = node.s
+	// refs don't change
+	refs.s' = refs.s
 }
 
 run {
 	commit[SO/first, SO/first.next]
-	HEAD.SO/first.tree != HEAD.(SO/first.next).tree
+	getHEAD[SO/first].tree != getHEAD[SO/first.next].tree
 } for 5 but 2 State
 
 
 pred equalToHeadCommit[s : State, p : Path] {
-	let c = HEAD.s,
+	let c = getHEAD[s],
 		indexObj = p.index.s,
 		workingObj = path2node[s, p].obj, 
 		commitObj = findObjAtPath[c.tree, p] |
@@ -287,6 +303,7 @@ pred rm [s,s' : State, p : Path] {
 	// For now, assume that object db remains the same and unnecessary objects later get "garbage-collected".
 	object.s' = object.s 
 	node.s' = node.s - path.p
+	refs.s' = refs.s
 }
 
 run {
@@ -297,8 +314,8 @@ run {
 run rm1 {
 	some f : File {
 		node.first = f
-		some HEAD.first
-		object.first = HEAD.first + (HEAD.first).tree + f.obj
+		some getHEAD[first]
+		object.first = getHEAD[first] + getHEAD[first].tree + f.obj
 		index.first = f.path -> f.obj
 		rm[first, first.next, f.path]
 	}
@@ -309,8 +326,7 @@ run rm1 {
 	*/
 pred invariantPreserved[s, s' : State] {
 	(invariant[s] and 
-		(commit[s, s'] or 
-		some p : Path | add[s, s', p] or rm[s, s', p])) implies
+		(commit[s, s'] or some p : Path | add[s, s', p] or rm[s, s', p])) implies
 	invariant[s']
 }
 
@@ -366,10 +382,6 @@ fun siblings : Path -> Path{
 	{p1:Path, p2:Path | some p1.parent and p1.parent = p2.parent and p1 != p2}
 }
 
-fun points : Object -> Object {
-	children + previous + tree + commit
-}
-
 fun staged : Path -> State {
 	{p : Path, s : State | p in (index.s).Object}
 }
@@ -400,5 +412,5 @@ fact {
 	// indexed blobs are in the objects
 	//all s : State | index.s in Path -> object.s
 	// if a path is in the index none of its ancestors can be
-	all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
+	//all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
 }
