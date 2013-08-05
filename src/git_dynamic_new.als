@@ -6,6 +6,10 @@
 	* - removed "name" from Path and Node, simplified relevant constraints
 	**/
 
+-- Alcino: HEAD might not exist in some state
+-- Alcino: Every HEAD must point to tree
+-- Alcino: Commit also goes in object
+
 open util/ordering[State] as SO
 
 sig State {}
