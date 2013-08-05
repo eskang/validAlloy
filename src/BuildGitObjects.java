@@ -47,27 +47,29 @@ public class BuildGitObjects {
 			pr.waitFor();
 			BufferedReader br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 			BufferedReader be = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
+			if (br.ready()) {
+				String line = br.readLine();
+				StringBuilder lines = new StringBuilder();
+				while (line != null) {
+					lines.append(line);
+					line = br.readLine();
+					if (line != null) lines.append('\n');
+				}
+				result = lines.toString();				
+			}
+			br.close();
 			if (be.ready()) {
 				String line = be.readLine();
 				StringBuilder lines = new StringBuilder();
 				while (line != null) {
-					lines.append(line+"\n");
+					lines.append(line);
 					line = be.readLine();
+					if (line != null) lines.append('\n');
 				}
 				be.close();
 				Logger.error(lines.toString());
 				throw new GitException(lines.toString());
 			}
-			if (br.ready()) {
-				String line = br.readLine();
-				StringBuilder lines = new StringBuilder();
-				while (line != null) {
-					lines.append(line+"\n");
-					line = br.readLine();
-				}
-				result = lines.toString();				
-			}
-			br.close();
 		} catch (IOException exc) {
 			exc.printStackTrace();
 		} catch (InterruptedException exc) {
@@ -150,8 +152,8 @@ public class BuildGitObjects {
 	}
 	
 	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits) {
-		ArrayList<String> cmds = new ArrayList<String>();		  
-		if (commits.get(0).compareTo("FIRST_COMMIT")==0) {
+		ArrayList<String> cmds = new ArrayList<String>();	
+		if (commits.isEmpty()) {
 			cmds.add("git");
 			cmds.add("commit-tree");
 			cmds.add(tree_hashcode);
@@ -166,7 +168,7 @@ public class BuildGitObjects {
 		}
 		String hash = null;
 		try {
-			hash = exec(cmds, "Building commit tree with "+tree_hashcode, message);
+			hash = exec(cmds, "Building commit with tree "+tree_hashcode, message);
 			Logger.trace("Commit hash : "+ hash);
 		} catch (GitException e) {
 			// TODO Auto-generated catch block
@@ -288,11 +290,13 @@ public class BuildGitObjects {
 		}
 	}
 	
-	public static void buildRefs(A4Solution sol,Module world, ExprVar iState, HashMap<String,String> mapObjHash) throws Err {
-		Expr head = CompUtil.parseOneExpression_fromString(world, "branch").join(iState);
-		A4TupleSet ts = (A4TupleSet) sol.eval(head);
+	public static void buildRefs(A4Solution sol,Module world, ExprVar iState, HashMap<String,ExprVar>mapAtom, HashMap<String,String> mapObjHash) throws Err {
+		Expr refs = CompUtil.parseOneExpression_fromString(world, "refs").join(iState);
+		Expr commits = CompUtil.parseOneExpression_fromString(world, "c");
+		A4TupleSet ts = (A4TupleSet) sol.eval(refs);
 		for(A4Tuple t : ts) {
-			buildGitRef(mapObjHash.get(t.atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
+			A4TupleSet c = (A4TupleSet) sol.eval(mapAtom.get(t.atom(0)).join(commits));
+			buildGitRef(mapObjHash.get(c.iterator().next().atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
 		}
 	}
 	
@@ -376,12 +380,9 @@ public class BuildGitObjects {
 			//Logger.trace(commitTree.atom(0));
 			prevCommits = (A4TupleSet) sol.eval(commit.join(previous));
 			
-			if (prevCommits.size()>0)
-				for (A4Tuple prev: prevCommits)
-					entries.add(mapObjsHash.get(prev.atom(0)));
-			else
-				entries.add("FIRST_COMMIT");
-		 
+			for (A4Tuple prev: prevCommits)
+				entries.add(mapObjsHash.get(prev.atom(0)));
+			
 			treeHash = mapObjsHash.get(commitTree.atom(0));
 			//Logger.trace(treeHash);
 			mapObjsHash.put(t.atom(0),buildCommitTree(treeHash,"message\n",entries));
@@ -420,12 +421,12 @@ public class BuildGitObjects {
 			mapObjsHash.put(t.atom(0),buildGitHashObject(t.atom(0)));
 		
 		treeBuilder(sol,world,mapAtom,mapObjsHash,iState);
-				
+						
 		commitBuilder(sol,world,mapAtom,mapObjsHash,iState);
 		
 		buildIndex(sol,world,mapObjsHash,mapAtom,iState);
 		
-		//buildRefs(sol,world,iState,mapObjsHash);
+		buildRefs(sol,world,iState,mapAtom,mapObjsHash);
 		
 		placeHEAD(sol,world,iState);
 	}	

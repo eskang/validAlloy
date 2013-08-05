@@ -15,13 +15,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.nio.file.StandardCopyOption.*;
 
 import org.apache.commons.io.FileUtils;
-import org.pmw.tinylog.Logger;
 
 
 public class Utils {
@@ -156,7 +153,6 @@ public static boolean diffPosPre(String pathindex){
 			
 			OutputStream out = pr.getOutputStream();
 			InputStream in = pr.getInputStream();
-			InputStream err = pr.getErrorStream();
 
 			InputStreamReader isr = new InputStreamReader(in);
 			OutputStreamWriter osr = new OutputStreamWriter(out);
@@ -255,7 +251,6 @@ public static String printindex(String pathindex){
 		
 		OutputStream out = pr.getOutputStream();
 		InputStream in = pr.getInputStream();
-		InputStream err = pr.getErrorStream();
 
 		InputStreamReader isr = new InputStreamReader(in);
 		OutputStreamWriter osr = new OutputStreamWriter(out);

@@ -151,6 +151,8 @@ public class ValidAlloy {
                     p = Paths.get(newpath);
                     skolems = sol.getAllSkolems();
                     Files.createDirectories(p);
+
+                    //sol.writeXML("output/"+preds.get(j)+"/instance"+i+".xml");
                     
                     String preS = "$" + preds.get(j) +"_s";
                     String posS = "$" + preds.get(j) +"_s'";

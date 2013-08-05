@@ -120,7 +120,14 @@ fun getHEAD[s : State] : Commit {
 
 pred objectInvariant[s : State] {
 	Path.index in object
-	let c = getHEAD[s] | c.tree + c.tree.^children in object.s
+	// All commits in the objects point to trees and previous commits in the objects
+	all s : State, c : object.s & Commit | c.tree in object.s and c.previous in object.s	
+	// All descendants of a tree in the objects must belong to the objects
+	all s : State, t : object.s | t.*children in object.s
+	// Refs point to valid commits
+	all s : State | (refs.s).c in object.s
+	// HEAD must be one of the refs
+	all s : State | (HEAD.s) in refs.s
 	// if a path is in the index none of its ancestors can be
 	all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
 
@@ -161,6 +168,12 @@ pred add [s,s' : State,p : Path] {
 run {
 	some p : Path | add[SO/first, SO/first.next, p]
 } for 5 but 2 State
+
+pred add_invalid_path [s,s' : State,p : Path] {
+	invariant[s]
+	not pathExists[s, p]
+	s' = s
+}
 
 // Unit tests
 
