@@ -1,0 +1,16 @@
+\beamer@endinputifotherversion {3.26pt}
+\select@language {portuguese}
+\beamer@sectionintoc {1}{Motivation}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Git}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Model Validation Through Test Case Generation}{8}{0}{1}
+\beamer@sectionintoc {2}{ValidAlloy}{11}{0}{2}
+\beamer@subsectionintoc {2}{1}{Case Study: Git}{11}{0}{2}
+\beamer@subsectionintoc {2}{2}{Features}{12}{0}{2}
+\beamer@subsectionintoc {2}{3}{Implementation Details}{14}{0}{2}
+\beamer@subsectionintoc {2}{4}{How it Works}{16}{0}{2}
+\beamer@sectionintoc {3}{Git Model}{22}{0}{3}
+\beamer@subsectionintoc {3}{1}{Git add}{23}{0}{3}
+\beamer@subsectionintoc {3}{2}{Git remove}{24}{0}{3}
+\beamer@sectionintoc {4}{Conclusion and Future Work}{29}{0}{4}
+\beamer@subsectionintoc {4}{1}{Conclusion}{29}{0}{4}
+\beamer@subsectionintoc {4}{2}{Future Work}{30}{0}{4}
