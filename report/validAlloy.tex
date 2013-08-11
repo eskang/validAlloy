@@ -1,0 +1,92 @@
+
+
+\input{sections/Setup.tex}
+\begin{document}
+%%%
+%%% Capa
+%%%
+\maketitle
+
+%%%
+%%% Abstract
+%%%
+
+\begin{abstract}
+In the world of software, formal models are continually getting more important, but a lot of  software is being built without a formal model to back it up. In this document we will talk about our approach to validate models of existing software, model validation through test case generation, and our tool that implements it. We used git as our case study, mainly because of its popularity and its bad documentation, and worked to get and accurate model of it, and tried to find git bugs while doing it.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+\listoffigures
+\clearpage
+%%%
+%%% Introdução
+%%%
+\chapter{Introduction}
+
+\input{sections/introduction.tex}
+
+%%%
+%%% Testbench
+%%%
+\chapter{ValidAlloy}
+\input{sections/validAlloy.tex}
+
+%%%
+%%% Implementação
+%%%
+
+\chapter{Results}
+\input{sections/results.tex}
+%%%
+%%% Últimas observações gerais (?)
+%%%
+
+\chapter{Conclusions}
+Git is not nearly perfect, its documentation is incomplete, and the functionality of some operations makes it hard to understand what they actually do. 
+We are satisfied with model validation through test case generation, on the simpler commands it showed not apparent errors, and on the complex one it provided us some really weird behaviour, as it should be expected. 
+We believed that we used this well to validate our model, and to create and run all those tests, and we found an actual bug in git. But there are still some problems: model depth limits how accurate the tests are. And of course, you must be good with modelling to use it well.
+You can check out our work at \href{https://github.com/eskang/validAlloy}{https://github.com/eskang/validAlloy}.
+
+\chapter{Possible future work}
+
+After this, we believe that there is some work can still to be done. The model needs to be refined, and there are some operations that are yet to be done( merge and commit for example). The testbench needs an update on the documentation(we are working on it).
+We also believe that it should be possible to create a framework to make testbenches, like this one that use alloy and the test case generation approach. We believe to a big part of the work could be saved.
+
+\begin{thebibliography}{9}
+
+\bibitem{alloy}
+  Official alloy website, \href{http://alloy.mit.edu/}{http://alloy.mit.edu/}.
+
+\bibitem{git}
+	Official git website, \href{http://git-scm.com/}{http://git-scm.com/}.
+
+
+\bibitem{gitpro}
+  Scott Chacon,
+  \emph{Pro Git}.
+  Apress, Berkely, CA, USA
+  2009.
+  
+\bibitem{git_man}
+	Git man pages, \href{https://www.kernel.org/pub/software/scm/git/docs/}{https://www.kernel.org/pub/software/scm/git/docs/}.
+
+
+\bibitem{git_mail}
+Discussion of the git rm bug, \href{http://git.661346.n2.nabble.com/Behavior-of-git-rm-td7581485.html}{http://git.661346.n2.nabble.com/Behavior-of-git-rm-td7581485.html}.
+
+\bibitem{antlr}
+Official antlr website, \href{www.antlr.org}{www.antlr.org}.
+
+\end{thebibliography}
+
+\appendix
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\appendixname}
+
+\chapter{Config File Grammar}
+\input{sections/appendix/grammar.tex}
+
+\end{document}

@@ -1,0 +1,125 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{graphicx}
+\usepackage{aeguill}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{a4wide}
+\usepackage{indentfirst}
+\usepackage{acronym}
+\usepackage[hmargin=2cm,vmargin=2cm,bmargin=2cm]{geometry}
+\usepackage{color}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[nottoc,notlof,numbib,notlot]{tocbibind} 
+\usepackage{chngcntr}
+\usepackage[pdftex]{hyperref}
+\usepackage{lastpage}
+\usepackage{wrapfig}
+\usepackage{bookmark}
+\usepackage[table]{xcolor}
+\usepackage{color, colortbl}
+\usepackage{supertabular}
+
+
+
+\counterwithout{figure}{chapter}
+\counterwithout{table}{chapter}
+
+% Cabeçalhos e Rodapés
+\usepackage{fancyhdr}
+
+\setlength{\headheight}{15pt}
+
+
+
+\fancypagestyle{plain}{%
+\fancyhead{} % Tirar cabeçalhos de página vazias
+\renewcommand{\headrulewidth}{0pt} % e o risco
+}
+
+\fancypagestyle{empty}{%
+\fancyhead{} % Tirar cabeçalhos de página vazias
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt} % e o risco
+\renewcommand{\footrulewidth}{0pt}
+}
+
+
+\usepackage{listings}
+
+\lstset{
+  backgroundcolor=\color{white},   	% choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  belowcaptionskip=\baselineskip,	%
+  basicstyle=\small,				% the size of the fonts that are used for the code
+  breakatwhitespace=false,         	% sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 	% sets automatic line breaking
+  captionpos=b,                    	% sets the caption-position to bottom
+  commentstyle=\itshape\color{purple!40!black},    	% comment style
+  deletekeywords={...},            	% if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          	% if you want to add LaTeX within your code
+  extendedchars=true,              	% lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    	% adds a frame around the code
+  keywordstyle=\bfseries\color{green!40!black},       	% keyword style		               	% the language of the code
+  morekeywords={*,...},            	% if you want to add more keywords to the set
+  numbers=none,                    	% where to put the line-numbers; possible values are (none, left, right)
+  numbersep=9pt,                   	% how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, 	% the style that is used for the line-numbers
+  rulecolor=\color{black},         	% if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                	% show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          	% underline spaces within strings only
+  showtabs=false,                  	% show tabs within strings adding particular underscores
+  stepnumber=1,                    	% the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{orange},     	% string literal style
+  tabsize=2		                  	% sets default tabsize to 2 spaces
+}
+\renewcommand{\lstlistingname}{}
+
+
+\hypersetup{
+   colorlinks,
+   citecolor=black,
+   filecolor=black,
+   linkcolor=black,
+   urlcolor=black
+}
+
+\title{\begin{center}
+\begin{tabular}{c r}
+	\large{Universidade do Minho} &\\ 
+	\large{Departamento de Informática} &\\
+	\large{Mestrado em Engenharia Informática} &\\
+	\\
+	\large{Metódos Formais em Engenharia de Software} & \\
+	\large{Group F} & \\
+	\large{Cohesive Project: CSAIL/MIT Proposal} & \\
+	\\
+	\large{\textbf{ValidAlloy}} &  \\
+	\large{\textbf{A tool for validating a git alloy specification using test-case
+generation}} & \\
+	\\
+	 \\
+	\end{tabular}
+\end{center}}
+\author{
+\begin{tabular}[t]{c c}
+   \multicolumn{2}{c}{Authors:}
+	\\
+	\\
+	 José Pinheiro & Tiago Guimarães \\
+	 {\small \texttt{pg23208@di.uminho.pt}}  & {\small \texttt{pg22832@di.uminho.pt}} \\
+	\\ 
+	\multicolumn{2}{c}{Supervisors:}
+	\\
+	\\
+	Alcino Cunha & Enusuk Kang \\
+	 {\small \texttt{alcino@di.uminho.pt}} &{\small \texttt{eskang@csail.mit.edu}} \\
+	 \\
+	\end{tabular}
+}

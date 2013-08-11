@@ -1,0 +1,134 @@
+
+Here follows a formal description of the grammar that recognizes the config file language. It is in extendBNF notion.
+
+\begin{verbatim}
+
+cfg 
+    : command ( ';' b=command)* runs
+    ;	
+
+
+command   
+    : vars? 'pred' pred  'scope'  sp 'cmd'  cmdgit   errors?
+    ; 
+
+errors
+    :'errors' '(' list_errors ')'
+    ;	
+
+list_errors
+    :error (','error)*
+    ;
+
+error
+    :STRING
+    ;
+
+runs  
+    : 'runs' INT
+    ;
+	
+vars
+    : var  (var )*
+    ;
+	
+pred 
+    : name arguments
+    ;
+	
+
+arguments
+    :'[' args? ']'
+    ;
+
+args 
+    :arg (',' arg)*
+    ;
+
+
+sp  
+    : 'for'  INT  sigs
+    | 'for' INT  'but exactly' sigs
+    ;
+	
+sigs  
+    : sig (',' sig )*
+    ;
+	
+sig
+    :INT  ID
+    ;
+
+var
+    :arg ':' type
+    ;
+	
+type 
+    :ID
+    ;
+	
+cmdgit
+    :'git' name opts
+    ;
+
+opts 
+    :opt  (opt )*	
+    ;
+	
+opt 
+    : ID 
+    |arg
+    |STRING
+    ;
+	
+	
+name 
+    : ID
+    ;
+	
+arg
+    :'#'ID
+    ;
+	
+ID  :	('a'..'z'|'A'..'Z'|'_'|'-') ('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'-')*
+    ;
+
+INT :	'0'..'9'+
+    ;
+
+WS  :   ( ' '
+        | '\t'
+        | '\r'
+        | '\n'
+        ) {$channel=HIDDEN;}
+    ;
+
+STRING
+    :  '"' ( ESC_SEQ | ~('\\'|'"') )* '"'
+    ;
+
+CHAR:  '\'' ( ESC_SEQ | ~('\''|'\\') ) '\''
+    ;
+
+fragment
+HEX_DIGIT : ('0'..'9'|'a'..'f'|'A'..'F') ;
+
+fragment
+ESC_SEQ
+    :   '\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
+    |   UNICODE_ESC
+    |   OCTAL_ESC
+    ;
+
+fragment
+OCTAL_ESC
+    :   '\\' ('0'..'3') ('0'..'7') ('0'..'7')
+    |   '\\' ('0'..'7') ('0'..'7')
+    |   '\\' ('0'..'7')
+    ;
+
+fragment
+UNICODE_ESC
+    :   '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+    ;
+\end{verbatim}
