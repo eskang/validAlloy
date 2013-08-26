@@ -1,0 +1,142 @@
+
+The model we used is a legacy one, and it describes the file system and the git objects(blob, tree, commit, tag), index and heads(including the HEAD).
+We modelled the git add,branch and remove operations and tested them with our testbench, the results follows.
+
+\section{Git add}
+
+Git add is used to track files and fix merge conflicts. Or Alloy model is too abstract, we don't have on our modelled index, the information need for merge and its conflicts, so we are only testing the tracking part of git add. With this in mind, git add becomes a rather simple operation that just puts the files on the index if they are not already there. With our current Testbench we couldn't find any difference.
+
+\begin{lstlisting}[caption=Predicate add]
+pred add [s,s' : State,p : Path] {
+	s != s'
+	p in (node.s).path
+	path.p in File
+	object.s' = object.s + (path.p).blob
+	index.s' = index.s ++ p->(path.p).blob
+ 	ref.s' = ref.s
+	head.s' = head.s
+	HEAD.s' = HEAD.s
+	node.s' = node.s
+}
+\end{lstlisting}
+\newpage
+\section{Git branch}
+Git branch's speed is one of git's selling points. Its speed comes from is simplicity, branching in git is just creating another pointer to the actual commit. So its post-conditions are not that complicated, and its pre-conditions are also simple: you cannot branch before your first commit, and you can't give the new branch the same name as an existing one.
+
+
+Our approach could not find any problems with git branch. And we also believe that git branch is fine, specially because of its simplicity.
+
+
+\begin{lstlisting}[caption=Predicate branch]
+pred branchPC[s:State, b:Ref]
+{
+	some (HEAD.s).head.s
+	b not in (head.s).univ
+}
+
+
+
+pred gitBranch[s,s': State , n:Ref ]{
+
+	branchPC[s,n]
+
+	head.s' = head.s +  (n->((HEAD.s).head.s))
+	
+	HEAD.s' = HEAD.s	
+	object.s' = object.s
+	node.s' = node.s
+	index.s' = index.s
+}
+
+\end{lstlisting}
+
+\section{Git rm}
+
+Git remote, according to the man pages, should remove the entry of a file from the index and, if it exists on the file system, deletes it. But with our testbench we fond out that if a file is the last one in a directory,when you remove it with git remove, it will also delete the containing directory and every other ancestor directory that also becomes empty, this is unmentioned on the man pages and on the Git Pro Manual.
+
+
+Git manual states that the files being removed have to be identical to the tip of the branch and no updates to their contents can be staged in the index. But we noted that sometimes git remove would run even if one of this conditions didn't hold, so we decided to test when some of the pre-condition don't hold as well.This was the motivation to the error expecting part of the testbench, so that we wouldn't get our results spammed with the expected result of a negated pre-condtion.
+
+
+With this our approach to this operation became:
+\begin{itemize}
+\item Run git rm with both pre-conditions holding true;
+\item Negate one pre-condition alternatively and test, while the other held true;
+\item Test with both pre-conditions being false.
+\end{itemize}
+
+\begin{lstlisting}[caption=Predicate rm]
+pred rmConditionA[s:State,p:Path]{
+		(((HEAD.s).head.s).path.s).p & Blob = (path.p & node.s).blob
+}
+
+pred rmConditionB[s:State,p:Path]{
+	  p.index.s in (((HEAD.s).head.s).path.s).p 
+}
+pred rmAB[s,s':State,p:Path]{
+	rmConditionA[s,p]
+	rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmA[s,s':State,p:Path]{
+	rmConditionA[s,p]
+	not rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmB[s,s':State,p:Path]{
+	not rmConditionA[s,p]
+	rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmNOP[s,s':State,p:Path]{
+	not rmConditionA[s,p]
+	not rmConditionB[s,p]
+	rmBehaviour[s,s',p]
+}
+
+pred rmBehaviour[s,s':State,p:Path]{
+	p in (index.s).univ
+	some path.p & node.s => some path.(p.siblings) & node.s 
+	path.p in File & node.s 
+	index.s' = index.s - p->Blob
+	node.s' = node.s - path.p
+	object.s' = object.s
+	head.s' = head.s
+	HEAD.s' = HEAD.s
+}
+\end{lstlisting}
+
+With this approach we where able to identify a weird error that could be replicated with this trace:
+\begin{verbatim}
+$ git init
+$ mkdir D
+$ echo "Hi" > D/F
+$ git add D/F
+$ rm -r D
+$ echo "Hey" > D
+$ git rm D/F
+warning : ’D/F’: Not a directory
+rm ’D/F’
+fatal: git rm: ’D/F’: Not a directory
+\end{verbatim}
+
+
+
+If we instead did:
+
+\begin{verbatim}
+$ git init
+$ mkdir D
+$ echo "Hi" > D/F
+$ git add D/F
+$ rm -r D
+$ echo "Hey" > F
+$ git rm D/F
+\end{verbatim}
+This works as expected.
+
+
+We asked at git@vger.kernel.org\cite{git_mail}, if this was the correct behaviour from git rm, in the first reply, they suggested a patch for it. It should also be noted that because of our post they also identified a similar problem but with symbolic links instead of files, that could cause some trouble.

@@ -1,0 +1,88 @@
+\beamer@endinputifotherversion {3.26pt}
+\headcommand {\slideentry {0}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\slideentry {0}{0}{2}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\sectionentry {1}{Motivation}{3}{Motivation}{0}}
+\headcommand {\beamer@sectionpages {1}{2}}
+\headcommand {\beamer@subsectionpages {1}{2}}
+\headcommand {\beamer@subsectionentry {0}{1}{1}{3}{Git}}\headcommand {\beamer@subsectionpages {3}{2}}
+\headcommand {\slideentry {1}{1}{1}{3/3}{Git}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\slideentry {1}{1}{2}{4/4}{Git}{0}}
+\headcommand {\beamer@framepages {4}{4}}
+\headcommand {\slideentry {1}{1}{3}{5/5}{Git}{0}}
+\headcommand {\beamer@framepages {5}{5}}
+\headcommand {\slideentry {1}{1}{4}{6/6}{Git}{0}}
+\headcommand {\beamer@framepages {6}{6}}
+\headcommand {\slideentry {1}{1}{5}{7/7}{Git}{0}}
+\headcommand {\beamer@framepages {7}{7}}
+\headcommand {\beamer@subsectionentry {0}{1}{2}{8}{Model Validation Through Test Case Generation}}\headcommand {\beamer@subsectionpages {3}{7}}
+\headcommand {\slideentry {1}{2}{1}{8/8}{Model Validation Through Test Case Generation}{0}}
+\headcommand {\beamer@framepages {8}{8}}
+\headcommand {\slideentry {1}{2}{2}{9/9}{Model Validation Through Test Case Generation}{0}}
+\headcommand {\beamer@framepages {9}{9}}
+\headcommand {\slideentry {1}{2}{3}{10/10}{Model Validation Through Test Case Generation}{0}}
+\headcommand {\beamer@framepages {10}{10}}
+\headcommand {\sectionentry {2}{ValidAlloy}{11}{ValidAlloy}{0}}
+\headcommand {\beamer@sectionpages {3}{10}}
+\headcommand {\beamer@subsectionpages {8}{10}}
+\headcommand {\beamer@subsectionentry {0}{2}{1}{11}{Case Study: Git}}\headcommand {\beamer@subsectionpages {11}{10}}
+\headcommand {\slideentry {2}{1}{1}{11/11}{Case Study: Git}{0}}
+\headcommand {\beamer@framepages {11}{11}}
+\headcommand {\beamer@subsectionentry {0}{2}{2}{12}{Features}}\headcommand {\beamer@subsectionpages {11}{11}}
+\headcommand {\slideentry {2}{2}{1}{12/12}{Features}{0}}
+\headcommand {\beamer@framepages {12}{12}}
+\headcommand {\slideentry {2}{2}{2}{13/13}{Features}{0}}
+\headcommand {\beamer@framepages {13}{13}}
+\headcommand {\beamer@subsectionentry {0}{2}{3}{14}{Implementation Details}}\headcommand {\beamer@subsectionpages {12}{13}}
+\headcommand {\slideentry {2}{3}{1}{14/14}{Implementation Details}{0}}
+\headcommand {\beamer@framepages {14}{14}}
+\headcommand {\slideentry {2}{3}{2}{15/15}{Implementation Details}{0}}
+\headcommand {\beamer@framepages {15}{15}}
+\headcommand {\beamer@subsectionentry {0}{2}{4}{16}{How it Works}}\headcommand {\beamer@subsectionpages {14}{15}}
+\headcommand {\slideentry {2}{4}{1}{16/16}{How it Works}{0}}
+\headcommand {\beamer@framepages {16}{16}}
+\headcommand {\slideentry {2}{4}{2}{17/17}{How it Works}{0}}
+\headcommand {\beamer@framepages {17}{17}}
+\headcommand {\slideentry {2}{4}{3}{18/18}{How it Works}{0}}
+\headcommand {\beamer@framepages {18}{18}}
+\headcommand {\slideentry {2}{4}{4}{19/19}{How it Works}{0}}
+\headcommand {\beamer@framepages {19}{19}}
+\headcommand {\slideentry {2}{4}{5}{20/20}{How it Works}{0}}
+\headcommand {\beamer@framepages {20}{20}}
+\headcommand {\slideentry {2}{4}{6}{21/21}{How it Works}{0}}
+\headcommand {\beamer@framepages {21}{21}}
+\headcommand {\sectionentry {3}{Git Model}{22}{Git Model}{0}}
+\headcommand {\beamer@sectionpages {11}{21}}
+\headcommand {\beamer@subsectionpages {16}{21}}
+\headcommand {\slideentry {3}{0}{7}{22/22}{}{0}}
+\headcommand {\beamer@framepages {22}{22}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{23}{Git add}}\headcommand {\beamer@subsectionpages {22}{22}}
+\headcommand {\slideentry {3}{1}{1}{23/23}{Git add}{0}}
+\headcommand {\beamer@framepages {23}{23}}
+\headcommand {\beamer@subsectionentry {0}{3}{2}{24}{Git remove}}\headcommand {\beamer@subsectionpages {23}{23}}
+\headcommand {\slideentry {3}{2}{1}{24/24}{Git remove}{0}}
+\headcommand {\beamer@framepages {24}{24}}
+\headcommand {\slideentry {3}{2}{2}{25/25}{Git remove}{0}}
+\headcommand {\beamer@framepages {25}{25}}
+\headcommand {\slideentry {3}{2}{3}{26/26}{Git remove}{0}}
+\headcommand {\beamer@framepages {26}{26}}
+\headcommand {\slideentry {3}{2}{4}{27/27}{Git remove}{0}}
+\headcommand {\beamer@framepages {27}{27}}
+\headcommand {\slideentry {3}{2}{5}{28/28}{Git remove}{0}}
+\headcommand {\beamer@framepages {28}{28}}
+\headcommand {\sectionentry {4}{Conclusion and Future Work}{29}{Conclusion and Future Work}{0}}
+\headcommand {\beamer@sectionpages {22}{28}}
+\headcommand {\beamer@subsectionpages {24}{28}}
+\headcommand {\beamer@subsectionentry {0}{4}{1}{29}{Conclusion}}\headcommand {\beamer@subsectionpages {29}{28}}
+\headcommand {\slideentry {4}{1}{1}{29/29}{Conclusion}{0}}
+\headcommand {\beamer@framepages {29}{29}}
+\headcommand {\beamer@subsectionentry {0}{4}{2}{30}{Future Work}}\headcommand {\beamer@subsectionpages {29}{29}}
+\headcommand {\slideentry {4}{2}{1}{30/30}{Future Work}{0}}
+\headcommand {\beamer@framepages {30}{30}}
+\headcommand {\beamer@partpages {1}{30}}
+\headcommand {\beamer@subsectionpages {30}{30}}
+\headcommand {\beamer@sectionpages {29}{30}}
+\headcommand {\beamer@documentpages {30}}
+\headcommand {\def \inserttotalframenumber {30}}

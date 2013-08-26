@@ -1,0 +1,59 @@
+Rascunho da apresentação e layout geral do relatório.
+
+
+ValidAlloy
+
+Abastract:
+
+1. Introdução
+1.1. Motivação
+-Explicar o que é git.
+-Comentários gerais sobre o git(anedotas).
+-O porque de querer um modelo abstracto do git.
+-A nossa solução, Model validition through test caste generation.
+1.2 Solução
+-Explicar o que é model validation trough test case genaration.
+-Uso de alloy.
+-Vantagens.
+-Desvantagens.
+2. ValidAlloy
+2.1. Case study: git.
+-Explicar que a nossa ferramenta implementa precisamente o mvttcg.
+-Uso de um modelo abstracto, para criar repositórios git.
+-A ferramenta tem o objectivo de testar o git em si(e os seus comandos), e usa-la para validar os modelo do git(em alloy). 
+2.2. Detalhes da ferramenta.
+-Escrita em Java.
+-Uso da api do alloy, para retirar informação das instancias geradas do modelo.
+-Dependente do modelo alloy(isto é se o modelo é mudado certas partes da ferramenta tem de ser mudadas em si).
+-Ficheiro de configuração(input do validalloy)
+-Logs.
+2.3 Features da Ferramenta.
+2.3. How it Works
+-Explicar arquitectura do sistema.
+-Comparação do pre com o  pos estado.
+-Filesystem.
+-Git objects.
+-Git commands.
+-Git errors.
+2.3.1. Alloy API
+2.3.2. Git Plumbing Comands
+2.3.3. Unix Diff
+2.3.4. Antlr(Parser/Lexer Generator)
+2.3.5.1. Config File Grammar
+2.3.5. Logs(tinylog)
+-Que contem estes logs.
+2.3.6. Outros Detalhes
+-Utils, commons-io, Java 7.
+3. Resultados obtidos com a ferramenta
+3.1. Git add
+3.2. Git remove
+-Bug encontrado.
+3.3. Git commit.
+3.4. Git branch.
+4. Future Work
+-Acabar o modelo.
+-Documentação.
+-Testar se a ferramenta é estavel.
+-Criação de uma framework, que possibilita-se a geração real de qualquer modelo(explicar que é uma framework e não uma ferramenta, isto é ajuda a criação de uma ferramenta que simula o modelo).
+5. Conclusões.
+6.Referencias.

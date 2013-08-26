@@ -1,0 +1,7 @@
+\frametitle{Git remove}
+\begin{itemize}
+\item We asked at git@vger.kernel.org, if this was the correct
+behaviour from git rm;
+\item In the first reply, they suggested a patch for it.
+\end{itemize}
+
