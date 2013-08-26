@@ -10,6 +10,12 @@
 
 open util/ordering[State] as SO
 
+fact {
+	Node = node.State
+	Object = object.State
+	Reference = (HEAD+refs).State
+}
+
 sig State {}
 
 /**
@@ -130,7 +136,6 @@ pred objectInvariant[s : State] {
 	all s : State | (HEAD.s) in refs.s
 	// if a path is in the index none of its ancestors can be
 	all s : State | all p1 : staged.s | no p2 : staged.s | p2 in p1.^parent
-
 }
 
 pred commitInvariant[s : State] {
@@ -169,7 +174,7 @@ run {
 	some p : Path | add[SO/first, SO/first.next, p]
 } for 5 but 2 State
 
-pred add_invalid_path [s,s' : State,p : Path] {
+pred add_pathExists [s,s' : State,p : Path] {
 	invariant[s]
 	not pathExists[s, p]
 	s' = s
@@ -323,6 +328,12 @@ run {
 	some p : Path | rm[SO/first, SO/first.next, p]
 } for 5 but 2 State
 
+pred rm_pathExists [s,s' : State, p : Path] {
+	invariant[s]
+	not pathExists[s, p]
+	s' = s
+}
+
 // Very simple rm test
 run rm1 {
 	some f : File {
@@ -333,6 +344,23 @@ run rm1 {
 		rm[first, first.next, f.path]
 	}
 } for 3 but 2 State
+
+// rm must delete empty directories
+run rm2 {
+	some f : File, d : Dir {
+		node.first = d+f
+		f.path.parent = d.path
+		some HEAD.first
+		refs.first = HEAD.first
+		index.first = f.path -> f.obj
+		object.first = (HEAD.first).c + (HEAD.first).c.tree + d.obj + f.obj
+		(HEAD.first).c.tree.content  = d.path -> d.obj
+		(d.obj).content = f.path -> f.obj
+		rm[first, first.next, f.path]
+		// there should be no nodes in the post-state
+		no node.(first.next)
+	}
+} for 4 but 2 State
 
 /**
 	* Invariant check
