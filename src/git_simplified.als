@@ -1,18 +1,40 @@
 sig State {}
 
-abstract sig Object {
-	object : set State
+sig Name {}
+
+abstract sig Node {
+	name : one Name,
+	parent : lone Dir,
+	current : set State
 }
 
-abstract sig Node extends Object {}
-
-sig Blob extends Node {
+sig File extends Node {
+	content : one Blob,
 	index : set State
 }
 
-sig Tree extends Node {
-	content : some Node,
-	root : set State
+sig Dir extends Node {}
+
+one sig Root extends Dir {}
+
+fact Tree {
+	all n : Node-Root | one n.parent
+	no Root.parent
+	all n : Node | n not in n.^parent
+}
+
+abstract sig Object {
+	stored : set State
+}
+
+sig Blob extends Object {}
+
+sig Tree extends Object {
+	content : Name -> lone (Blob+Tree)
+}
+
+fun children : Tree -> Object {
+	{t : Tree, o : Object | some n : Name | t->n->o in content}
 }
 
 sig Commit extends Object {
@@ -22,38 +44,52 @@ sig Commit extends Object {
 	ref : set State
 }
 
-pred invariant [s : State] {
-	// referential integrity
-	all t : object.s & Tree | t.content in object.s
-	all c : object.s & Commit | c.previous in object.s and c.tree in object.s
-	ref.s in object.s
-	// acyclic
-	no t : Tree | t in t.^content
+fact Acyclic {
+	// Acyclic commits
 	no c : Commit | c in c.^previous
-	// index must be in the object database
-	index.s in object.s
+	// Acyclic trees
+	no t : Tree | t in t.^children
+}
+
+fact Atoms {
+	Node = current.State
+	Object = stored.State
+}
+
+pred invariant [s : State] {
+	// Current file system
+	all n : current.s | n.parent in current.s
+	Root in current.s
+	all d : current.s, disj x,y : (parent.d) & current.s | x.name != y.name
+	// Stored objects
+	all t : stored.s & Tree | Name.(t.content) in stored.s
+	all c : stored.s & Commit | c.previous in stored.s and c.tree in stored.s
+	ref.s in stored.s
+	// index blobs must be in the object database
+	(index.s).content in stored.s
 	// at most one head
 	lone head.s
 	// head must be a reference
 	head.s in ref.s
-	// there is always one root in the filesystem
-	one root.s
 }
 
 run invariant for 4 but 1 State
+
+fun leaves [s : State, n : Node] : set File {
+	(*parent).n & File & current.s
+}
 
 pred add [s,s' : State, n : Node] {
 	invariant[s]
 	s != s'
 	// paht exists
-	n in (root.s).^content
-	// add all blobs to the index and object
-	let blobs = (n.*content & Blob) {
-		index.s' = index.s + blobs
-		object.s' = object.s + blobs
-	}
+	n in current.s
+	// add paths to index
+	index.s' = index.s + leaves[s,n]
+	// add blobs to object
+	stored.s' = stored.s + leaves[s,n].content
 	// frame
-	root.s' = root.s
+	current.s' = current.s
 	head.s' = head.s
 	ref.s' = ref.s
 }

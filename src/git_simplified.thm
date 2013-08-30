@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<projection> <type name="State"/> </projection>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Blob"/>
+   <type name="Commit"/>
+   <type name="Dir"/>
+   <type name="File"/>
+   <type name="Int"/>
+   <type name="Node"/>
+   <type name="Object"/>
+   <type name="Root"/>
+   <type name="State"/>
+   <type name="String"/>
+   <type name="Tree"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+   <set name="$invariant_s" type="State"/>
+   <set name="current" type="Node"/>
+   <set name="head" type="Commit"/>
+   <set name="index" type="File"/>
+   <set name="ref" type="Commit"/>
+   <set name="stored" type="Object"/>
+</node>
+
+<node visible="no">
+   <type name="Name"/>
+</node>
+
+<edge attribute="yes">
+   <relation name="name"> <type name="Node"/> <type name="Name"/> </relation>
+</edge>
+
+<edge layout="yes">
+   <relation name="parent"> <type name="Node"/> <type name="Dir"/> </relation>
+</edge>
+
+<edge visible="no">
+   <relation name="$children"> <type name="Tree"/> <type name="Object"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
