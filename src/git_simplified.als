@@ -5,15 +5,27 @@ sig Name {}
 abstract sig Node {
 	name : one Name,
 	parent : lone Dir,
-	current : set State
+	current : set State,
+	samepath : set Node -- auxiliary relation
 }
+
+fact SamePath {
+	all x,y : Node | x->y in samepath iff (x.name = y.name and ((no x.parent and no y.parent) or (some x.parent and some y.parent and x.parent->y.parent in samepath)))
+}
+
+run SamePathsArePossible {
+	all s : State | invariant[s]
+	some samepath-iden
+} for 4 but 2 State
 
 sig File extends Node {
 	content : one Blob,
 	index : set State
 }
 
-sig Dir extends Node {}
+sig Dir extends Node {
+	tbc : Tree -> State -- auxiliary relation
+}
 
 one sig Root extends Dir {}
 
@@ -51,11 +63,6 @@ fact Acyclic {
 	no t : Tree | t in t.^children
 }
 
-fact Atoms {
-	Node = current.State
-	Object = stored.State
-}
-
 pred invariant [s : State] {
 	// Current file system
 	all n : current.s | n.parent in current.s
@@ -75,6 +82,14 @@ pred invariant [s : State] {
 
 run invariant for 4 but 1 State
 
+pred tbc [s : State] {
+	// trees ready to-be-commited
+	all d : Dir | some ^parent.d & index.s implies {
+		one d.(tbc.s)
+		d.(tbc.s).content = {n : Name, o : Object | some x : parent.d & (index.s).*parent | o = x.(tbc.s+content) and n = x.name}
+	}
+}
+
 fun leaves [s : State, n : Node] : set File {
 	(*parent).n & File & current.s
 }
@@ -85,7 +100,7 @@ pred add [s,s' : State, n : Node] {
 	// paht exists
 	n in current.s
 	// add paths to index
-	index.s' = index.s + leaves[s,n]
+	index.s' = index.s - n.*parent.samepath + leaves[s,n]
 	// add blobs to object
 	stored.s' = stored.s + leaves[s,n].content
 	// frame
@@ -99,3 +114,26 @@ run add for 3 but 2 State
 check {
 	all s,s' : State, n : Node | invariant[s] and add[s,s',n] implies invariant[s']
 } for 5 but 2 State
+
+pred commit [s,s' : State] {
+	invariant[s]
+	tbc[s]
+	s != s'
+	some index.s
+	some c : Commit-stored.s {
+		c.previous = head.s
+		head.s' = c
+		c.tree = Root.(tbc.s)
+		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
+	}
+	current.s' = current.s
+	ref.s' = ref.s
+	index.s' = index.s
+}
+
+run commit for 4 but 2 State
+
+check {
+	all s,s' : State | invariant[s] and commit[s,s'] implies invariant[s']
+} for 3 but 2 State
+
