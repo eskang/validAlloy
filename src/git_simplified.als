@@ -19,6 +19,7 @@ run SamePathsArePossible {
 } for 4 but 2 State
 
 sig File extends Node {
+	-- Eunsuk: How do you distinguish current file content vs. content in index?
 	content : one Blob,
 	index : set State
 }
@@ -100,6 +101,7 @@ pred add [s,s' : State, n : Node] {
 	// paht exists
 	n in current.s
 	// add paths to index
+	-- Eunsuk: Shouldn't it be "(*parent.n).samepath" instead of (n.*parent.samepath)? 
 	index.s' = index.s - n.*parent.samepath + leaves[s,n]
 	// add blobs to object
 	stored.s' = stored.s + leaves[s,n].content
@@ -123,11 +125,11 @@ pred commit [s,s' : State] {
 	some c : Commit-stored.s {
 		c.previous = head.s
 		head.s' = c
+		ref.s' = ref.s + c	// Eunsuk: Without this, commit violates inv: "head.s in ref.s"
 		c.tree = Root.(tbc.s)
 		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
 	}
 	current.s' = current.s
-	ref.s' = ref.s
 	index.s' = index.s
 }
 
@@ -137,3 +139,40 @@ check {
 	all s,s' : State | invariant[s] and commit[s,s'] implies invariant[s']
 } for 3 but 2 State
 
+fun findObj[s : State, t : Tree, n : Node] : Object {
+	{o : Object | some t2 : (Tree & t.^children + t) | 
+				o = t2.content[n.name] and (tbc.s).t2 = n.parent }
+}
+
+pred equalToHeadCommit[s : State, n : Node] {
+	let c = head.s |
+		all f : leaves[s, n] |
+			let indexObj = (f.samepath & index.s).content,
+				workingObj = f.content, 
+				commitObj = findObj[s, c.tree, f] |
+					// file being removed have to be identical to the tip of the branch 
+					// (i.e. obj in head commit)
+					workingObj = commitObj and  
+					// no updates to the file's content can be staged in index
+					indexObj = workingObj 
+}
+-- Remove operation
+pred rm[s, s' : State, n : Node]{
+	-- preconditions
+	invariant[s]
+	s != s'	
+	n in current.s 			-- node must exist in the filesystem
+	-- file (or files, if n is a dir) must also be in index
+	all f : leaves[s,n] | some f.samepath & index.s
+	equalToHeadCommit[s, n]
+	-- postconditions
+	index.s' = index.s - (*parent.n).samepath
+	current.s' = current.s - leaves[s, n]
+	head.s' = head.s
+	// Eunsuk: What's the right behavior here? Can't always remove, because object might live in an existing commit.
+	// For now, assume that object db remains the same and unnecessary objects later get "garbage-collected".
+	stored.s' = stored.s 
+	ref.s' = ref.s	
+}
+
+run rm for 3 but 2 State
