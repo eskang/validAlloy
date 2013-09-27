@@ -6,7 +6,18 @@ abstract sig Node {
 	name : one Name,
 	parent : lone Dir,
 	current : set State,
-	samepath : set Node -- auxiliary relation
+	samepath : set Node, -- auxiliary relation
+	belongsTo : set Commit, -- n -> c in belongsTo iff there's an object in c.tree that corresponds to n
+}{
+	all c : belongsTo {
+		this in Root or
+		some b : Blob, p : Tree {
+			b in c.tree.^children
+			p in c.tree.^children + c.tree	
+			b = p.content[name]
+			c in parent.@belongsTo
+		}
+	}
 }
 
 fact SamePath {
@@ -40,10 +51,33 @@ abstract sig Object {
 	stored : set State
 }
 
-sig Blob extends Object {}
+sig Blob extends Object {
+	conflict : set Blob,
+	-- b1 -> b2 -> b' in merging means b' is a result of merging b1 and b2
+	merging : Blob -> lone Blob
+}
+
+fact BlobFacts {
+	all b1, b2 : Blob | 
+		b1 -> b2 in conflict implies b2 -> b1 in conflict
+	
+	-- conflicting blobs can't be merged
+	all b1, b2 : Blob |
+		b1 -> b2 in conflict implies no b1.merging[b2] 	
+
+	all b1, b2, b' : Blob |
+		b1 -> b2 -> b' in merging implies
+			b2 -> b1 -> b' in merging
+}	
 
 sig Tree extends Object {
 	content : Name -> lone (Blob+Tree)
+}
+fact Canonicalization {
+	no disj b1, b2 : Blob |
+		b1.conflict = b2.conflict and b1.merging = b2.merging
+	no disj t1, t2 : Tree |
+		t1.content = t2.content
 }
 
 fun children : Tree -> Object {
@@ -77,8 +111,10 @@ pred invariant [s : State] {
 	(index.s).content in stored.s
 	// at most one head
 	lone head.s
-	// head must be a reference
-	head.s in ref.s
+	// Eunsuk: Actually, it turns out the invariant is too strong
+	// head doesnt necessarily need to be referenced
+	// was: head must be a reference
+	//	head.s in ref.s
 }
 
 run invariant for 4 but 1 State
@@ -91,8 +127,37 @@ pred tbc [s : State] {
 	}
 }
 
+/* some helper functions */
 fun leaves [s : State, n : Node] : set File {
 	(*parent).n & File & current.s
+}
+
+pred descendantOf[o : Object, p : Object] {
+	o in p.^children
+}
+
+-- staged for commit
+fun staged[s : State] : set File {
+	{f : File | f in index.s}
+}
+
+-- Git knows nothing about this file
+fun untracked[s : State] : set File {
+	{f : File |
+		f not in index.s and
+		no f2 : File |	
+ 			f -> f2 in samepath and 
+			head.s in f2.belongsTo}
+}
+
+-- modified but not staged yet
+fun modified[s : State] : set File {
+	{f : File | 
+		f not in index.s and 
+		some f2 : File |
+ 			f -> f2 in samepath and
+			head.s in f2.belongsTo and 
+			f2.content != f.content}	
 }
 
 pred add [s,s' : State, n : Node] {
@@ -125,7 +190,10 @@ pred commit [s,s' : State] {
 	some c : Commit-stored.s {
 		c.previous = head.s
 		head.s' = c
-		ref.s' = ref.s + c	// Eunsuk: Without this, commit violates inv: "head.s in ref.s"
+		//ref.s' = ref.s + c	// Eunsuk: Without this, commit violates inv: "head.s in ref.s"
+		// Eunsuk2: Actually, it turns out the invariant is too strong
+		// head doesnt necessarily need to be referenced
+		ref.s' = ref.s			
 		c.tree = Root.(tbc.s)
 		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
 	}
@@ -176,3 +244,103 @@ pred rm[s, s' : State, n : Node]{
 }
 
 run rm for 3 but 2 State
+
+-- true iff f1 and f2 have the same path and f2 belongs to commit c
+pred commonFiles[f1, f2 : File, s : State, c : Commit] {
+	f1 -> f2 in samepath and
+	f1 in current.s and
+	c in f2.belongsTo	
+}
+
+fun merge[f1, f2 : File] : set File {
+	{ f3 : File | 
+		f1.content -> f2.content -> f3.content in merging }
+}	
+
+pred checkout_branch[s, s' : State, c : Commit] {
+	-- Preconditions
+	invariant[s]
+	s != s'
+	c in ref.s	-- commit must be referenced
+	-- no conflicts between files
+	no f1, f2 : File |
+		commonFiles[f1, f2, s, c] and
+		f1.content -> f2.content in conflict
+	-- no modified files 
+	no modified[s]	
+
+	-- Postconditions
+	-- update the working tree
+	-- For two non-conflicting versions of the file that appears in c, merge them
+	all f1, f2 : File |
+		commonFiles[f1, f2, s, c] implies
+			some f3 : File |
+				f1 -> f3 in samepath and f3 in current.s' and f3 in merge[f1, f2]
+
+	all n : Node |
+		-- every file in the new working tree is either
+		n in current.s' iff {
+			-- (1) the result of merging two versions of the file or
+			(some f1, f2 : File | commonFiles[f1, f2, s, c] and n in merge[f1, f2]) or
+			-- (2) the file from the commit being checked out
+			(c in n.belongsTo and no f1 : File | commonFiles[f1, n, s, c]) or
+			-- (3) untracked file in the existing tree
+			n in untracked[s]
+		}
+	-- index remains the same
+	index.s' = index.s
+	-- no new objects stored
+	stored.s' = stored.s 
+	-- update the head
+	head.s' = c
+	-- refs stay the same
+	ref.s' =ref.s
+}
+
+run checkout_branch for 3 but 2 State
+
+run checkout_branch_interesting {
+	some s1, s2 : State, c : Commit {
+		checkout_branch[s1, s2, c]
+		head.s2 != head.s1
+		some head.s1
+		some f1, f2 : File |
+			commonFiles[f1, f2, s1`, head.s2] and
+			f1.content.merging[f2.content] != f1.content
+	}
+} for 7 but 2 State, 2 Commit
+
+-- checkout a version of the file f from commit "from" (if provided), or from the head
+pred checkout_file[s, s' : State, f : File, from : lone Commit] {
+	-- Preconditions
+	invariant[s]
+	s != s'
+	-- specified commit (or head) must contain a file with the same path as f
+	some f' : File |
+		f -> f' in samepath and
+		head.s in f'.belongsTo or (some from and from in f'.belongsTo)
+	-- Postconditions
+	let c = some from implies from else head.s {
+		some f' : File |
+			f -> f' in samepath and
+			c in f'.belongsTo and
+			current.s' = (current.s - f) + f'
+	}
+	index.s' = index.s - f
+	head.s' = head.s
+	ref.s' = ref.s
+	stored.s' = stored.s
+}
+
+run checkout_file for 3 but 2 State
+
+run checkout_file_interesting {
+	some s1, s2 : State, f : File, c : Commit {
+		checkout_file[s1, s2, f, c]
+		some head.s1
+		current.s1 != current.s2
+		c != head.s1
+		c.tree != head.s1.tree
+	}
+} for 5 but 2 State
+

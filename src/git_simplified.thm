@@ -11,28 +11,35 @@
 
 <node>
    <type name="Blob"/>
-   <type name="Commit"/>
    <type name="Dir"/>
    <type name="File"/>
    <type name="Int"/>
-   <type name="Node"/>
-   <type name="Object"/>
    <type name="Root"/>
    <type name="State"/>
    <type name="String"/>
    <type name="Tree"/>
    <type name="univ"/>
    <type name="seq/Int"/>
-   <set name="$invariant_s" type="State"/>
-   <set name="current" type="Node"/>
-   <set name="head" type="Commit"/>
+   <set name="$checkout_branch_interesting_c" type="Commit"/>
+   <set name="$checkout_branch_interesting_f1" type="File"/>
+   <set name="$checkout_branch_interesting_f2" type="File"/>
+   <set name="$checkout_branch_interesting_s1" type="State"/>
+   <set name="$checkout_branch_interesting_s2" type="State"/>
    <set name="index" type="File"/>
-   <set name="ref" type="Commit"/>
    <set name="stored" type="Object"/>
 </node>
 
 <node visible="no">
+   <type name="Commit"/>
    <type name="Name"/>
+   <type name="Node"/>
+   <type name="Object"/>
+   <set name="ref" type="Commit"/>
+</node>
+
+<node visible="yes">
+   <set name="current" type="Node"/>
+   <set name="head" type="Commit"/>
 </node>
 
 <edge attribute="yes">
@@ -45,6 +52,7 @@
 
 <edge visible="no">
    <relation name="$children"> <type name="Tree"/> <type name="Object"/> </relation>
+   <relation name="belongsTo"> <type name="Node"/> <type name="Commit"/> </relation>
 </edge>
 
 </view>
