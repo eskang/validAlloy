@@ -229,7 +229,7 @@ pred rm[s, s' : State, n : Node]{
 	-- preconditions
 	invariant[s]
 	s != s'	
-	n in current.s 			-- node must exist in the filesystem
+//	n in current.s 			-- node must exist in the filesystem
 	-- file (or files, if n is a dir) must also be in index
 	all f : leaves[s,n] | some f.samepath & index.s
 	equalToHeadCommit[s, n]
@@ -305,7 +305,7 @@ run checkout_branch_interesting {
 		head.s2 != head.s1
 		some head.s1
 		some f1, f2 : File |
-			commonFiles[f1, f2, s1`, head.s2] and
+			commonFiles[f1, f2, s1, head.s2] and
 			f1.content.merging[f2.content] != f1.content
 	}
 } for 7 but 2 State, 2 Commit
