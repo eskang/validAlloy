@@ -113,9 +113,9 @@ public class ValidAlloy {
             A4Options options = new A4Options();
             options.solver = A4Options.SatSolver.SAT4J;
             Command cmd1 = world.getAllCommands().get(world.getAllCommands().size()-1);
+
             sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
-            
-        
+               
             System.out.println("=========== Getting  solutions from git.als =========== ");
             System.out.println("Variables           : " +vars.get(j));
             System.out.println("Predicate           : " +preds.get(j));
@@ -132,7 +132,6 @@ public class ValidAlloy {
             	flagerr = false;
         	
             	System.out.print("\rInstance            : " + i);
-                
                 
             	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
   
