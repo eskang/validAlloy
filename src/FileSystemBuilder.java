@@ -141,8 +141,12 @@ public class FileSystemBuilder {
 			try{				
 				
 				Files.createDirectories(Paths.get(path+"pre"));
-				Files.createDirectories(Paths.get(path+"pos"));
 				makeRoots(sol,rootTuple,path+"pre",preParents,blob,name,mapAtoms,mapSigs);
+				
+				Files.createDirectories(Paths.get(path+"precopy"));
+				makeRoots(sol,rootTuple,path+"precopy",preParents,blob,name,mapAtoms,mapSigs);
+				
+				Files.createDirectories(Paths.get(path+"pos"));
 				makeRoots(sol,rootTuple,path+"pos",posParents,blob,name,mapAtoms,mapSigs);
 				
 			}catch(IOException e){System.out.println("first section"); e.printStackTrace();}
@@ -160,11 +164,10 @@ public class FileSystemBuilder {
 
 			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms
 					.get(tuple.atom(0)).join(name));
-			newpath = path + "/"
-					+ names.iterator().next().atom(0).replace('$', '_');
-			p = Paths.get(newpath);
-			Files.createDirectories(p);
-			buildTree(sol, newpath, tuple.atom(0), name, blob, parents,
+			//newpath = path + "/" + names.iterator().next().atom(0).replace('$', '_');
+			//p = Paths.get(newpath);
+			//Files.createDirectories(p);
+			buildTree(sol,path, tuple.atom(0), name, blob, parents,
 					mapAtoms, mapSigs);
 		}
 	}

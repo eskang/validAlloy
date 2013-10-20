@@ -20,334 +20,314 @@ import static java.nio.file.StandardCopyOption.*;
 
 import org.apache.commons.io.FileUtils;
 
-
 public class Utils {
 
-	public static<E> HashMap<String,E> atom2ObjectMapE(Iterable<E> iterable){
+	public static final String GIT_CMD = "git";
+	
+	public static <E> HashMap<String, E> atom2ObjectMapE(Iterable<E> iterable) {
 		E e = null;
-		
+
 		HashMap<String, E> e_Map = new HashMap<String, E>();
 		Iterator<E> it = iterable.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			e = it.next();
 			e_Map.put(e.toString(), e);
 		}
 		return e_Map;
 	}
-	
-	
-	
+
 	/**
-	 * Returns an object from a Iterable object that has the same name. 
-	 * The iterable argument must be of Iterable Class, and the name a String
-	 * @param  		iterable  object
-	 * @param		String name
-	 * @return      Object that has the same name
-	 * @see         getEFromIterable
+	 * Returns an object from a Iterable object that has the same name. The
+	 * iterable argument must be of Iterable Class, and the name a String
+	 * 
+	 * @param iterable
+	 *            object
+	 * @param String
+	 *            name
+	 * @return Object that has the same name
+	 * @see getEFromIterable
 	 */
-	public static <E> E getEFromIterable(Iterable<E> iterable, String name)
-	{
+	public static <E> E getEFromIterable(Iterable<E> iterable, String name) {
 		E res = null;
 		E i = null;
 		boolean found = false;
 		Iterator<E> it = iterable.iterator();
-		while(it.hasNext() && !found)
-		{
-			i=it.next();
-			if(i.toString().equals(name))
+		while (it.hasNext() && !found) {
+			i = it.next();
+			if (i.toString().equals(name))
 				found = true;
 		}
-		if(found)
+		if (found)
 			res = i;
 		return res;
 	}
-	
-	
-public static boolean ContainsExpectedErrors(String e,ArrayList<String> errors){
-	
-	boolean found = false;
-	
-        if (errors != null) {
-            for (String error :errors){
-		found = e.toLowerCase().contains(error.toLowerCase().replaceAll("\"", ""));
-		if (found) break;
-		
-            }
-        }
-        return found;
-}
-	
-public static void RemoveDirs(ArrayList<String> dirs){
-	for (String dir : dirs){
-		try {
-			FileUtils.deleteDirectory(new File(dir));
-		} catch (IOException e) {
-			e.printStackTrace();
+
+	public static boolean ContainsExpectedErrors(String e,
+			ArrayList<String> errors) {
+
+		boolean found = false;
+
+		if (errors != null) {
+			for (String error : errors) {
+				found = e.toLowerCase().contains(
+						error.toLowerCase().replaceAll("\"", ""));
+				if (found)
+					break;
+
+			}
+		}
+		return found;
+	}
+
+	public static void RemoveDirs(ArrayList<String> dirs) {
+		for (String dir : dirs) {
+			try {
+				FileUtils.deleteDirectory(new File(dir));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-}
 
-public static void setGitDate(String pathindex){
-		
-		try{
-			
-			String newpath = "output/"+pathindex;
-			 
+	public static void setGitDate(String pathindex) {
+
+		try {
+
+			String newpath = "output/" + pathindex;
+
 			File path = new File(newpath);
 			System.out.println(newpath);
-			
+
 			ProcessBuilder pbA;
-			pbA = new ProcessBuilder("export GIT_AUTHOR_DATE='Wed Feb 16 14:00 2037 +0100'");
-			
-			pbA.directory(path);	
-			
+			pbA = new ProcessBuilder(
+					"export GIT_AUTHOR_DATE='Wed Feb 16 14:00 2037 +0100'");
+
+			pbA.directory(path);
+
 			Process prA = pbA.start();
 			prA.waitFor();
-		/*	
-			ProcessBuilder pbC;
-			pbC = new ProcessBuilder("export GIT_COMMITTER_DATE='Wed Feb 16 14:00 2037 +0100'");
-			
-			pbC.directory(path);	
-			
-			Process prC = pbC.start();
-			prC.waitFor();
-		*/
+			/*
+			 * ProcessBuilder pbC; pbC = new ProcessBuilder(
+			 * "export GIT_COMMITTER_DATE='Wed Feb 16 14:00 2037 +0100'");
+			 * 
+			 * pbC.directory(path);
+			 * 
+			 * Process prC = pbC.start(); prC.waitFor();
+			 */
 
-		
-		
-		}catch(Exception exc){
+		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 
-		
-	}	
-	
-public static boolean diffPosPre(String pathindex){
-		
-		String line=null;
-		
+	}
+
+	public static boolean diffPosPre(String pathindex) {
+
+		String line = null;
+
 		StringBuilder lines = null;
-		
-		try{
-			
-			String newpath = "output/"+pathindex;
-			 
+
+		try {
+
+			String newpath = "output/" + pathindex;
+
 			File path = new File(newpath);
-			
+
 			ProcessBuilder pb;
-				
-				ArrayList<String> cmds = new ArrayList<String>();
-				cmds.add("diff");
-				cmds.add("-r");
-				cmds.add("--exclude=index");
-				cmds.add("--exclude=COMMIT_EDITMSG");
-				cmds.add("--exclude=logs");
-				cmds.add("pre");
-				cmds.add("pos");
-				
-				pb = new ProcessBuilder(cmds);
-			
-			pb.directory(path);	
-			
+
+			ArrayList<String> cmds = new ArrayList<String>();
+			cmds.add("diff");
+			cmds.add("-r");
+			cmds.add("--exclude=index");
+			cmds.add("--exclude=COMMIT_EDITMSG");
+			cmds.add("--exclude=logs");
+			cmds.add("pre");
+			cmds.add("pos");
+
+			pb = new ProcessBuilder(cmds);
+
+			pb.directory(path);
+
 			Process pr = pb.start();
-			
+
 			OutputStream out = pr.getOutputStream();
 			InputStream in = pr.getInputStream();
 
 			InputStreamReader isr = new InputStreamReader(in);
 			OutputStreamWriter osr = new OutputStreamWriter(out);
-			
-			
+
 			BufferedReader br = new BufferedReader(isr);
 			BufferedWriter bw = new BufferedWriter(osr);
-			
+
 			bw.flush();
 			bw.close();
-		
-			
+
 			pr.waitFor();
-			
+
 			line = br.readLine();
-			
-			if(line != null) lines = new StringBuilder();
-			
-			while(line != null){
-				lines.append(line+"\n");
-				
+
+			if (line != null)
+				lines = new StringBuilder();
+
+			while (line != null) {
+				lines.append(line + "\n");
+
 				line = br.readLine();
-				}
-			
-	
-			
-			
-		
-			
-			
-			if(lines != null){
-				
+			}
+
+			if (lines != null) {
+
 				BufferedWriter writer = null;
-				
-				try
-				{
-					writer = new BufferedWriter( new FileWriter(newpath +"/diff.txt"));
+
+				try {
+					writer = new BufferedWriter(new FileWriter(newpath
+							+ "/diff.txt"));
 					writer.write(lines.toString());
 
+				} catch (IOException e) {
 				}
-				catch (IOException e){}
-				
-				finally
-				{
-				try
-					{
-						if ( writer != null)
-							writer.close( );
+
+				finally {
+					try {
+						if (writer != null)
+							writer.close();
+					} catch (IOException e) {
 					}
-					catch ( IOException e){}
-			     }
-		
-			br.close();
-			
+				}
+
+				br.close();
+
 			}
-		
-		
-		}catch(Exception exc){
+
+		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 
-
 		return (lines == null) ? true : false;
-		
+
 	}
 
-public static void diffIndex(String pathindex){
-	printindex(pathindex+"/pre");
-	printindex(pathindex+"/pos");
-}
+	public static void diffIndex(String pathindex) {
+		printindex(pathindex + "/pre");
+		printindex(pathindex + "/pos");
+	}
 
-public static String printindex(String pathindex){
-	
-	String line=null;
-	
-	StringBuilder lines = null;
-	
-	try{
-		
-		String newpath = "output/"+pathindex;
-		 
-		File path = new File(newpath);
-		
-		ProcessBuilder pb;
-			
+	public static String printindex(String pathindex) {
+
+		String line = null;
+
+		StringBuilder lines = null;
+
+		try {
+
+			String newpath = "output/" + pathindex;
+
+			File path = new File(newpath);
+
+			ProcessBuilder pb;
+
 			ArrayList<String> cmds = new ArrayList<String>();
-			cmds.add("git");
+			cmds.add(GIT_CMD);
 			cmds.add("ls-files");
 			cmds.add("--stage");
-			
+
 			pb = new ProcessBuilder(cmds);
-		
-		pb.directory(path);	
-		
-		Process pr = pb.start();
-		
-		OutputStream out = pr.getOutputStream();
-		InputStream in = pr.getInputStream();
 
-		InputStreamReader isr = new InputStreamReader(in);
-		OutputStreamWriter osr = new OutputStreamWriter(out);
-		
-		
-		BufferedReader br = new BufferedReader(isr);
-		BufferedWriter bw = new BufferedWriter(osr);
-		
-		bw.flush();
-		bw.close();
-	
-		
-		line = br.readLine();
-		
-		if(line != null) lines = new StringBuilder();
-		
-		while(line != null){
-			lines.append(line+"\n");
-			
+			pb.directory(path);
+
+			Process pr = pb.start();
+
+			OutputStream out = pr.getOutputStream();
+			InputStream in = pr.getInputStream();
+
+			InputStreamReader isr = new InputStreamReader(in);
+			OutputStreamWriter osr = new OutputStreamWriter(out);
+
+			BufferedReader br = new BufferedReader(isr);
+			BufferedWriter bw = new BufferedWriter(osr);
+
+			bw.flush();
+			bw.close();
+
 			line = br.readLine();
-			}
-		
-		
-		if(lines != null){
-			
-			BufferedWriter writer = null;
-			
-			try
-			{
-				writer = new BufferedWriter( new FileWriter(newpath +"/diff_index.txt"));
-				writer.write(lines.toString());
 
+			if (line != null)
+				lines = new StringBuilder();
+
+			while (line != null) {
+				lines.append(line + "\n");
+
+				line = br.readLine();
 			}
-			catch (IOException e){}
-			
-			finally
-			{
-			try
-				{
-					if ( writer != null)
-						writer.close( );
+
+			if (lines != null) {
+
+				BufferedWriter writer = null;
+
+				try {
+					writer = new BufferedWriter(new FileWriter(newpath
+							+ "/diff_index.txt"));
+					writer.write(lines.toString());
+
+				} catch (IOException e) {
 				}
-				catch ( IOException e){}
-		     }
+
+				finally {
+					try {
+						if (writer != null)
+							writer.close();
+					} catch (IOException e) {
+					}
+				}
 			}
-		
-		br.close();
-		
-		pr.waitFor();
-	
-	
-	}catch(Exception exc){
-		exc.printStackTrace();
+
+			br.close();
+
+			pr.waitFor();
+
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+
+		return line;
+
 	}
-	
 
-	
-	return line;
-	
-}
+	public static String addPred(String file, String pred, String scope)
+			throws IOException {
 
- public static String addPred(String file, String pred, String scope) throws IOException{
+		StringBuilder run = new StringBuilder();
+		run.append("run ");
+		run.append(pred);
+		run.append(" ");
+		run.append(scope);
 
-	 StringBuilder run = new StringBuilder();
-	 run.append("run ");
-	 run.append(pred);
-	 run.append(" ");
-	 run.append(scope);
-	 
-	 Path model  = Paths.get(file);
-	 Path tmodel = Paths.get(file+".tmp");
-	 
+		Path model = Paths.get(file);
+		Path tmodel = Paths.get(file + ".tmp");
 
-	try {
-		Files.createFile(tmodel);
-		Files.copy(model, tmodel,REPLACE_EXISTING);
-	} catch (FileAlreadyExistsException e1) {
-		System.out.println("Model Temporary File Already Exists \n Replacing With New Content");
-	}
-	 
-	
+		try {
+			Files.createFile(tmodel);
+			Files.copy(model, tmodel, REPLACE_EXISTING);
+		} catch (FileAlreadyExistsException e1) {
+			System.out
+					.println("Model Temporary File Already Exists \n Replacing With New Content");
+		}
 
-	 try {
-		    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file+".tmp", true)));
-		    out.println(run.toString());
-		    out.close();
+		try {
+			PrintWriter out = new PrintWriter(new BufferedWriter(
+					new FileWriter(file + ".tmp", true)));
+			out.println(run.toString());
+			out.close();
 		} catch (IOException e) {
 		}
-	 
-	 
-	 return file+".tmp";
- }
- 
- public static void delTemporaryModel(String file) throws IOException{
-	 
-	Path tmodel = Paths.get(file+".tmp");
-	
-	Files.deleteIfExists(tmodel);
- }
+
+		return file + ".tmp";
+	}
+
+	public static void delTemporaryModel(String file) throws IOException {
+
+		Path tmodel = Paths.get(file + ".tmp");
+
+		Files.deleteIfExists(tmodel);
+	}
 }

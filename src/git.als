@@ -7,16 +7,17 @@ abstract sig Node {
 	parent : lone Dir,
 	current : set State,
 	samepath : set Node, -- auxiliary relation
-	belongsTo : set Commit, -- n -> c in belongsTo iff there's an object in c.tree that corresponds to n
+	-- n -> o -> c in belongsTo iff  o is an object in c.tree that corresponds to n
+	belongsTo : Object lone -> Commit, 
 }{
-	all c : belongsTo {
-		this in Root or
-		some b : Blob, p : Tree {
-			b in c.tree.^children
-			p in c.tree.^children + c.tree	
-			b = p.content[name]
-			c in parent.@belongsTo
-		}
+	all o : Object, c : Commit |
+		o -> c in belongsTo iff {
+			(this in Root and o = c.tree) or
+			some p : Tree {
+				p in c.tree.^children + c.tree	
+				o = p.content[name]
+				p -> c in parent.@belongsTo
+			}
 	}
 }
 
@@ -33,10 +34,14 @@ sig File extends Node {
 	-- Eunsuk: How do you distinguish current file content vs. content in index?
 	content : one Blob,
 	index : set State
+}{
+	belongsTo.Commit = content
 }
 
 sig Dir extends Node {
 	tbc : Tree -> State -- auxiliary relation
+}{
+	belongsTo.Commit in Tree
 }
 
 one sig Root extends Dir {}
@@ -114,7 +119,7 @@ pred invariant [s : State] {
 	// Eunsuk: Actually, it turns out the invariant is too strong
 	// head doesnt necessarily need to be referenced
 	// was: head must be a reference
-	//	head.s in ref.s
+	head.s in ref.s
 }
 
 run invariant for 4 but 1 State
@@ -132,6 +137,10 @@ fun leaves [s : State, n : Node] : set File {
 	(*parent).n & File & current.s
 }
 
+fun children[s : State, n : Node] : set Node {
+	(^parent).n & current.s
+}
+
 pred descendantOf[o : Object, p : Object] {
 	o in p.^children
 }
@@ -147,7 +156,7 @@ fun untracked[s : State] : set File {
 		f not in index.s and
 		no f2 : File |	
  			f -> f2 in samepath and 
-			head.s in f2.belongsTo}
+			some f2.belongsTo.(head.s)}
 }
 
 -- modified but not staged yet
@@ -156,11 +165,12 @@ fun modified[s : State] : set File {
 		f not in index.s and 
 		some f2 : File |
  			f -> f2 in samepath and
-			head.s in f2.belongsTo and 
+			some f2.belongsTo.(head.s) and 
 			f2.content != f.content}	
 }
 
 pred add [s,s' : State, n : Node] {
+	n != Root
 	invariant[s]
 	s != s'
 	// paht exists
@@ -207,35 +217,47 @@ check {
 	all s,s' : State | invariant[s] and commit[s,s'] implies invariant[s']
 } for 3 but 2 State
 
+/*
 fun findObj[s : State, t : Tree, n : Node] : Object {
 	{o : Object | some t2 : (Tree & t.^children + t) | 
 				o = t2.content[n.name] and (tbc.s).t2 = n.parent }
 }
+*/
 
 pred equalToHeadCommit[s : State, n : Node] {
 	let c = head.s |
 		all f : leaves[s, n] |
 			let indexObj = (f.samepath & index.s).content,
 				workingObj = f.content, 
-				commitObj = findObj[s, c.tree, f] |
+				commitObj = f.belongsTo.c |
 					// file being removed have to be identical to the tip of the branch 
 					// (i.e. obj in head commit)
 					workingObj = commitObj and  
 					// no updates to the file's content can be staged in index
-					indexObj = workingObj 
+					indexObj = workingObj and
+					{
+						all d : f.^parent - Root | 
+							some t : Tree & (c.tree.^children + c.tree) |
+								some d.belongsTo.c and 
+								t.content[d.name] = d.belongsTo.c and
+								d.parent = (belongsTo.c.t)
+					}
 }
 -- Remove operation
 pred rm[s, s' : State, n : Node]{
 	-- preconditions
+ 	n != Root
 	invariant[s]
 	s != s'	
 //	n in current.s 			-- node must exist in the filesystem
 	-- file (or files, if n is a dir) must also be in index
 	all f : leaves[s,n] | some f.samepath & index.s
+	-- n can't be an empty directory
+	some leaves[s, n]
 	equalToHeadCommit[s, n]
 	-- postconditions
 	index.s' = index.s - (*parent.n).samepath
-	current.s' = current.s - leaves[s, n]
+	current.s' = current.s - (leaves[s, n] + n)
 	head.s' = head.s
 	// Eunsuk: What's the right behavior here? Can't always remove, because object might live in an existing commit.
 	// For now, assume that object db remains the same and unnecessary objects later get "garbage-collected".
@@ -243,13 +265,19 @@ pred rm[s, s' : State, n : Node]{
 	ref.s' = ref.s	
 }
 
-run rm for 3 but 2 State
+run test {
+	one Dir - Root
+	some s0, s1 : State, d : Dir {
+		rm[s0, s1, d]
+		head.s0.tree.content[Name] in Blob		
+	}
+}for 5 but 2 State
 
 -- true iff f1 and f2 have the same path and f2 belongs to commit c
 pred commonFiles[f1, f2 : File, s : State, c : Commit] {
 	f1 -> f2 in samepath and
 	f1 in current.s and
-	c in f2.belongsTo	
+	some f2.belongsTo.c
 }
 
 fun merge[f1, f2 : File] : set File {
@@ -283,7 +311,7 @@ pred checkout_branch[s, s' : State, c : Commit] {
 			-- (1) the result of merging two versions of the file or
 			(some f1, f2 : File | commonFiles[f1, f2, s, c] and n in merge[f1, f2]) or
 			-- (2) the file from the commit being checked out
-			(c in n.belongsTo and no f1 : File | commonFiles[f1, n, s, c]) or
+			(some n.belongsTo.c and no f1 : File | commonFiles[f1, n, s, c]) or
 			-- (3) untracked file in the existing tree
 			n in untracked[s]
 		}
@@ -318,12 +346,12 @@ pred checkout_file[s, s' : State, f : File, from : lone Commit] {
 	-- specified commit (or head) must contain a file with the same path as f
 	some f' : File |
 		f -> f' in samepath and
-		head.s in f'.belongsTo or (some from and from in f'.belongsTo)
+		some f'.belongsTo.(head.s) or (some from and some f'.belongsTo.from)
 	-- Postconditions
 	let c = some from implies from else head.s {
 		some f' : File |
 			f -> f' in samepath and
-			c in f'.belongsTo and
+			some f'.belongsTo.c and
 			current.s' = (current.s - f) + f'
 	}
 	index.s' = index.s - f

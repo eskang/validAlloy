@@ -183,6 +183,8 @@ public class ValidAlloy {
                     
                     Logger.info("Instance "+i+" preState\n________________________________________________________________");
                     BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pre",preState,mapAtom);
+                  
+                    BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/precopy",preState,mapAtom);
                     
                     Logger.info("Instance "+i+" posState\n________________________________________________________________");
                     BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
@@ -210,7 +212,7 @@ public class ValidAlloy {
                     }
                     
                     if (!flagerr) {
-                    	Utils.diffIndex(preds.get(j)+"/"+Integer.toString(i));
+
                     	if (Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i))) {
                     		FileUtils.deleteDirectory(new File(cmdpath)); 	                
                     	} else { 
