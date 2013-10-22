@@ -192,7 +192,7 @@ check {
 	all s,s' : State, n : Node | invariant[s] and add[s,s',n] implies invariant[s']
 } for 5 but 2 State
 
-pred commit [s,s' : State] {
+pred commit [s,s' : State, n : Node] {
 	invariant[s]
 	tbc[s]
 	s != s'
@@ -214,7 +214,7 @@ pred commit [s,s' : State] {
 run commit for 4 but 2 State
 
 check {
-	all s,s' : State | invariant[s] and commit[s,s'] implies invariant[s']
+	all s,s' : State, n : Node | invariant[s] and commit[s,s', n] implies invariant[s']
 } for 3 but 2 State
 
 /*
