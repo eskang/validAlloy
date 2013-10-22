@@ -30,9 +30,9 @@ public class BuildGitObjects {
 	public static String exec(List<String> command, File path, String message, String input) throws GitException {
 		String result = null;
 		try {
-			ProcessBuilder pb = new ProcessBuilder(command);	
+			ProcessBuilder pb = new ProcessBuilder(command);
 			Logger.trace(message + " on " + path.getPath() + "\n   with " + command);
-			pb.directory(path);	
+			pb.directory(path);
 			Map<String, String> env = pb.environment();
 			env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
 			env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
@@ -282,11 +282,13 @@ public class BuildGitObjects {
 	public static String buildType(Module world, HashMap<String,String> vars,String cmd,A4Solution sol,HashMap<String,ExprVar> mapAtom,Expr parent,ExprVar path) throws Err, GitException {		
 		String type = null;
 		if (vars.get(cmd).equals("path")) {
-			type = buildPath(sol,world, parent, path,mapAtom);			
+			type = buildPath(sol,world, parent, path,mapAtom);
+                        if (type == null) type = "."; // hack - buildPath must be changed
 		} else if (vars.get(cmd).equals("branch")) {
 			type = buildBranch(sol,path);
 		} else {			
 			type = buildPath(sol,world,parent, path,mapAtom);
+                        if (type == null) type = "."; // idem
 		}
 		return type;
 	}
