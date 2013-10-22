@@ -169,14 +169,26 @@ fun modified[s : State] : set File {
 			f2.content != f.content}	
 }
 
+/*
+It seems the old git add is now equivalent to git add --ignore-removal
+New git add is the same as git add --all
+I'm assuming we are modeling the old git
+*/
 pred add [s,s' : State, n : Node] {
-	n != Root
+	// this is actually possible: git add .
+	// is it a limitation of the testbench? I implemented a little hack to generate path . when is n is Root
+	//n != Root
 	invariant[s]
 	s != s'
 	// paht exists
 	n in current.s
 	// add paths to index
-	-- Eunsuk: Shouldn't it be "(*parent.n).samepath" instead of (n.*parent.samepath)? 
+	/*
+	Eunsuk: Shouldn't it be "(*parent.n).samepath" instead of (n.*parent.samepath)?
+	Alcino: I guess so, but got no differences so far, which is weird. Or not: actually, this only deletes files
+	whose path is a prefix of the given path, wich must be done to add the given path, and ignores deleted
+	files wich path is an extension of the the given path
+	*/
 	index.s' = index.s - n.*parent.samepath + leaves[s,n]
 	// add blobs to object
 	stored.s' = stored.s + leaves[s,n].content
@@ -191,6 +203,12 @@ run add for 3 but 2 State
 check {
 	all s,s' : State, n : Node | invariant[s] and add[s,s',n] implies invariant[s']
 } for 5 but 2 State
+
+pred add_invalid_path [s,s' : State, n : Node] {
+	invariant[s]
+	n not in current.s
+	s' = s
+}
 
 pred commit [s,s' : State, n : Node] {
 	invariant[s]
