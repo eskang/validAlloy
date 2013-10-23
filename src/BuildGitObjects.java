@@ -381,7 +381,7 @@ public class BuildGitObjects {
 	}
 	
 	public static void placeHEAD(A4Solution sol,Module world,Expr iState) throws Err {
-		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "head");
+		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
         if (res.size() > 0) {
         	A4Tuple tup = res.iterator().next();

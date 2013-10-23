@@ -253,14 +253,7 @@ pred equalToHEADCommit[s : State, n : Node] {
 					// (i.e. obj in HEAD commit)
 					workingObj = commitObj and  
 					// no updates to the file's content can be staged in index
-					indexObj = workingObj and
-					{
-						all d : f.^parent - Root | 
-							some t : Tree & (c.tree.^children + c.tree) |
-								some d.belongsTo.c and 
-								t.content[d.name] = d.belongsTo.c and
-								d.parent = (belongsTo.c.t)
-					}
+					indexObj = workingObj 
 }
 -- Remove operation
 pred rm[s, s' : State, n : Node]{
