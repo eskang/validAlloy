@@ -186,6 +186,7 @@ public class ValidAlloy {
                   
                     BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/precopy",preState,mapAtom);
                     
+                    Logger.info("\n");
                     Logger.info("Instance "+i+" posState\n________________________________________________________________");
                     BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
                     
