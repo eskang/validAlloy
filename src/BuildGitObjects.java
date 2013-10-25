@@ -283,12 +283,12 @@ public class BuildGitObjects {
 		String type = null;
 		if (vars.get(cmd).equals("path")) {
 			type = buildPath(sol,world, parent, path,mapAtom);
-                        if (type == null) type = "."; // hack - buildPath must be changed
+            if (type == null) type = "."; // hack - buildPath must be changed
 		} else if (vars.get(cmd).equals("branch")) {
 			type = buildBranch(sol,path);
 		} else {			
 			type = buildPath(sol,world,parent, path,mapAtom);
-                        if (type == null) type = "."; // idem
+            if (type == null) type = "."; // idem
 		}
 		return type;
 	}
