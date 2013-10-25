@@ -256,11 +256,11 @@ pred pathInIndex [s : State, n : Node] {
 }
 
 pred noUpdatesStaged [s : State, f : File] {
-	(f.samepath & index.s).content = (f.samepath & index.s).belongsTo.(head.s) or (f not in current.s)
+	(f.samepath & index.s).content = (f.samepath & index.s).belongsTo.(HEAD.s) or (f not in current.s)
 }
 
 pred noLocalChanges [s : State, f : File] {
-	f not in current.s or (f.samepath & index.s).belongsTo.(head.s) = f.content
+	f not in current.s or (f.samepath & index.s).belongsTo.(HEAD.s) = f.content
 }
 
 check {
@@ -286,7 +286,7 @@ pred rm[s, s' : State, f : File]{
 	-- postconditions
 	index.s' = index.s - f.samepath
 	current.s' = current.s - f.samepath - dirsContainingOnly[s,f.samepath]
-	head.s' = head.s
+	HEAD.s' = HEAD.s
 	stored.s' = stored.s 
 	ref.s' = ref.s	
 }
