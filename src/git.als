@@ -22,7 +22,7 @@ abstract sig Node {
 }
 
 check {
-	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
+	all s : State, f : File, f' : f.samepath & File | f.content = f'.content
 } for 6 but 1 State
 
 fact SamePath {
@@ -211,7 +211,7 @@ run add for 3 but 2 State
 
 check add_correct {
 	all s,s' : State, n : Node | invariant[s] and add[s,s',n] implies invariant[s']
-} for 5 but 2 State
+} for 7 but 2 State
 
 pred add_invalid_path [s,s' : State, n : Node] {
 	invariant[s]
