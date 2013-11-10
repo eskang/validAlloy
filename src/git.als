@@ -11,19 +11,23 @@ abstract sig Node {
 	belongsTo : Object lone -> Commit, 
 }{
 	all o : Object, c : Commit |
-		o -> c in belongsTo iff {
-			(this in Root and o = c.tree) or
-			some p : Tree {
-				p in c.tree.^children + c.tree	
-				o = p.content[name]
-				p -> c in parent.@belongsTo
-			}
+		o -> c in belongsTo implies committedAs[this, o, c]
+	(some o : Object, c : Commit | committedAs[this, o, c]) implies
+		some belongsTo
+}
+
+pred committedAs[n : Node, o : Object, c : Commit] {
+	n in Root and o = c.tree or
+	some p : Tree {
+		p in c.tree.^children + c.tree	
+		o = p.content[n.name]
+		p -> c in n.parent.belongsTo
 	}
 }
 
 check {
-	all s : State, f : File, f' : f.samepath & File | f.content = f'.content
-} for 6 but 1 State
+	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
+} for 7 but 1 State
 
 fact SamePath {
 	all x,y : Node | x->y in samepath iff (x.name = y.name and ((no x.parent and no y.parent) or (some x.parent and some y.parent and x.parent->y.parent in samepath)))
@@ -39,7 +43,7 @@ sig File extends Node {
 	content : one Blob,
 	index : set State
 }{
-	belongsTo.Commit = content
+	belongsTo.Commit in content
 }
 
 sig Dir extends Node {
