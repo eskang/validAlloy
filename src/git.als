@@ -19,15 +19,23 @@ abstract sig Node {
 	belongsTo : Object lone -> Commit, 
 }{
 	all o : Object, c : Commit |
-		o -> c in belongsTo iff {
-			(this in Root and o = c.tree) or
-			some p : Tree {
-				p in c.tree.^children + c.tree	
-				o = p.content[name]
-				p -> c in parent.@belongsTo
-			}
+		o -> c in belongsTo implies committedAs[this, o, c]
+	(some o : Object, c : Commit | committedAs[this, o, c]) implies
+		some belongsTo
+}
+
+pred committedAs[n : Node, o : Object, c : Commit] {
+	n in Root and o = c.tree or
+	some p : Tree {
+		p in c.tree.^children + c.tree	
+		o = p.content[n.name]
+		p -> c in n.parent.belongsTo
 	}
 }
+
+check {
+	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
+} for 7 but 1 State
 
 fact SamePath {
 	all x,y : Node | x->y in samepath iff (x.name = y.name and ((no x.parent and no y.parent) or (some x.parent and some y.parent and x.parent->y.parent in samepath)))
@@ -43,7 +51,7 @@ sig File extends Node {
 	content : one Blob,
 	index : set State
 }{
-	belongsTo.Commit = content
+	belongsTo.Commit in content
 }
 
 sig Dir extends Node {
@@ -130,6 +138,8 @@ pred invariant [s : State] {
 	// at most one HEAD
 	lone HEAD.s
 	// Eunsuk: Actually, it turns out the invariant is too strong
+	// Index must not contain duplicate paths -- I'm not sure we really need this, but its kind of weird
+	 all f : index.s | one f.samepath & index.s
 	// HEAD doesnt necessarily need to be referenced
 	// was: HEAD must be a reference
 	HEAD.s in heads.s
@@ -205,7 +215,7 @@ pred add [s,s' : State, n : Node] {
 	whose path is a prefix of the given path, wich must be done to add the given path, and ignores deleted
 	files wich path is an extension of the the given path
 	*/
-	index.s' = index.s - n.*parent.samepath + leaves[s,n]
+	index.s' = index.s - n.*parent.samepath - leaves[s,n].samepath + leaves[s,n]
 	// add blobs to object
 	stored.s' = stored.s + leaves[s,n].content
 	// frame
@@ -213,11 +223,13 @@ pred add [s,s' : State, n : Node] {
 	HEAD.s' = HEAD.s
 	heads.s' = heads.s
 	refs.s' = refs.s
+	no tbc.s
+	no tbc.s'
 }
 
 run add for 3 but 2 State
 
-check {
+check add_correct {
 	all s,s' : State, n : Node | invariant[s] and add[s,s',n] implies invariant[s']
 } for 5 but 2 State
 
@@ -257,6 +269,75 @@ fun findObj[s : State, t : Tree, n : Node] : Object {
 }
 */
 
+pred pathInIndex [s : State, n : Node] {
+	one n.samepath & index.s
+}
+
+pred noUpdatesStaged [s : State, f : File] {
+	(f.samepath & index.s).content = (f.samepath & index.s).belongsTo.(HEAD[s]) or (f not in current.s)
+}
+
+pred noLocalChanges [s : State, f : File] {
+	f not in current.s or (f.samepath & index.s).belongsTo.(HEAD[s]) = f.content
+}
+
+check {
+	all f : File, s : State | invariant[s] and pathInIndex[s,f] and noUpdatesStaged[s,f] implies f.content = (f.samepath & index.s).content
+} for 3 but 1 State
+
+fun dirsContainingOnly [s : State, f : set File] : set Dir {
+	{n : current.s - Root | 
+		n in f.*parent.samepath and 
+		(*parent.n & current.s) in f.*parent.samepath and 
+		(some d : *parent.n & current.s | f in parent.d)
+	}
+}
+
+-- Remove operation
+pred rm[s, s' : State, f : File]{
+	-- preconditions
+	invariant[s]
+	s != s'
+	pathInIndex[s,f]
+	noUpdatesStaged[s,f]
+	noLocalChanges[s,f]
+	-- postconditions
+	index.s' = index.s - f.samepath
+	current.s' = current.s - f.samepath - dirsContainingOnly[s,f.samepath]
+	HEAD.s' = HEAD.s
+	stored.s' = stored.s 
+	refs.s' = refs.s	
+}
+
+run rm for 6 but 2 State
+
+check rm_correct {
+	all s,s' : State, n : Node | invariant[s] and rm[s,s',n] implies invariant[s']
+} for 6 but 2 State
+
+pred rm_PathNotInIndex[s, s' : State, f : File] {
+	invariant[s]
+	not pathInIndex[s,f]
+	s' = s
+}
+
+pred rm_UpdatesStaged[s, s' : State, f : File] {
+	invariant[s]
+	pathInIndex[s,f]
+	not noUpdatesStaged[s,f]
+	s' = s
+}
+
+pred rm_LocalChanges[s, s' : State, f : File] {
+	invariant[s]
+	pathInIndex[s,f]
+	noUpdatesStaged[s,f]
+	not noLocalChanges[s,f]
+	s' = s
+}
+
+run rm_LocalChanges for 4 but 2 State
+
 pred equalToHEADCommit[s : State, n : Node] {
 	let c = HEAD[s] |
 		all f : leaves[s, n] |
@@ -269,13 +350,15 @@ pred equalToHEADCommit[s : State, n : Node] {
 					// no updates to the file's content can be staged in index
 					indexObj = workingObj 
 }
--- Remove operation
-pred rm[s, s' : State, n : Node]{
+
+-- Remove operation (git rm -r)
+-- Alcino: actually remove without -r option does not remove any directories, only files.
+-- I'll leave this version as a tentative rm -r
+pred rm_rec[s, s' : State, n : Node]{
 	-- preconditions
- 	n != Root
 	invariant[s]
 	s != s'	
-//	n in current.s 			-- node must exist in the filesystem
+	//	n in current.s 			-- node must exist in the filesystem
 	-- file (or files, if n is a dir) must also be in index
 	all f : leaves[s,n] | some f.samepath & index.s
 	-- n can't be an empty directory
@@ -292,11 +375,18 @@ pred rm[s, s' : State, n : Node]{
 	refs.s' = refs.s	
 }
 
+run rm_rec for 5 but 2 State
+
+check rm_rec_correct {
+	all s,s' : State, n : Node | invariant[s] and rm_rec[s,s',n] implies invariant[s']
+} for 3 but 2 State
+
+
 run test {
 	one Dir - Root
 	some s0, s1 : State, d : Dir {
-		rm[s0, s1, d]
-		HEAD[s0].tree.content[Name] in Blob		
+		rm_rec[s0, s1, d]
+		(HEAD[s0]).tree.content[Name] in Blob		
 	}
 }for 5 but 2 State
 
