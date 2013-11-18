@@ -1,6 +1,14 @@
 sig State {}
 
-sig Name {}
+sig Name {
+	refs : Commit -> State,
+	heads : set State,
+	HEAD : set State
+}
+
+fun HEAD[s : State] : Commit {
+	pointsTo[HEAD.s, s]
+}
 
 abstract sig Node {
 	name : one Name,
@@ -92,9 +100,9 @@ fun children : Tree -> Object {
 sig Commit extends Object {
 	previous : set Commit,
 	tree : one Tree,
-	HEAD : set State,	// current branch
-	heads : set State, // branches
-	ref : set State
+//	HEAD : set State,	// current branch
+//	heads : set State, // branches
+//	ref : set State
 }
 
 fact Acyclic {
@@ -102,6 +110,10 @@ fact Acyclic {
 	no c : Commit | c in c.^previous
 	// Acyclic trees
 	no t : Tree | t in t.^children
+}
+
+fun pointsTo[n : Name, s : State] : Commit {
+	n.refs.s
 }
 
 pred invariant [s : State] {
@@ -112,7 +124,7 @@ pred invariant [s : State] {
 	// Stored objects
 	all t : stored.s & Tree | Name.(t.content) in stored.s
 	all c : stored.s & Commit | c.previous in stored.s and c.tree in stored.s
-	ref.s in stored.s
+	Name.refs.s in stored.s
 	// index blobs must be in the object database
 	(index.s).content in stored.s
 	// at most one HEAD
@@ -120,7 +132,10 @@ pred invariant [s : State] {
 	// Eunsuk: Actually, it turns out the invariant is too strong
 	// HEAD doesnt necessarily need to be referenced
 	// was: HEAD must be a reference
-	HEAD.s in ref.s
+	HEAD.s in heads.s
+	heads.s in refs.s.Commit
+	// each name can only point to at most one commit object
+	all n : Name, s : State | lone pointsTo[n, s]
 }
 
 run invariant for 4 but 1 State
@@ -157,7 +172,7 @@ fun untracked[s : State] : set File {
 		f not in index.s and
 		no f2 : File |	
  			f -> f2 in samepath and 
-			some f2.belongsTo.(HEAD.s)}
+			some f2.belongsTo.(HEAD[s])}
 }
 
 -- modified but not staged yet
@@ -166,7 +181,7 @@ fun modified[s : State] : set File {
 		f not in index.s and 
 		some f2 : File |
  			f -> f2 in samepath and
-			some f2.belongsTo.(HEAD.s) and 
+			some f2.belongsTo.(HEAD[s]) and 
 			f2.content != f.content}	
 }
 
@@ -196,7 +211,8 @@ pred add [s,s' : State, n : Node] {
 	// frame
 	current.s' = current.s
 	HEAD.s' = HEAD.s
-	ref.s' = ref.s
+	heads.s' = heads.s
+	refs.s' = refs.s
 }
 
 run add for 3 but 2 State
@@ -217,12 +233,10 @@ pred commit [s,s' : State, n : Node] {
 	s != s'
 	some index.s
 	some c : Commit-stored.s {
-		c.previous = HEAD.s
-		HEAD.s' = c
-		ref.s' = ref.s + c	// Eunsuk: Without this, commit violates inv: "HEAD.s in ref.s"
-		// Eunsuk2: Actually, it turns out the invariant is too strong
-		// HEAD doesnt necessarily need to be referenced
-		//ref.s' = ref.s			
+		c.previous = HEAD[s]
+		HEAD.s' = HEAD.s
+		heads.s' = heads.s
+		refs.s' = refs.s ++ HEAD.s -> c			
 		c.tree = Root.(tbc.s)
 		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
 	}
@@ -244,7 +258,7 @@ fun findObj[s : State, t : Tree, n : Node] : Object {
 */
 
 pred equalToHEADCommit[s : State, n : Node] {
-	let c = HEAD.s |
+	let c = HEAD[s] |
 		all f : leaves[s, n] |
 			let indexObj = (f.samepath & index.s).content,
 				workingObj = f.content, 
@@ -271,17 +285,18 @@ pred rm[s, s' : State, n : Node]{
 	index.s' = index.s - (*parent.n).samepath
 	current.s' = current.s - (leaves[s, n] + n)
 	HEAD.s' = HEAD.s
+	heads.s' = heads.s
 	// Eunsuk: What's the right behavior here? Can't always remove, because object might live in an existing commit.
 	// For now, assume that object db remains the same and unnecessary objects later get "garbage-collected".
 	stored.s' = stored.s 
-	ref.s' = ref.s	
+	refs.s' = refs.s	
 }
 
 run test {
 	one Dir - Root
 	some s0, s1 : State, d : Dir {
 		rm[s0, s1, d]
-		HEAD.s0.tree.content[Name] in Blob		
+		HEAD[s0].tree.content[Name] in Blob		
 	}
 }for 5 but 2 State
 
@@ -301,7 +316,7 @@ pred checkout_branch[s, s' : State, c : Commit] {
 	-- Preconditions
 	invariant[s]
 	s != s'
-	c in ref.s	-- commit must be referenced
+	c in Name.refs.s	-- commit must be referenced
 	-- no conflicts between files
 	no f1, f2 : File |
 		commonFiles[f1, f2, s, c] and
@@ -332,9 +347,10 @@ pred checkout_branch[s, s' : State, c : Commit] {
 	-- no new objects stored
 	stored.s' = stored.s 
 	-- update the HEAD
-	HEAD.s' = c
+	HEAD[s'] = c
+	heads.s' = heads.s	
 	-- refs stay the same
-	ref.s' =ref.s
+	refs.s' =refs.s
 }
 
 run checkout_branch for 3 but 2 State
@@ -345,7 +361,7 @@ run checkout_branch_interesting {
 		HEAD.s2 != HEAD.s1
 		some HEAD.s1
 		some f1, f2 : File |
-			commonFiles[f1, f2, s1, HEAD.s2] and
+			commonFiles[f1, f2, s1, pointsTo[HEAD.s2, s2]] and
 			f1.content.merging[f2.content] != f1.content
 	}
 } for 7 but 2 State, 2 Commit
@@ -358,7 +374,7 @@ pred checkout_file[s, s' : State, f : File, from : lone Commit] {
 	-- specified commit (or HEAD) must contain a file with the same path as f
 	some f' : File |
 		f -> f' in samepath and
-		some f'.belongsTo.(HEAD.s) or (some from and some f'.belongsTo.from)
+		some f'.belongsTo.(HEAD[s]) or (some from and some f'.belongsTo.from)
 	-- Postconditions
 	let c = some from implies from else HEAD.s {
 		some f' : File |
@@ -368,7 +384,8 @@ pred checkout_file[s, s' : State, f : File, from : lone Commit] {
 	}
 	index.s' = index.s - f
 	HEAD.s' = HEAD.s
-	ref.s' = ref.s
+	heads.s' = heads.s
+	refs.s' = refs.s
 	stored.s' = stored.s
 }
 
@@ -379,8 +396,8 @@ run checkout_file_interesting {
 		checkout_file[s1, s2, f, c]
 		some HEAD.s1
 		current.s1 != current.s2
-		c != HEAD.s1
-		c.tree != HEAD.s1.tree
+		c != HEAD[s1]
+		c.tree != HEAD[s1].tree
 	}
 } for 5 but 2 State
 
