@@ -37,6 +37,10 @@ check {
 	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
 } for 7 but 1 State
 
+check {
+	all s : State, n : current.s | invariant[s] implies no (current.s & (n.samepath-n))
+} for 7 but 1 State
+
 fact SamePath {
 	all x,y : Node | x->y in samepath iff (x.name = y.name and ((no x.parent and no y.parent) or (some x.parent and some y.parent and x.parent->y.parent in samepath)))
 }
@@ -139,7 +143,9 @@ pred invariant [s : State] {
 	lone HEAD.s
 	// Eunsuk: Actually, it turns out the invariant is too strong
 	// Index must not contain duplicate paths -- I'm not sure we really need this, but its kind of weird
-	 all f : index.s | one f.samepath & index.s
+	all f : index.s | one f.samepath & index.s
+	// Another invariant that was missing concerning index
+	all f : index.s | no (f.^parent.samepath & index.s)
 	// HEAD doesnt necessarily need to be referenced
 	// was: HEAD must be a reference
 	HEAD.s in heads.s
@@ -147,8 +153,6 @@ pred invariant [s : State] {
 	// each name can only point to at most one commit object
 	all n : Name, s : State | lone pointsTo[n, s]
 }
-
-run invariant for 4 but 1 State
 
 pred tbc [s : State] {
 	// trees ready to-be-commited
@@ -207,7 +211,7 @@ pred add [s,s' : State, n : Node] {
 	invariant[s]
 	s != s'
 	// paht exists
-	n in current.s
+	some (n.samepath & current.s)
 	// add paths to index
 	/*
 	Eunsuk: Shouldn't it be "(*parent.n).samepath" instead of (n.*parent.samepath)?
@@ -215,9 +219,9 @@ pred add [s,s' : State, n : Node] {
 	whose path is a prefix of the given path, wich must be done to add the given path, and ignores deleted
 	files wich path is an extension of the the given path
 	*/
-	index.s' = index.s - n.*parent.samepath - leaves[s,n].samepath + leaves[s,n]
+	index.s' = index.s - n.*parent.samepath - samepath.(*parent).(n.samepath) + leaves[s,n.samepath]
 	// add blobs to object
-	stored.s' = stored.s + leaves[s,n].content
+	stored.s' = stored.s + leaves[s,n.samepath].content
 	// frame
 	current.s' = current.s
 	HEAD.s' = HEAD.s
@@ -235,9 +239,19 @@ check add_correct {
 
 pred add_invalid_path [s,s' : State, n : Node] {
 	invariant[s]
-	n not in current.s
+	no (n.samepath & current.s)
 	s' = s
 }
+
+run add_invalid_path for 6 but exactly 1 State
+
+run add_test1 {
+	some s,s' : State, f : File {
+		f.parent = Root
+		f in current.s
+		add[s,s',Root]
+	}
+} for 3 but 2 State
 
 pred commit [s,s' : State, n : Node] {
 	invariant[s]

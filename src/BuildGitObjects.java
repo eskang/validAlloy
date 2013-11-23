@@ -318,12 +318,12 @@ public class BuildGitObjects {
 	
 	
 	public static void buildRefs(A4Solution sol,Module world, ExprVar iState, HashMap<String,ExprVar>mapAtom, HashMap<String,String> mapObjHash) throws Err {
-		Expr refs = CompUtil.parseOneExpression_fromString(world, "ref").join(iState);
+		Expr refs = CompUtil.parseOneExpression_fromString(world, "refs").join(iState);
 		
 		
 		A4TupleSet ts = (A4TupleSet) sol.eval(refs);
 		for(A4Tuple t : ts) {
-			buildGitRef(mapObjHash.get(t.atom(0)),"refs/heads/"+t.atom(0).replace("$", "_"));
+			buildGitRef(mapObjHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
 		}
 	}
 	
