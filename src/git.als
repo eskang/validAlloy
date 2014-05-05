@@ -1,3 +1,8 @@
+/**
+	* Git model of Alloy
+	*/
+module Git
+
 sig State {}
 
 sig Name {
@@ -10,11 +15,14 @@ fun HEAD[s : State] : Commit {
 	pointsTo[HEAD.s, s]
 }
 
+/**
+	* File system nodes
+	*/
 abstract sig Node {
 	name : one Name,
 	parent : lone Dir,
-	current : set State,
-	samepath : set Node, -- auxiliary relation
+	current : set State,		-- set of nodes currently in file system
+	samepath : set Node, 	-- auxiliary relation
 	-- n -> o -> c in belongsTo iff  o is an object in c.tree that corresponds to n
 	belongsTo : Object lone -> Commit, 
 }{
@@ -24,36 +32,21 @@ abstract sig Node {
 		some belongsTo
 }
 
+-- true iff fsys node 'n' is commited as git object 'o' in commit 'c'
 pred committedAs[n : Node, o : Object, c : Commit] {
+	-- either n is rooted at c or
 	n in Root and o = c.tree or
-	some p : Tree {
+	-- n is stored a child of some intermediate tree in c
+	some p : Tree {		-- p is a tree in c that stores n's blob as a child
 		p in c.tree.^children + c.tree	
 		o = p.content[n.name]
 		p -> c in n.parent.belongsTo
 	}
 }
 
-check {
-	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
-} for 7 but 1 State
-
-check {
-	all s : State, n : current.s | invariant[s] implies no (current.s & (n.samepath-n))
-} for 7 but 1 State
-
-fact SamePath {
-	all x,y : Node | x->y in samepath iff (x.name = y.name and ((no x.parent and no y.parent) or (some x.parent and some y.parent and x.parent->y.parent in samepath)))
-}
-
-run SamePathsArePossible {
-	all s : State | invariant[s]
-	some samepath-iden
-} for 4 but 2 State
-
 sig File extends Node {
-	-- Eunsuk: How do you distinguish current file content vs. content in index?
 	content : one Blob,
-	index : set State
+	index : set State		-- in staging area or not
 }{
 	belongsTo.Commit in content
 }
@@ -66,11 +59,39 @@ sig Dir extends Node {
 
 one sig Root extends Dir {}
 
-fact Tree {
-	all n : Node-Root | one n.parent
+fact SamePath {
+	-- two nodes have the same path iff
+	all x,y : Node | x->y in samepath iff 
+		-- they have the same name and
+		(x.name = y.name and 	
+			-- they both have no parents, or their parents have the same path
+			((no x.parent and no y.parent) or  
+			 (some x.parent and some y.parent and x.parent->y.parent in samepath)))
+}
+
+fact TreeFacts {
+	all n : Node - Root | one n.parent
 	no Root.parent
 	all n : Node | n not in n.^parent
 }
+
+check {
+	all s : State, f : File, f' : f.samepath & File | invariant[s] implies f.content = f'.content
+} for 7 but 1 State
+
+check {
+	all s : State, n : current.s | invariant[s] implies no (current.s & (n.samepath-n))
+} for 7 but 1 State
+
+run SamePathsArePossible {
+	all s : State | invariant[s]
+	some samepath-iden
+} for 4 but 2 State
+
+
+/**
+	*  Git objects (trees and blobs)
+	*/
 
 abstract sig Object {
 	stored : set State
@@ -112,9 +133,6 @@ fun children : Tree -> Object {
 sig Commit extends Object {
 	previous : set Commit,
 	tree : one Tree,
-//	HEAD : set State,	// current branch
-//	heads : set State, // branches
-//	ref : set State
 }
 
 fact Acyclic {
@@ -129,11 +147,12 @@ fun pointsTo[n : Name, s : State] : Commit {
 }
 
 pred invariant [s : State] {
-	// Current file system
+	-- Current file system
 	all n : current.s | n.parent in current.s
 	Root in current.s
 	all d : current.s, disj x,y : (parent.d) & current.s | x.name != y.name
-	// Stored objects
+	-- Stored objects
+	-- all descendant of a commit must also be stored
 	all t : stored.s & Tree | Name.(t.content) in stored.s
 	all c : stored.s & Commit | c.previous in stored.s and c.tree in stored.s
 	Name.refs.s in stored.s
@@ -275,13 +294,6 @@ run commit for 4 but 2 State
 check {
 	all s,s' : State, n : Node | invariant[s] and commit[s,s', n] implies invariant[s']
 } for 3 but 2 State
-
-/*
-fun findObj[s : State, t : Tree, n : Node] : Object {
-	{o : Object | some t2 : (Tree & t.^children + t) | 
-				o = t2.content[n.name] and (tbc.s).t2 = n.parent }
-}
-*/
 
 pred pathInIndex [s : State, n : Node] {
 	one n.samepath & index.s
@@ -457,7 +469,7 @@ pred checkout_branch[s, s' : State, c : Commit] {
 	refs.s' =refs.s
 }
 
-run checkout_branch for 3 but 2 State
+run checkout_branch for 5 but exactly 2 State
 
 run checkout_branch_interesting {
 	some s1, s2 : State, c : Commit {
@@ -493,7 +505,7 @@ pred checkout_file[s, s' : State, f : File, from : lone Commit] {
 	stored.s' = stored.s
 }
 
-run checkout_file for 3 but 2 State
+run checkout_file for 5 but exactly 2 State
 
 run checkout_file_interesting {
 	some s1, s2 : State, f : File, c : Commit {
