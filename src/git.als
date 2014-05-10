@@ -158,8 +158,8 @@ pred invariant [s : State] {
 	Name.refs.s in stored.s
 	// index blobs must be in the object database
 	(index.s).content in stored.s
-	// at most one HEAD
-	lone HEAD.s
+	// exactly one HEAD
+	one HEAD.s
 	// Eunsuk: Actually, it turns out the invariant is too strong
 	// Index must not contain duplicate paths -- I'm not sure we really need this, but its kind of weird
 	all f : index.s | one f.samepath & index.s
@@ -273,7 +273,6 @@ run add_test1 {
 } for 3 but 2 State
 
 pred commit [s,s' : State, n : Node] {
-	some HEAD[s]
 	invariant[s]
 	tbc[s]
 	s != s'
