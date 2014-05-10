@@ -273,6 +273,7 @@ run add_test1 {
 } for 3 but 2 State
 
 pred commit [s,s' : State, n : Node] {
+	some HEAD[s]
 	invariant[s]
 	tbc[s]
 	s != s'
