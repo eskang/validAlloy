@@ -26,9 +26,34 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 public class BuildGitObjects {
 
 	private static File path;
-	
+
+  public static void displayCommit(String commit) {
+		ArrayList<String> cmds = new ArrayList<String>();	
+    cmds.add(Utils.GIT_CMD);
+    cmds.add("cat-file");
+    cmds.add("-p");
+    /*
+    int i = 0;
+      while(true) {
+        i += 1;
+      }
+      /*
+		try {
+      String result = exec(cmds, "Displaying commit", commit);
+      System.out.println("Displaying Commit: " + result);
+		} catch (GitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+    }*/
+  }
 	public static String exec(List<String> command, File path, String message, String input) throws GitException {
-    System.out.println("EXEC: " + command + " With input " + input +  " At path " + path +  " with message " + message);
+    //System.out.println("EXEC: " + command + " With input " + input +  " At path " + path +  " with message " + message);
+    try {
+              System.in.read();
+                  } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                        }
 		String result = null;
 		try {
       // Start a new process
@@ -38,7 +63,11 @@ public class BuildGitObjects {
 
       // Set environment variables so hashes will be the same
 			Map<String, String> env = pb.environment();
+      env.put("GIT_AUTHOR_NAME", "johndoe");
+      env.put("GIT_AUTHOR_EMAIL", "jdoe@example.com");
 			env.put("GIT_AUTHOR_DATE", "Wed Feb 16 14:00 2037 +0100");
+      env.put("GIT_COMMITTER_NAME", "johndoe");
+      env.put("GIT_COMMITTER_EMAIL", "jdoe@example.com");
 			env.put("GIT_COMMITTER_DATE", "Wed Feb 16 14:00 2037 +0100");
 
 			Process pr = pb.start();
@@ -178,6 +207,7 @@ public class BuildGitObjects {
 		try {
 			hash = exec(cmds, "Building commit with tree " +  tree_hashcode, message);
       System.out.println("Got commit hash: " + hash);
+      //displayCommit("HEAD");
 			Logger.trace("Commit hash : "+ hash);
 		} catch (GitException e) {
 			// TODO Auto-generated catch block
@@ -348,7 +378,9 @@ public class BuildGitObjects {
 	public static void buildRefs(A4Solution sol,Module world, ExprVar iState, HashMap<String,ExprVar>mapAtom, HashMap<String,String> mapObjHash) throws Err {
     // Expression for all refs in iState
 		Expr refs = CompUtil.parseOneExpression_fromString(world, "refs").join(iState);
+    System.out.println("Refs expr: " + refs.toString());
 		A4TupleSet ts = (A4TupleSet) sol.eval(refs);
+    System.out.println("Refs: " + ts.toString());
 		for(A4Tuple t : ts) {
 			buildGitRef(mapObjHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
 		}
@@ -434,7 +466,9 @@ public class BuildGitObjects {
 	
 	public static void placeHEAD(A4Solution sol,Module world,Expr iState) throws Err {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
+    System.out.println("HEAD: " + HEAD.toString());
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
+    System.out.println("res: " + res.toString());
     if (res.size() > 0) {
       A4Tuple tup = res.iterator().next();
       Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
@@ -473,7 +507,7 @@ public class BuildGitObjects {
 			}
 			treeHash = mapObjsHash.get(commitTree.atom(0));
 			//Logger.trace(treeHash);
-			mapObjsHash.put(t.atom(0), buildCommitTree(treeHash,"message\n",entries));
+			mapObjsHash.put(t.atom(0), buildCommitTree(treeHash,"test commit",entries));
 		}
 	}
 

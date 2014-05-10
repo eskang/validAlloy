@@ -119,6 +119,7 @@ fact BlobFacts {
 sig Tree extends Object {
 	content : Name -> lone (Blob+Tree)
 }
+
 fact Canonicalization {
 	no disj b1, b2 : Blob |
 		b1.conflict = b2.conflict and b1.merging = b2.merging

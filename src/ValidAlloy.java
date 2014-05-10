@@ -222,7 +222,12 @@ public class ValidAlloy {
                         BuildGitObjects.runCmd(sol, world, cmdpath + "/pre", pathSkol.get(0), mapAtom, cmds.get(j), opts.get(j), vars.get(j));
                     else 
                         BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
-                        
+                        /*
+                    int stall = 0;    
+                    while(true) {
+                      stall++;
+                    }
+                       */ 
                 } catch (GitException e) {
                     if(!Utils.ContainsExpectedErrors(e.getMessage(),errors.get(j))){
                         Path p_e = Paths.get(cmdpath+"/git_errors.txt");
