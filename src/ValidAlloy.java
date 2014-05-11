@@ -146,7 +146,7 @@ public class ValidAlloy {
             for (int i=0; i<test_iterations && flagcontinue; i++) {
             	flagerr = false;
         	
-            	System.out.print("\rInstance            : " + i);
+            	System.out.print("\r\n\n\n\n\nInstance            : " + i + "***************************\n");
                 
             	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
   
@@ -160,7 +160,7 @@ public class ValidAlloy {
         	
 	            // If SAT can be solved
             	if (sol.satisfiable()) {
-
+                System.out.println("SATISFIABLE");
                 // Turn atoms from solution into HashMap
             		HashMap<String,ExprVar> mapAtom = Utils.atom2ObjectMapE(sol.getAllAtoms());
                 Logger.info("mapAtom: " + mapAtom);
@@ -190,8 +190,6 @@ public class ValidAlloy {
                 	for (int t=0; t<arg.get(j).size(); t++) {
                             
                         String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
-                        System.out.println("Skol = " + skol);
-                        //  		System.out.println("Skool " + skol);
                         pathSkol.add(Utils.getEFromIterable(skolems, skol));
                             
                 	}
@@ -200,7 +198,10 @@ public class ValidAlloy {
                 //   		System.out.println("Pos it :" +posState);
                
                 // Create output folder, subfolders, and files, write blobs to files for pre, precopy, and pos
+                //System.out.println("Building file system");
+                //System.in.read();
                 FileSystemBuilder.buildFileSystem(sol,i,preds.get(j),world,preState,posState);
+                //System.out.println("Done building file system");
                 
                 // e.g. "output/commit/0"
                 String cmdpath = "output/"+preds.get(j)+"/"+Integer.toString(i);
@@ -208,26 +209,22 @@ public class ValidAlloy {
 
                 // Build commit tree, place HEAD
                 Logger.info("Instance "+i+" preState\n________________________________________________________________");
+                System.out.println("------------------PRESTATE BUILD GIT OBJECTS-----------------");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pre",preState,mapAtom);
                   
+                System.out.println("------------------PRECOPY BUILD GIT OBJECTS-----------------");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/precopy",preState,mapAtom);
                     
+                System.out.println("------------------POS BUILD GIT OBJECTS-----------------");
                 Logger.info("\nInstance "+i+" posState\n________________________________________________________________");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
                     
                 // Now that the initial git structures have been build, run the command we are concerned with
-                System.out.println("OPTS: " + opts.get(j));
                 try {
                     if (!pathSkol.isEmpty())					
                         BuildGitObjects.runCmd(sol, world, cmdpath + "/pre", pathSkol.get(0), mapAtom, cmds.get(j), opts.get(j), vars.get(j));
                     else 
                         BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
-                        /*
-                    int stall = 0;    
-                    while(true) {
-                      stall++;
-                    }
-                       */ 
                 } catch (GitException e) {
                     if(!Utils.ContainsExpectedErrors(e.getMessage(),errors.get(j))){
                         Path p_e = Paths.get(cmdpath+"/git_errors.txt");
@@ -243,6 +240,8 @@ public class ValidAlloy {
 		
                 }
                 if (!flagerr) {
+                  //System.out.println("About to run diff");
+                  //System.in.read();
 
                 	if (Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i))) {
                 		FileUtils.deleteDirectory(new File(cmdpath)); 	                
@@ -254,9 +253,10 @@ public class ValidAlloy {
                 Logger.info("********* End of Instance       : "+i+" ********* ");		
                     
                 sol=sol.next();
-            	} else
+            	} else {
+                System.out.println("NOT SATISFIABLE");
                 flagcontinue = false;
-
+              }
             	if (!dirs2remove.isEmpty()){
             		Utils.RemoveDirs(dirs2remove);
               }        	

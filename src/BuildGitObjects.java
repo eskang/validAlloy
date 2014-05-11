@@ -27,33 +27,103 @@ public class BuildGitObjects {
 
 	private static File path;
 
-  public static void displayCommit(String commit) {
+  public static String gitLog() {
+		ArrayList<String> cmds = new ArrayList<String>();	
+    cmds.add(Utils.GIT_CMD);
+    cmds.add("log");
+    String result = "NONE";
+		try {
+      result = exec(cmds, "Displaying commit");
+		} catch (GitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+    }
+    return result;
+  }
+  
+  public static String gitCatFile(String commit) {
 		ArrayList<String> cmds = new ArrayList<String>();	
     cmds.add(Utils.GIT_CMD);
     cmds.add("cat-file");
     cmds.add("-p");
-    /*
-    int i = 0;
-      while(true) {
-        i += 1;
-      }
-      /*
+    cmds.add(commit);
+    String result = "NONE";
 		try {
-      String result = exec(cmds, "Displaying commit", commit);
-      System.out.println("Displaying Commit: " + result);
+      result = exec(cmds, "Displaying commit");
 		} catch (GitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-    }*/
+    }
+    return result;
   }
+  
+  public static String gitCatHEAD() {
+    return gitCatFile("HEAD");
+  }
+
+  public static ArrayList<String> getFieldFromCat(String cat, String field) {
+    ArrayList<String> values = new ArrayList<String>();
+    if (cat == null || cat.length() == 0 ) {
+      return values;
+    }
+    String[] parts = cat.split("\\s+");
+    for (int i = 0; i < parts.length; i++) {
+      if (parts[i].contains(field) && i < (parts.length - 1)) {
+        values.add(parts[i+1]);
+      }
+    }
+    return values;
+  }
+
+  public static String representTree(String hash) {
+    String r = "";
+    String treeCat = gitCatFile(hash);
+    ArrayList<String> treeHash = getFieldFromCat(treeCat, "tree");
+    ArrayList<String> blobHash = getFieldFromCat(treeCat, "blob");
+    if (treeHash.size() == 0 && blobHash.size() == 0) {
+      return hash;
+    } else if (blobHash.size() > 0) {
+      for (String b : blobHash) {
+        return hash + "-> "+ "[(blob) " + representTree(b) + "]";
+      }
+    } else if (treeHash.size() > 0) {
+      for (String t : treeHash) {
+        return hash + "-> " +"[(tree)" + representTree(t) + "]";
+      }
+    }
+    return "";
+  }
+    
+  public static void displayCommitFromHash(String hash) {
+    String commitCat = gitCatFile(hash);
+    ArrayList<String> parentHash = getFieldFromCat(commitCat, "parent");
+    ArrayList<String> treeHash = getFieldFromCat(commitCat, "tree");
+    ArrayList<String> blobHash = getFieldFromCat(commitCat, "blob");
+    System.out.println("\nCommit " + hash);
+    System.out.println("Parent " + parentHash.toString()); 
+    String tree = "Tree: ";
+    if (treeHash.size() > 0) {
+      tree += representTree(treeHash.get(0));
+    }
+    System.out.println(tree + "\n");
+  }
+
+  public static void displayAllCommits(String p) {
+		path = new File(p);
+    String commitHash = getFieldFromCat(gitLog(), "commit").get(0);
+    while (commitHash.length() > 0) {
+      displayCommitFromHash(commitHash);
+      ArrayList<String> parentHash = getFieldFromCat(gitCatFile(commitHash), "parent");
+      if (parentHash.size() > 0) {
+        commitHash = parentHash.get(0);
+      } else {
+        commitHash = "";
+      }
+    }
+  } 
+
 	public static String exec(List<String> command, File path, String message, String input) throws GitException {
     //System.out.println("EXEC: " + command + " With input " + input +  " At path " + path +  " with message " + message);
-    try {
-              System.in.read();
-                  } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                        }
 		String result = null;
 		try {
       // Start a new process
@@ -206,8 +276,6 @@ public class BuildGitObjects {
 		String hash = null;
 		try {
 			hash = exec(cmds, "Building commit with tree " +  tree_hashcode, message);
-      System.out.println("Got commit hash: " + hash);
-      //displayCommit("HEAD");
 			Logger.trace("Commit hash : "+ hash);
 		} catch (GitException e) {
 			// TODO Auto-generated catch block
@@ -265,9 +333,9 @@ public class BuildGitObjects {
 	}
 
   // For every file in state, run buildGitIndexEntry on each file's content 
-	public static void buildIndex(A4Solution sol, Module world, HashMap<String,String> mapObjsHash,HashMap<String,ExprVar>mapAtom, Expr state) throws Err {
+	public static void buildIndex(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
     // Expression for all files in state
-		Expr files = CompUtil.parseOneExpression_fromString(world, "index").join(state);
+		Expr files = CompUtil.parseOneExpression_fromString(world, "index").join(iState);
     // Expression for all parent nodes in state
 		Expr parent =  CompUtil.parseOneExpression_fromString(world,"Node <: parent");
 
@@ -349,7 +417,6 @@ public class BuildGitObjects {
 	
 
 	public static void runCmd(A4Solution sol, Module world, String p, ExprVar path, HashMap<String, ExprVar> mapAtom, String cmd, ArrayList<String> options, HashMap<String,String> vars) throws GitException, Err { 
-	  	
     // Expression for parent relation
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
 
@@ -364,10 +431,19 @@ public class BuildGitObjects {
 		};	
 	    
 		try {
-      //System.out.println("Ncmds: " + n_cmds);	
 			String result = exec(n_cmds,new File(p),"Running "+n_cmds);
 			Logger.trace("Output: " + result);
+      /*
       System.out.println("runCmd output: " + result);
+      System.out.println("------------------RUNCMD BUILD GIT OBJECTS-----------------");
+      displayAllCommits(p);
+          try {
+                         System.in.read();
+                                                        }
+                                                                catch (IOException e){
+                                                                              System.out.println("Error reading from user");
+                                                                                      }
+                                                         */
 		} catch (GitException e) {
 			throw new GitException("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
 		}	
@@ -375,14 +451,12 @@ public class BuildGitObjects {
 
 	
 	
-	public static void buildRefs(A4Solution sol,Module world, ExprVar iState, HashMap<String,ExprVar>mapAtom, HashMap<String,String> mapObjHash) throws Err {
+	public static void buildRefs(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
     // Expression for all refs in iState
 		Expr refs = CompUtil.parseOneExpression_fromString(world, "refs").join(iState);
-    System.out.println("Refs expr: " + refs.toString());
 		A4TupleSet ts = (A4TupleSet) sol.eval(refs);
-    System.out.println("Refs: " + ts.toString());
 		for(A4Tuple t : ts) {
-			buildGitRef(mapObjHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
+			buildGitRef(mapObjsHash.get(t.atom(1)),"refs/heads/"+t.atom(0).replace("$", "_"));
 		}
 	}
 
@@ -466,9 +540,7 @@ public class BuildGitObjects {
 	
 	public static void placeHEAD(A4Solution sol,Module world,Expr iState) throws Err {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
-    System.out.println("HEAD: " + HEAD.toString());
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
-    System.out.println("res: " + res.toString());
     if (res.size() > 0) {
       A4Tuple tup = res.iterator().next();
       Logger.trace(setHead("refs/heads/" + tup.atom(0).replace("$", "_")));
@@ -507,7 +579,7 @@ public class BuildGitObjects {
 			}
 			treeHash = mapObjsHash.get(commitTree.atom(0));
 			//Logger.trace(treeHash);
-			mapObjsHash.put(t.atom(0), buildCommitTree(treeHash,"test commit",entries));
+			mapObjsHash.put(t.atom(0), buildCommitTree(treeHash,"\"test commit\"\n",entries));
 		}
 	}
 
@@ -557,7 +629,6 @@ public class BuildGitObjects {
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 
     // Runs "git init"
-    System.out.println("Running git init");
 		gitInit();
 
     // Run "git hash-object" 
@@ -568,11 +639,13 @@ public class BuildGitObjects {
  
 		commitBuilder(sol, world, mapAtom, mapObjsHash, iState);
 
-		buildIndex(sol, world, mapObjsHash, mapAtom, iState);
+		buildIndex(sol, world, mapAtom, mapObjsHash, iState);
     
-		buildRefs(sol, world, iState, mapAtom, mapObjsHash);
+		buildRefs(sol, world, mapAtom, mapObjsHash, iState);
 
     // Run "git symbolic-ref HEAD pathtohead"
 		placeHEAD(sol, world, iState);
+    displayAllCommits("output/" + index);
+
 	}
 }
