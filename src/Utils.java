@@ -293,6 +293,7 @@ public class Utils {
 
 	}
 
+  // Creates temporary model file, writes model, pred, and scope to it
 	public static String addPred(String file, String pred, String scope)
 			throws IOException {
 
@@ -305,6 +306,7 @@ public class Utils {
 		Path model = Paths.get(file);
 		Path tmodel = Paths.get(file + ".tmp");
 
+    // Create temporary model, fill in with model
 		try {
 			Files.createFile(tmodel);
 			Files.copy(model, tmodel, REPLACE_EXISTING);
@@ -313,6 +315,7 @@ public class Utils {
 					.println("Model Temporary File Already Exists \n Replacing With New Content");
 		}
 
+    // Write to model ie "run commit for 3 but exactly 2 State
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(
 					new FileWriter(file + ".tmp", true)));
@@ -324,6 +327,7 @@ public class Utils {
 		return file + ".tmp";
 	}
 
+  // Deletes *.tmp
 	public static void delTemporaryModel(String file) throws IOException {
 
 		Path tmodel = Paths.get(file + ".tmp");
