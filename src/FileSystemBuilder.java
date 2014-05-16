@@ -111,39 +111,23 @@ public class FileSystemBuilder {
 			
 			//Get the node relation from the sig Node (node maps Node with state)
 			Expr nodeField = CompUtil.parseOneExpression_fromString(world, "current");
-		  //System.out.println("mapNodeFields:" + nodeField);
 
 			//Get blob and name relation
 			Expr name = CompUtil.parseOneExpression_fromString(world,"Node <: name");
 			Expr blob = CompUtil.parseOneExpression_fromString(world,"File <: content"); 
-	    //System.out.println("Name: " + name);	
-	    //System.out.println("Blob: " + blob);	
 
-			//Get the true root
 			//Get the parent relation
       Expr parent = CompUtil.parseOneExpression_fromString(world, "parent");
-      //System.out.println("Parent: " + parent);
 			
       // Find root nodde using the comprehension
-			// x:Node | no (x.parent)
+			// x:Node | no (x.parent) (find nodes with no parent)
       Expr rootNode = (nodeSig.decl.get().join(parent).no()).comprehensionOver(nodeSig.decl);
-      //System.out.println("Root node: " + rootNode);
-//            
-//			Expr preRootNodes = nodeSig.decl.get().in(nodeField.join(preState)).and(
-//					nodeSig.decl.get().join(parent).intersect(nodeField.join(preState)).no()).
-//					comprehensionOver(nodeSig.decl);
-//			Expr posRootNodes = nodeSig.decl.get().in(nodeField.join(posState)).and(
-//					nodeSig.decl.get().join(parent).intersect(nodeField.join(posState)).no()).
-//					comprehensionOver(nodeSig.decl);
-//		
+
 			A4TupleSet rootTuple = (A4TupleSet) sol.eval(rootNode);
-      //System.out.println("Root tuple: " + rootTuple);
 			
-			//Get the nodes in state0 that are parents
+			//Get the nodes that are parents and currently in the system
 			Expr preParents = nodeField.join(preState).domain(parent);
 			Expr posParents = nodeField.join(posState).domain(parent);
-      //System.out.println("Posparents: " + preParents);
-      //System.out.println("Preparents: " + posParents);
 						
 			String path = "output/"+pred_name+"/"+i+"/";
 			
@@ -170,15 +154,9 @@ public class FileSystemBuilder {
 			throws Err, IOException {
 		Path p = null;
 		String newpath = null;
-		// System.out.println(roots.toString());
 		for (A4Tuple tuple : roots) {
-
 			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms
 					.get(tuple.atom(0)).join(name));
-      //System.out.println("Names in makeroots: " + names); 
-			//newpath = path + "/" + names.iterator().next().atom(0).replace('$', '_');
-			//p = Paths.get(newpath);
-			//Files.createDirectories(p);
 			buildTree(sol,path, tuple.atom(0), name, blob, parents,
 					mapAtoms, mapSigs);
 		}
@@ -201,17 +179,15 @@ public class FileSystemBuilder {
 			HashMap<String, ExprVar> mapAtom, Map<String, Sig.PrimSig> mapSig)
 			throws Err, IOException {
 		ExprVar current = mapAtom.get(atom);
-		// TODO
+
 		A4TupleSet children = (A4TupleSet) sol.eval(parent.join(current));
-    //System.out.println("Children: " + children);
+
 		for (A4Tuple child : children) {
 			A4TupleSet names = (A4TupleSet) sol.eval(mapAtom.get(child.atom(0))
 					.join(name));
-      //System.out.println("Names from child: " + names);
 			String newpath = path + "/"
 					+ names.iterator().next().atom(0).replace('$', '_');
 			Path p = Paths.get(newpath);
-      //System.out.println("Path p: " + p);
 
       // If the sig is "this/Dir", recurse, otherwise write blobs to file
 			if (mapSig.get(child.atom(0)).toString().equals("this/Dir")) {
@@ -221,13 +197,11 @@ public class FileSystemBuilder {
 			} else {
 				A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtom.get(
 						child.atom(0)).join(blob));
-        //System.out.println("Blobs:" + blobs);
 				Files.createFile(p);
 						
 				Files.write(p,
 						blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));
         List<String> contents = Files.readAllLines(p, Charset.defaultCharset());
-        //System.out.println("Contents:" + contents);
 			}
 
 		}

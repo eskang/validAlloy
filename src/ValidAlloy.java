@@ -202,6 +202,7 @@ public class ValidAlloy {
                 //System.in.read();
                 FileSystemBuilder.buildFileSystem(sol,i,preds.get(j),world,preState,posState);
                 //System.out.println("Done building file system");
+                //System.in.read();
                 
                 // e.g. "output/commit/0"
                 String cmdpath = "output/"+preds.get(j)+"/"+Integer.toString(i);

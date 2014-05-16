@@ -119,6 +119,7 @@ fact BlobFacts {
 sig Tree extends Object {
 	content : Name -> lone (Blob+Tree)
 }
+
 fact Canonicalization {
 	no disj b1, b2 : Blob |
 		b1.conflict = b2.conflict and b1.merging = b2.merging
@@ -286,7 +287,7 @@ pred commit [s,s' : State, n : Node] {
 		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
 	}
 	current.s' = current.s
-	index.s' = index.s
+	no index.s'
 }
 
 run commit for 4 but 2 State

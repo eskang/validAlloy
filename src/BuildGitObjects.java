@@ -314,7 +314,7 @@ public class BuildGitObjects {
 	}
 
   // Runs the plumbing command git update-index
-	public static String buildGitIndexEntry(String object_hash, String file_name) {	
+	public static String buildGitIndexAdd(String object_hash, String file_name) {	
 		ArrayList<String> cmds = new ArrayList<String>();
 		cmds.add(Utils.GIT_CMD);
 		cmds.add("update-index");
@@ -332,8 +332,24 @@ public class BuildGitObjects {
 		return file_name;	
 	}
 
+	public static String buildGitIndexRemove(String file_name) {	
+		ArrayList<String> cmds = new ArrayList<String>();
+		cmds.add(Utils.GIT_CMD);
+		cmds.add("update-index");
+		cmds.add("--remove");
+		cmds.add(file_name);
+		try {
+			exec(cmds,"Building index entry with " + file_name);
+		} catch (GitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return file_name;	
+	}
+
   // For every file in state, run buildGitIndexEntry on each file's content 
 	public static void buildIndex(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
+
     // Expression for all files in state
 		Expr files = CompUtil.parseOneExpression_fromString(world, "index").join(iState);
     // Expression for all parent nodes in state
@@ -341,11 +357,21 @@ public class BuildGitObjects {
 
 		Expr content = CompUtil.parseOneExpression_fromString(world, "File <: content");
 
-    // Tuple of all files in state
+
+		Expr current = CompUtil.parseOneExpression_fromString(world, "File <: current");
 		A4TupleSet ts =  (A4TupleSet) sol.eval(files);
+    // Tuple of all files in the working directory
+    A4TupleSet cf = (A4TupleSet) sol.eval(current);
 		String path;
+
 		for (A4Tuple t : ts) {
+      boolean add = false;
 			String a = t.atom(0);
+      for (A4Tuple c : cf) {
+        if (c.atom(0).equals(a)) {
+          add = true;
+        }
+      }
       // Path of file t
 			path = buildPath(sol,world,parent,mapAtom.get(a), mapAtom);
 			String blobStr = null;
@@ -356,7 +382,12 @@ public class BuildGitObjects {
 			}
 			Logger.trace("Res map   :" +mapObjsHash.get(blobStr));
 			Logger.trace("Res path  :" +path);
-			Logger.trace("Index res : "+ buildGitIndexEntry(mapObjsHash.get(blobStr),path));
+      if (add) {
+			Logger.trace("Index res : "+ buildGitIndexAdd(mapObjsHash.get(blobStr),path));
+      } else {
+			//  Logger.trace("Index res : "+ buildGitIndexEntry(mapObjsHash.get(blobStr),path));
+        buildGitIndexRemove(path);
+      }
 		}
 	}
 	
@@ -433,17 +464,6 @@ public class BuildGitObjects {
 		try {
 			String result = exec(n_cmds,new File(p),"Running "+n_cmds);
 			Logger.trace("Output: " + result);
-      /*
-      System.out.println("runCmd output: " + result);
-      System.out.println("------------------RUNCMD BUILD GIT OBJECTS-----------------");
-      displayAllCommits(p);
-          try {
-                         System.in.read();
-                                                        }
-                                                                catch (IOException e){
-                                                                              System.out.println("Error reading from user");
-                                                                                      }
-                                                         */
 		} catch (GitException e) {
 			throw new GitException("Result from "+ n_cmds+" on path "+p+":\n\n"+e.getMessage() );
 		}	
@@ -645,7 +665,7 @@ public class BuildGitObjects {
 
     // Run "git symbolic-ref HEAD pathtohead"
 		placeHEAD(sol, world, iState);
-    displayAllCommits("output/" + index);
+    //displayAllCommits("output/" + index);
 
 	}
 }
