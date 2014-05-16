@@ -57,6 +57,25 @@ sig Dir extends Node {
 	belongsTo.Commit in Tree
 }
 
+pred tbc [s : State] {
+	// trees ready to-be-commited
+	all d : Dir & current.s | 
+		-- if directory 'd' has a file that's been added to index, then
+		some ^parent.d & index.s & current.s implies {
+			let tree = d.tbc.s {		-- 'tree' is the tree object that will represent 'd' in the future commit object 
+				one tree
+				-- the content of the tree is defiend as:
+				tree.content = 
+					-- mapping from a name 'n' to any object 'o' such that
+					{n : Name, o : Object | 
+						-- there is some node 'x' that is (1) a child of directory 'd' AND (2) a staged file (or its ancestor)
+						some x : parent.d & (index.s).*parent & current.s | 
+							-- 'o' is equal to the content of 'x' and is mapped from the same name
+							o = x.(tbc.s+content) and n = x.name }
+			}
+		}
+}
+
 one sig Root extends Dir {}
 
 fact SamePath {
@@ -174,14 +193,6 @@ pred invariant [s : State] {
 	all n : Name, s : State | lone pointsTo[n, s]
 }
 
-pred tbc [s : State] {
-	// trees ready to-be-commited
-	all d : Dir | some ^parent.d & index.s implies {
-		one d.(tbc.s)
-		d.(tbc.s).content = {n : Name, o : Object | some x : parent.d & (index.s).*parent | o = x.(tbc.s+content) and n = x.name}
-	}
-}
-
 /* some helper functions */
 fun leaves [s : State, n : Node] : set File {
 	(*parent).n & File & current.s
@@ -290,7 +301,7 @@ pred commit [s,s' : State, n : Node] {
 	no index.s'
 }
 
-run commit for 4 but 2 State
+run commit for 5 but 2 State
 
 check {
 	all s,s' : State, n : Node | invariant[s] and commit[s,s', n] implies invariant[s']
