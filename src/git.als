@@ -59,9 +59,9 @@ sig Dir extends Node {
 
 pred tbc [s : State] {
 	// trees ready to-be-commited
-	all d : Dir & current.s | 
+	all d : Dir | 
 		-- if directory 'd' has a file that's been added to index, then
-		some ^parent.d & index.s & current.s implies {
+		some ^parent.d & index.s implies {
 			let tree = d.tbc.s {		-- 'tree' is the tree object that will represent 'd' in the future commit object 
 				one tree
 				-- the content of the tree is defiend as:
@@ -69,7 +69,7 @@ pred tbc [s : State] {
 					-- mapping from a name 'n' to any object 'o' such that
 					{n : Name, o : Object | 
 						-- there is some node 'x' that is (1) a child of directory 'd' AND (2) a staged file (or its ancestor)
-						some x : parent.d & (index.s).*parent & current.s | 
+						some x : parent.d & (index.s).*parent | 
 							-- 'o' is equal to the content of 'x' and is mapped from the same name
 							o = x.(tbc.s+content) and n = x.name }
 			}
