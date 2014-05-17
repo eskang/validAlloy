@@ -167,6 +167,7 @@ fun pointsTo[n : Name, s : State] : Commit {
 }
 
 pred invariant [s : State] {
+	no d : Dir, f : File | f in d.samepath and f in index.s and d in current.s
 	-- Current file system
 	all n : current.s | n.parent in current.s
 	Root in current.s
@@ -185,6 +186,7 @@ pred invariant [s : State] {
 	all f : index.s | one f.samepath & index.s
 	// Another invariant that was missing concerning index
 	all f : index.s | no (f.^parent.samepath & index.s)
+	
 	// HEAD doesnt necessarily need to be referenced
 	// was: HEAD must be a reference
 	HEAD.s in heads.s
