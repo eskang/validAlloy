@@ -167,6 +167,11 @@ fun pointsTo[n : Name, s : State] : Commit {
 }
 
 pred invariant [s : State] {
+	-- no file should be index if it has the same content as the one in the latest commit
+	no f1 : index.s, f2 : File |
+		f1 -> f2 in samepath and 
+		f2 -> f1.content -> HEAD[s] in belongsTo and 
+	-- there should be no file in the index that exists as a directory in the current file system
 	no d : Dir, f : File | f in d.samepath and f in index.s and d in current.s
 	-- Current file system
 	all n : current.s | n.parent in current.s
