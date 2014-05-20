@@ -15,6 +15,10 @@ fun HEAD[s : State] : Commit {
 	pointsTo[HEAD.s, s]
 }
 
+pred existsIn[f : File, c : Commit] {
+	some f.belongsTo.c
+}
+
 /**
 	* File system nodes
 	*/
@@ -167,11 +171,6 @@ fun pointsTo[n : Name, s : State] : Commit {
 }
 
 pred invariant [s : State] {
-	-- no file should be index if it has the same content as the one in the latest commit
-	no f1 : index.s, f2 : File |
-		f1 -> f2 in samepath and 
-		f2 -> f1.content -> HEAD[s] in belongsTo and 
-	-- there should be no file in the index that exists as a directory in the current file system
 	no d : Dir, f : File | f in d.samepath and f in index.s and d in current.s
 	-- Current file system
 	all n : current.s | n.parent in current.s
@@ -296,6 +295,18 @@ pred commit [s,s' : State, n : Node] {
 	tbc[s]
 	s != s'
 	some index.s
+
+	-- there must be some file in index that's different from last commit (otherwise, no-op)
+	some f : File {
+		-- there's some file in index that does not exist in the last commit
+		(f in index.s and (no f2 : File | f -> f2 in samepath and f2.existsIn[HEAD[s]])) or
+		-- or there's some file in the last commit that does not exist in the index
+		(f not in index.s and (some f2 : File | f -> f2 in samepath and f2.existsIn[HEAD[s]])) or
+		-- or there's a file in the index that has a different content from the last commit
+		(f in index.s and some f2 : File, b : Blob | 
+			f -> f2 in samepath and f2 -> b -> HEAD[s] in belongsTo and b != f.content)
+	}	
+
 	some c : Commit-stored.s {
 		c.previous = HEAD[s]
 		HEAD.s' = HEAD.s
@@ -308,13 +319,14 @@ pred commit [s,s' : State, n : Node] {
 	index.s' = index.s
 }
 
-run commit for 5 but 2 State
+run commit for 7 but 2 State
 
 check {
 	all s,s' : State, n : Node | invariant[s] and commit[s,s', n] implies invariant[s']
 } for 3 but 2 State
 
-pred pathInIndex [s : State, n : Node] {
+pred pathInIndex [s : State, n : Node]
+{
 	one n.samepath & index.s
 }
 
