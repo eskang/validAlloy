@@ -300,7 +300,7 @@ pred commit [s,s' : State, n : Node] {
 		stored.s' = stored.s + (index.s).^parent.(tbc.s) + c
 	}
 	current.s' = current.s
-	no index.s'
+	index.s' = index.s
 }
 
 run commit for 5 but 2 State
