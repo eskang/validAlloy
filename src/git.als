@@ -31,9 +31,7 @@ abstract sig Node {
 	belongsTo : Object lone -> Commit, 
 }{
 	all o : Object, c : Commit |
-		o -> c in belongsTo implies committedAs[this, o, c]
-	(some o : Object, c : Commit | committedAs[this, o, c]) implies
-		some belongsTo
+		o -> c in belongsTo iff committedAs[this, o, c]
 }
 
 -- true iff fsys node 'n' is commited as git object 'o' in commit 'c'
@@ -301,7 +299,7 @@ pred commit [s,s' : State, n : Node] {
 		-- there's some file in index that does not exist in the last commit
 		(f in index.s and (no f2 : File | f -> f2 in samepath and f2.existsIn[HEAD[s]])) or
 		-- or there's some file in the last commit that does not exist in the index
-		(f not in index.s and (some f2 : File | f -> f2 in samepath and f2.existsIn[HEAD[s]])) or
+		(f.existsIn[HEAD[s]] and no f2 : index.s | f -> f2 in samepath) or
 		-- or there's a file in the index that has a different content from the last commit
 		(f in index.s and some f2 : File, b : Blob | 
 			f -> f2 in samepath and f2 -> b -> HEAD[s] in belongsTo and b != f.content)
@@ -320,6 +318,10 @@ pred commit [s,s' : State, n : Node] {
 }
 
 run commit for 7 but 2 State
+
+run {
+	some s1, s2 : State, n : Node | commit[s1, s2, n] and HEAD[s1].tree = HEAD[s2].tree
+} for 5 but 2 State, 2 Commit
 
 check {
 	all s,s' : State, n : Node | invariant[s] and commit[s,s', n] implies invariant[s']
