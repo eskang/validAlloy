@@ -461,7 +461,8 @@ fun merge[f1, f2 : File] : set File {
 		f1.content -> f2.content -> f3.content in merging }
 }	
 
-pred checkout_branch[s, s' : State, c : Commit] {
+pred checkout_branch[s, s' : State, n : Name] {
+	let c = pointsTo[n, s] {	-- the commit that the name points to
 	-- Preconditions
 	invariant[s]
 	s != s'
@@ -500,13 +501,14 @@ pred checkout_branch[s, s' : State, c : Commit] {
 	heads.s' = heads.s	
 	-- refs stay the same
 	refs.s' =refs.s
+	}
 }
 
 run checkout_branch for 5 but exactly 2 State
 
 run checkout_branch_interesting {
-	some s1, s2 : State, c : Commit {
-		checkout_branch[s1, s2, c]
+	some s1, s2 : State, n : Name {
+		checkout_branch[s1, s2, n]
 		HEAD.s2 != HEAD.s1
 		some HEAD.s1
 		some f1, f2 : File |
