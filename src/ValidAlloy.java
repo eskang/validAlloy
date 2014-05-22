@@ -74,10 +74,8 @@ public class ValidAlloy {
         try {
             Logger.info("Parsing Config File \n");
            
-            // Return result of parser 
             CfgParser.cfg_return cfg_obj = g.cfg();
             	
-            // Store output of parser
             vars = cfg_obj.vars;
             arg = cfg_obj.args;
             opts = cfg_obj.opts;
@@ -130,7 +128,6 @@ public class ValidAlloy {
 
             // Execute cmd1 according to options
             sol = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), cmd1, options);
-            System.out.println("A4Solution: " + sol.toString());   
             System.out.println("=========== Getting  solutions from git.als =========== ");
             System.out.println("Variables           : " +vars.get(j));
             System.out.println("Predicate           : " +preds.get(j));
@@ -143,11 +140,9 @@ public class ValidAlloy {
             
             boolean flagerr;	
             boolean flagcontinue = true;
-            for (int i=0; i<test_iterations && flagcontinue; i++) {
+            for (int i = 0; i < test_iterations && flagcontinue; i++) {
             	flagerr = false;
         	
-            	System.out.print("\r\n\n\n\n\nInstance            : " + i + "***************************\n");
-                
             	Logger.info("********* Beginning of Instance : "+i+" *********\n\n\n\n\n ");
   
             	String newpath = null;
@@ -158,35 +153,31 @@ public class ValidAlloy {
             	ArrayList<ExprVar> pathSkol = new ArrayList<ExprVar>();
             	ArrayList<String> dirs2remove = new ArrayList<String>();
         	
-	            // If SAT can be solved
+	            // If there is a solution to the constraints
             	if (sol.satisfiable()) {
-                System.out.println("SATISFIABLE");
-                // Turn atoms from solution into HashMap
+
+                // Turn atoms from solution into a map from their string representation
+                // to the ExprVar object
             		HashMap<String,ExprVar> mapAtom = Utils.atom2ObjectMapE(sol.getAllAtoms());
                 Logger.info("mapAtom: " + mapAtom);
 
-                // Create newpath e.g. "output/commit/0" and all missing parent directories
+                // Create the path for the git instances e.g. "output/commit/0"
                 newpath = "output/"+preds.get(j)+"/"+Integer.toString(i);
                 p = Paths.get(newpath);
                 Files.createDirectories(p);
 
                 skolems = sol.getAllSkolems();
 
-                // sol.writeXML("output/"+preds.get(j)+"/instance"+i+".xml");
                 
-                // e.g. "$commit_s" 
+                // Values for the pre and pos state e.g. "$commit_s" 
                 String preS = "$" + preds.get(j) +"_s";
                 String posS = "$" + preds.get(j) +"_s'";
                     
-                // Find object in skolems with name == preS/posS
                 preState = Utils.getEFromIterable(skolems, preS);
                 posState = Utils.getEFromIterable(skolems, posS);
                     
-                // System.out.println("See: " + skolems);
-                    
-                // If there are arguments, populate pathSkol with the skolem named skol
                 if (arg.get(j) != null) {
-                        
+
                 	for (int t=0; t<arg.get(j).size(); t++) {
                             
                         String skol = "$" + preds.get(j) +"_" + arg.get(j).get(t);
@@ -194,39 +185,32 @@ public class ValidAlloy {
                             
                 	}
             	  }
-                //   		System.out.println("Pre it :" +preState);
-                //   		System.out.println("Pos it :" +posState);
                
-                // Create output folder, subfolders, and files, write blobs to files for pre, precopy, and pos
-                //System.out.println("Building file system");
-                //System.in.read();
+                // Create folders and files in the pre, precopy, and pos working directories as described
+                // by the solution
                 FileSystemBuilder.buildFileSystem(sol,i,preds.get(j),world,preState,posState);
-                //System.out.println("Done building file system");
-                //System.in.read();
                 
                 // e.g. "output/commit/0"
                 String cmdpath = "output/"+preds.get(j)+"/"+Integer.toString(i);
                     
 
-                // Build commit tree, place HEAD
+                // Build the git instances in the pre, precopy, and pos directories
                 Logger.info("Instance "+i+" preState\n________________________________________________________________");
-                System.out.println("------------------PRESTATE BUILD GIT OBJECTS-----------------");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pre",preState,mapAtom);
                   
-                System.out.println("------------------PRECOPY BUILD GIT OBJECTS-----------------");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/precopy",preState,mapAtom);
                     
-                System.out.println("------------------POS BUILD GIT OBJECTS-----------------");
                 Logger.info("\nInstance "+i+" posState\n________________________________________________________________");
                 BuildGitObjects.buildObjects(sol, world, preds.get(j)+"/"+Integer.toString(i)+"/pos",posState,mapAtom);
                     
-                // Now that the initial git structures have been build, run the command we are concerned with
+                // Now that the initial git structures have been build, try to run the command we are concerned with
                 try {
                     if (!pathSkol.isEmpty())					
                         BuildGitObjects.runCmd(sol, world, cmdpath + "/pre", pathSkol.get(0), mapAtom, cmds.get(j), opts.get(j), vars.get(j));
                     else 
-                        BuildGitObjects.runCmd(sol,world,cmdpath+"/pre",null,mapAtom,cmds.get(j),opts.get(j),null);
+                        BuildGitObjects.runCmd(sol, world, cmdpath + "/pre", null, mapAtom, cmds.get(j), opts.get(j), null);
                 } catch (GitException e) {
+                    // If git gives us an error message, mark the instance as having an error and write it to git_errors.txt
                     if(!Utils.ContainsExpectedErrors(e.getMessage(),errors.get(j))){
                         Path p_e = Paths.get(cmdpath+"/git_errors.txt");
                         Files.createFile(p_e);
@@ -238,39 +222,34 @@ public class ValidAlloy {
                     } else dirs2remove.add(cmdpath);
                 } catch (Exception q){
                     q.printStackTrace();
-		
                 }
                 if (!flagerr) {
-                  //System.out.println("About to run diff");
-                  //System.in.read();
-
+                  // If pos and pre are the same, delete them
                 	if (Utils.diffPosPre(preds.get(j)+"/"+Integer.toString(i))) {
                 		FileUtils.deleteDirectory(new File(cmdpath)); 	                
                 	} else { 
+                  // Otherwise write the differences to file
                         try {sol.writeXML("output/"+preds.get(j)+"/"+i+"/instance"+i+".xml");}
                         catch(Err e){e.printStackTrace();System.out.println(e.getMessage());}
                 	}
                 }
                 Logger.info("********* End of Instance       : "+i+" ********* ");		
-                    
                 sol=sol.next();
             	} else {
-                System.out.println("NOT SATISFIABLE");
                 flagcontinue = false;
               }
             	if (!dirs2remove.isEmpty()){
             		Utils.RemoveDirs(dirs2remove);
               }        	
-        	
             }
         	FileUtils.moveFileToDirectory(new File("log.txt"), new File("output/"+preds.get(j)),false);
           System.out.println("\n===========             Command terminated          =========== ");
         }
       Utils.delTemporaryModel(model);
-        
     }
     
     
+    // Runs executeValidAlloy with the model and configuation file as arguments
     public static void main(String[] args)  throws Err, IOException{
         
         System.out.println("===========                ValidAlloy               =========== ");    
