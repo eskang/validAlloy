@@ -89,8 +89,9 @@ public class FileSystemBuilder {
 	 * @param		Number of filesystem to create
 	 * @see         buildFileSystem
 	 */
-	public static void buildFileSystem(A4Solution sol,int i,String pred_name,Module world,ExprVar preState,ExprVar posState) throws Err
-	{
+	public static void buildFileSystem(A4Solution sol, int i, String pred_name,
+    Module world, ExprVar preState, ExprVar posState) throws Err {
+
 		 	//Get all Sigs and map them to their names(string)
 			Map<String,Sig.PrimSig> mapSigs = Helper.atom2sig(sol);
 			
@@ -100,29 +101,20 @@ public class FileSystemBuilder {
 			//Get all atoms and map them to their names(string)
 			HashMap<String,ExprVar> mapAtoms = atom2ObjectMapE(sol.getAllAtoms());
 		
-			//Get the sig Node
 			Sig nodeSig = sigs.get("this/Node");
-		
-			//Get the sig Dir
 			Sig dir = sigs.get("this/Dir");
 		
 			//Get all Node's Fields and map them to their names(string)
 			HashMap<String,Sig.Field> mapNodeFields = atom2ObjectMapE(nodeSig.getFields());
 			
-			//Get the node relation from the sig Node (node maps Node with state)
 			Expr nodeField = CompUtil.parseOneExpression_fromString(world, "current");
-
-			//Get blob and name relation
 			Expr name = CompUtil.parseOneExpression_fromString(world,"Node <: name");
 			Expr blob = CompUtil.parseOneExpression_fromString(world,"File <: content"); 
-
-			//Get the parent relation
       Expr parent = CompUtil.parseOneExpression_fromString(world, "parent");
 			
-      // Find root nodde using the comprehension
+      // Find root node using the comprehension
 			// x:Node | no (x.parent) (find nodes with no parent)
       Expr rootNode = (nodeSig.decl.get().join(parent).no()).comprehensionOver(nodeSig.decl);
-
 			A4TupleSet rootTuple = (A4TupleSet) sol.eval(rootNode);
 			
 			//Get the nodes that are parents and currently in the system
@@ -134,38 +126,35 @@ public class FileSystemBuilder {
 			try{				
 			  // Create pre directories and write blobs to files	
 				Files.createDirectories(Paths.get(path+"pre"));
-				makeRoots(sol,rootTuple,path+"pre",preParents,blob,name,mapAtoms,mapSigs);
+				makeRoots(sol, rootTuple, path + "pre", preParents, blob, name, mapAtoms, mapSigs);
 			
 			  // Create precopy directories and write blobs to files	
 				Files.createDirectories(Paths.get(path+"precopy"));
-				makeRoots(sol,rootTuple,path+"precopy",preParents,blob,name,mapAtoms,mapSigs);
+				makeRoots(sol, rootTuple, path + "precopy", preParents, blob, name, mapAtoms, mapSigs);
 				
 			  // Create pos directories and write blobs to files	
 				Files.createDirectories(Paths.get(path+"pos"));
-				makeRoots(sol,rootTuple,path+"pos",posParents,blob,name,mapAtoms,mapSigs);
+				makeRoots(sol, rootTuple, path + "pos", posParents, blob, name, mapAtoms, mapSigs);
 				
-			}catch(IOException e){System.out.println("first section"); e.printStackTrace();}
+			}catch(IOException e){e.printStackTrace();}
 			
 		}
 	
 	public static void makeRoots(A4Solution sol, A4TupleSet roots, String path,
-			Expr parents, Expr blob, Expr name,
-			HashMap<String, ExprVar> mapAtoms, Map<String, Sig.PrimSig> mapSigs)
-			throws Err, IOException {
+      Expr parents, Expr blob, Expr name, HashMap<String, ExprVar> mapAtoms,
+      Map<String, Sig.PrimSig> mapSigs) throws Err, IOException {
+
 		Path p = null;
 		String newpath = null;
 		for (A4Tuple tuple : roots) {
-			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms
-					.get(tuple.atom(0)).join(name));
-			buildTree(sol,path, tuple.atom(0), name, blob, parents,
-					mapAtoms, mapSigs);
+			A4TupleSet names = (A4TupleSet) sol.eval(mapAtoms.get(tuple.atom(0)).join(name));
+			buildTree(sol,path, tuple.atom(0), name, blob, parents, mapAtoms, mapSigs);
 		}
 	}
 
 	/**
 	 * 
-	 * Builds recursively the filesystem tree
-	 * Receives a A4Solution, the current path, the current atom, the parents, and the mapped values of all atoms and all sigs
+	 * Recursively builds the filesystem tree
 	 * @param  		A4Solution sol
 	 * @param		String path
 	 * @param	    String Atom
@@ -175,9 +164,9 @@ public class FileSystemBuilder {
 	 * @see         buildTree
 	 */
 	private static void buildTree(A4Solution sol, String path, String atom,
-			Expr name, Expr blob, Expr parent,
-			HashMap<String, ExprVar> mapAtom, Map<String, Sig.PrimSig> mapSig)
-			throws Err, IOException {
+			Expr name, Expr blob, Expr parent, HashMap<String, ExprVar> mapAtom,
+      Map<String, Sig.PrimSig> mapSig) throws Err, IOException {
+
 		ExprVar current = mapAtom.get(atom);
 
 		A4TupleSet children = (A4TupleSet) sol.eval(parent.join(current));
@@ -189,18 +178,18 @@ public class FileSystemBuilder {
 					+ names.iterator().next().atom(0).replace('$', '_');
 			Path p = Paths.get(newpath);
 
-      // If the sig is "this/Dir", recurse, otherwise write blobs to file
+      // If the child is a directory, recursee
 			if (mapSig.get(child.atom(0)).toString().equals("this/Dir")) {
 				Files.createDirectory(p);
-				buildTree(sol, newpath, child.atom(0), name, blob, parent,
-						mapAtom, mapSig);
+				buildTree(sol, newpath, child.atom(0), name, blob, parent, mapAtom, mapSig); 
 			} else {
+      // If the child is a file, create it and write some content
 				A4TupleSet blobs = (A4TupleSet) sol.eval(mapAtom.get(
 						child.atom(0)).join(blob));
+
 				Files.createFile(p);
 						
-				Files.write(p,
-						blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));
+				Files.write(p, blobs.iterator().next().atom(0).getBytes("ISO-8859-1"));
         List<String> contents = Files.readAllLines(p, Charset.defaultCharset());
 			}
 

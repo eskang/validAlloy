@@ -22,108 +22,23 @@ import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
+import edu.mit.csail.sdg.alloy4whole.Helper;
+
 
 public class BuildGitObjects {
 
 	private static File path;
 
-  public static String gitLog() {
-		ArrayList<String> cmds = new ArrayList<String>();	
-    cmds.add(Utils.GIT_CMD);
-    cmds.add("log");
-    String result = "NONE";
-		try {
-      result = exec(cmds, "Displaying commit");
-		} catch (GitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-    }
-    return result;
-  }
-  
-  public static String gitCatFile(String commit) {
-		ArrayList<String> cmds = new ArrayList<String>();	
-    cmds.add(Utils.GIT_CMD);
-    cmds.add("cat-file");
-    cmds.add("-p");
-    cmds.add(commit);
-    String result = "NONE";
-		try {
-      result = exec(cmds, "Displaying commit");
-		} catch (GitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-    }
-    return result;
-  }
-  
-  public static String gitCatHEAD() {
-    return gitCatFile("HEAD");
-  }
-
-  public static ArrayList<String> getFieldFromCat(String cat, String field) {
-    ArrayList<String> values = new ArrayList<String>();
-    if (cat == null || cat.length() == 0 ) {
-      return values;
-    }
-    String[] parts = cat.split("\\s+");
-    for (int i = 0; i < parts.length; i++) {
-      if (parts[i].contains(field) && i < (parts.length - 1)) {
-        values.add(parts[i+1]);
-      }
-    }
-    return values;
-  }
-
-  public static String representTree(String hash) {
-    String r = "";
-    String treeCat = gitCatFile(hash);
-    ArrayList<String> treeHash = getFieldFromCat(treeCat, "tree");
-    ArrayList<String> blobHash = getFieldFromCat(treeCat, "blob");
-    if (treeHash.size() == 0 && blobHash.size() == 0) {
-      return hash;
-    } else if (blobHash.size() > 0) {
-      for (String b : blobHash) {
-        return hash + "-> "+ "[(blob) " + representTree(b) + "]";
-      }
-    } else if (treeHash.size() > 0) {
-      for (String t : treeHash) {
-        return hash + "-> " +"[(tree)" + representTree(t) + "]";
-      }
-    }
-    return "";
-  }
-    
-  public static void displayCommitFromHash(String hash) {
-    String commitCat = gitCatFile(hash);
-    ArrayList<String> parentHash = getFieldFromCat(commitCat, "parent");
-    ArrayList<String> treeHash = getFieldFromCat(commitCat, "tree");
-    ArrayList<String> blobHash = getFieldFromCat(commitCat, "blob");
-    System.out.println("\nCommit " + hash);
-    System.out.println("Parent " + parentHash.toString()); 
-    String tree = "Tree: ";
-    if (treeHash.size() > 0) {
-      tree += representTree(treeHash.get(0));
-    }
-    System.out.println(tree + "\n");
-  }
-
-  public static void displayAllCommits(String p) {
-		path = new File(p);
-    String commitHash = getFieldFromCat(gitLog(), "commit").get(0);
-    while (commitHash.length() > 0) {
-      displayCommitFromHash(commitHash);
-      ArrayList<String> parentHash = getFieldFromCat(gitCatFile(commitHash), "parent");
-      if (parentHash.size() > 0) {
-        commitHash = parentHash.get(0);
-      } else {
-        commitHash = "";
-      }
-    }
-  } 
-
+  /**
+   * Executes shell commands
+   * @param command: A list of the commands
+   * @param path: Working directory for the command
+   * @param message: Log message
+   * @param input: Input to the command 
+   * @return Command output
+   * @throws GitException
+   */
 	public static String exec(List<String> command, File path, String message, String input) throws GitException {
-    //System.out.println("EXEC: " + command + " With input " + input +  " At path " + path +  " with message " + message);
 		String result = null;
 		try {
       // Start a new process
@@ -131,7 +46,7 @@ public class BuildGitObjects {
 			Logger.trace(message + " on " + path.getPath() + "\n   with " + command);
 			pb.directory(path);
 
-      // Set environment variables so hashes will be the same
+      // Set environment variables so git hashes will be the same
 			Map<String, String> env = pb.environment();
       env.put("GIT_AUTHOR_NAME", "johndoe");
       env.put("GIT_AUTHOR_EMAIL", "jdoe@example.com");
@@ -174,8 +89,12 @@ public class BuildGitObjects {
 					if (line != null) lines.append('\n');
 				}
 				be.close();
-				Logger.error(lines.toString());
-				throw new GitException(lines.toString());
+        // Check if git complains about an error
+        if (!lines.toString().startsWith("Switched to branch") &&
+            !lines.toString().startsWith("Already on")) {
+				  Logger.error(lines.toString());
+				  throw new GitException(lines.toString());
+        }
 			}
 		} catch (IOException exc) {
 			exc.printStackTrace();
@@ -197,6 +116,9 @@ public class BuildGitObjects {
 		return exec(command,path,message,null);
 	}
 
+  /**
+   * Runs "git init"
+   */
 	public static void gitInit() {
 		ArrayList<String> cmds = new ArrayList<String>();
 	 	cmds.add(Utils.GIT_CMD);
@@ -209,6 +131,12 @@ public class BuildGitObjects {
 		}
 	}
 	
+  // Stores blob as an object in git and returns it's hash
+  /**
+   * Creates a blob object in git and returns it's hash 
+   * @param blob: content of blob
+   * @return hash of the blob object
+   */
 	public static String buildGitHashObject(String blob) {
 		ArrayList<String> cmds = new ArrayList<String>();
 	 	cmds.add(Utils.GIT_CMD);
@@ -226,8 +154,13 @@ public class BuildGitObjects {
 		return hash;
 	}
 
-	
-	public static String buildTreeEntry(String type, String hashcode,String ref) {
+  /**
+   * Formats content (blob or tree object) to be stored in a git tree 
+   * @param type: type of content object (blob/tree)
+   * @param hashcode hash of the content object 
+   * @return Formatted string representing content
+   */
+	public static String buildTreeEntry(String type, String hashcode, String ref) {
 		String mode;
 		if (type.equals("this/Blob")) {
 			mode = "100644";
@@ -240,6 +173,11 @@ public class BuildGitObjects {
 		return entry;
 	}
 	
+  /**
+   * Creates a tree object in git and returns it's hash 
+   * @param entrys: Content of the tree
+   * @return hash of the tree object
+   */
 	public static String buildGitTree(ArrayList<String> entrys) {	
 		StringBuilder tree = new StringBuilder();
 		for (String line : entrys) tree.append(line);
@@ -258,6 +196,14 @@ public class BuildGitObjects {
 		return hash;		
 	}
 	
+  // Creates and stores a new commit object with 
+  /**
+   * Creates a commit object in git and returns it's hash 
+   * @param tree_hashcode: Hashcode of the tree pointed to by the commit
+   * @param message: Commit message
+   * @param commits: Parent commits
+   * @return Hash of the commit
+   */
 	public static String buildCommitTree(String tree_hashcode, String message, ArrayList<String> commits) {
 		ArrayList<String> cmds = new ArrayList<String>();	
 		if (commits.isEmpty()) {
@@ -284,6 +230,11 @@ public class BuildGitObjects {
 		return hash;
 	}
 
+  /**
+   * Sets HEAD to point to a new reference
+   * @param path_name: Reference to point at
+   * @return null
+   */
 	public static String setHead(String path_name) {
 		ArrayList<String> cmds = new ArrayList<String>();
 	 	cmds.add(Utils.GIT_CMD);
@@ -298,6 +249,13 @@ public class BuildGitObjects {
 			return null;
 		}
 	}
+
+  /**
+   * Creates a reference in git
+   * @param commit_hashcode: Commit the reference points to
+   * @param path_name: path for the reference to be stored
+   * @return path_name
+   */
 	public static String buildGitRef(String commit_hashcode, String path_name) {	
 		ArrayList<String> cmds = new ArrayList<String>();
 		cmds.add(Utils.GIT_CMD);
@@ -313,8 +271,13 @@ public class BuildGitObjects {
 		return path_name;
 	}
 
-  // Runs the plumbing command git update-index
-	public static String buildGitIndexAdd(String object_hash, String file_name) {	
+  /**
+   * Updates index with files to be included in the next commit
+   * @param object_hash: Hash of object to be added ot the index
+   * @param file_name: Name of the file to be added to the index
+   * @return file_name
+   */
+	public static String buildGitIndex(String object_hash, String file_name) {	
 		ArrayList<String> cmds = new ArrayList<String>();
 		cmds.add(Utils.GIT_CMD);
 		cmds.add("update-index");
@@ -332,74 +295,60 @@ public class BuildGitObjects {
 		return file_name;	
 	}
 
-	public static String buildGitIndexRemove(String file_name) {	
-		ArrayList<String> cmds = new ArrayList<String>();
-		cmds.add(Utils.GIT_CMD);
-		cmds.add("update-index");
-		cmds.add("--remove");
-		cmds.add(file_name);
-		try {
-			exec(cmds,"Building index entry with " + file_name);
-		} catch (GitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return file_name;	
-	}
-
   // For every file in state, run buildGitIndexEntry on each file's content 
-	public static void buildIndex(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
+	/**
+	 * Adds nodes that satisfy the index relation to the index 
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param mapAtom:
+	 * @param mapObjsHash: map from object to hash value
+	 * @param iState: current state
+	 * @throws Err
+   */
+	public static void buildIndex(A4Solution sol, Module world, HashMap<String, ExprVar> mapAtom,
+    HashMap<String, String> mapObjsHash, ExprVar iState) throws Err {
 
-    // Expression for all files in state
+     //Get all Sigs and map them to their names(string)
+     Map<String,Sig.PrimSig> mapSig = Helper.atom2sig(sol);
+
 		Expr files = CompUtil.parseOneExpression_fromString(world, "index").join(iState);
-    // Expression for all parent nodes in state
 		Expr parent =  CompUtil.parseOneExpression_fromString(world,"Node <: parent");
-
 		Expr content = CompUtil.parseOneExpression_fromString(world, "File <: content");
 
-
-		Expr current = CompUtil.parseOneExpression_fromString(world, "File <: current");
+    // Tuple of all files in the state
 		A4TupleSet ts =  (A4TupleSet) sol.eval(files);
-    // Tuple of all files in the working directory
-    A4TupleSet cf = (A4TupleSet) sol.eval(current);
+
 		String path;
 
 		for (A4Tuple t : ts) {
-      boolean add = false;
 			String a = t.atom(0);
-      for (A4Tuple c : cf) {
-        if (c.atom(0).equals(a)) {
-          add = true;
+      path = buildPath(sol, world, parent, mapAtom.get(a), mapAtom);
+      // Only files are indexed
+      if (mapSig.get(a).toString().equals("this/File")) {
+
+        String blobStr = null;
+        // Iterate through blobs owned by file t
+        // TODO: Why is it necessary to do this if a file can only own one blob? 
+        for (A4Tuple blob: (A4TupleSet)sol.eval(mapAtom.get(a).join(content))){
+          blobStr = blob.atom(0);
         }
-      }
-      // Path of file t
-			path = buildPath(sol,world,parent,mapAtom.get(a), mapAtom);
-			String blobStr = null;
-      // Iterate through blobs owned by file t
-      // TODO: Why is it necessary to do this if a file can only own one blob? 
-			for (A4Tuple blob: (A4TupleSet)sol.eval(mapAtom.get(a).join(content))){
-				blobStr = blob.atom(0);
-			}
-			Logger.trace("Res map   :" +mapObjsHash.get(blobStr));
-			Logger.trace("Res path  :" +path);
-      if (add) {
-			Logger.trace("Index res : "+ buildGitIndexAdd(mapObjsHash.get(blobStr),path));
-      } else {
-			//  Logger.trace("Index res : "+ buildGitIndexEntry(mapObjsHash.get(blobStr),path));
-        buildGitIndexRemove(path);
+
+        Logger.trace("Res map   :" + mapObjsHash.get(blobStr));
+        Logger.trace("Res path  :" + path);
+        Logger.trace("Index res : "+ buildGitIndex(mapObjsHash.get(blobStr),path));
       }
 		}
 	}
 	
 	/**
-	 * Builds the path representing a node by recursively walking up the parent relation
-   * until no further parents 
+	 * Builds the path of a node in the working directory by recursively walking up the
+   * parent relation until no further parents 
 	 * @param sol
 	 * @param parent: Expr representing relation of type Path -> Path
 	 * @param name: Expr representing relation of type Path -> Path
 	 * @param current: Expr representing relation of type Path
 	 * @param mapAtom
-	 * @return
+	 * @return path to the node
 	 * @throws Err
 	 */
 	private static String buildPath(A4Solution sol, Module world, Expr parent, ExprVar current, HashMap<String, ExprVar> mapAtom) throws Err {
@@ -431,14 +380,35 @@ public class BuildGitObjects {
 		A4Tuple t = ts.iterator().next();
 		return t.atom(0).replace("$","_");
 	}	
-	
-	public static String buildType(Module world, HashMap<String,String> vars,String cmd,A4Solution sol,HashMap<String,ExprVar> mapAtom,Expr parent,ExprVar path) throws Err, GitException {		
+
+	public static String buildReference(A4Solution sol, ExprVar ref) throws Err {
+		A4TupleSet ts = (A4TupleSet) sol.eval(ref);
+		A4Tuple t = ts.iterator().next();
+		return t.atom(0).replace("$", "_");
+	}
+
+	/**
+   * Finds the string representing the input to the git operation being tested
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param path: path name
+	 * @param mapAtom: map from atoms to names
+	 * @param cmd: command name
+	 * @param vars: map from command to variable
+   * @param parent: expr for parent relation
+	 * @throws GitException,Err
+   */
+	public static String buildType(A4Solution sol, Module world, ExprVar path, HashMap<String, ExprVar> mapAtom,
+    String cmd, HashMap<String, String> vars, Expr parent) throws Err, GitException {		
+
 		String type = null;
 		if (vars.get(cmd).equals("path")) {
-			type = buildPath(sol,world, parent, path,mapAtom);
+			type = buildPath(sol,world, parent, path, mapAtom);
             if (type == null) type = "."; // hack - buildPath must be changed
 		} else if (vars.get(cmd).equals("branch")) {
 			type = buildBranch(sol,path);
+    } else if (vars.get(cmd).equals("name")) {
+			type = buildReference(sol, path);
 		} else {			
 			type = buildPath(sol,world,parent, path,mapAtom);
             if (type == null) type = "."; // idem
@@ -447,7 +417,21 @@ public class BuildGitObjects {
 	}
 	
 
-	public static void runCmd(A4Solution sol, Module world, String p, ExprVar path, HashMap<String, ExprVar> mapAtom, String cmd, ArrayList<String> options, HashMap<String,String> vars) throws GitException, Err { 
+	/**
+   * Runs the git operation being tested 
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param p: path to run command on
+	 * @param path: path expression
+	 * @param mapAtom: map from atoms to names
+	 * @param cmd: command name
+	 * @param options: arguments to the command 
+   * @param parent: expr for parent relation
+	 * @throws GitException,Err
+   */
+	public static void runCmd(A4Solution sol, Module world, String p, ExprVar path, HashMap<String, ExprVar> mapAtom,
+    String cmd, ArrayList<String> options, HashMap<String,String> vars) throws GitException, Err { 
+
     // Expression for parent relation
 		Expr parent =  CompUtil.parseOneExpression_fromString(world," Node <: parent");
 
@@ -457,7 +441,7 @@ public class BuildGitObjects {
 				
 		for (String n_cmd : options) {
 			if(n_cmd.matches("#[a-zA-Z0-9]*")){
-				n_cmds.add(buildType(world,vars,n_cmd,sol,mapAtom,parent,path));
+				n_cmds.add(buildType(sol, world, path, mapAtom, n_cmd, vars, parent));
 			}else n_cmds.add(n_cmd);
 		};	
 	    
@@ -469,9 +453,16 @@ public class BuildGitObjects {
 		}	
 	}
 
-	
-	
-	public static void buildRefs(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
+	/**
+   * Iterates over references in iState and creates them in the current git instance
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param mapAtom: map from atoms to names
+	 * @param mapObjsHash: map from object to hash value
+   * @param iState: current state 
+	 * @throws GitException,Err
+   */
+	public static void buildRefs(A4Solution sol, Module world, HashMap<String, ExprVar> mapAtom, HashMap<String, String> mapObjsHash, ExprVar iState) throws Err {
     // Expression for all refs in iState
 		Expr refs = CompUtil.parseOneExpression_fromString(world, "refs").join(iState);
 		A4TupleSet ts = (A4TupleSet) sol.eval(refs);
@@ -480,14 +471,20 @@ public class BuildGitObjects {
 		}
 	}
 
-  // Performs a breadth first search of trees along the content relation, starting with t for which
-  // t.content does not contain a tree, running buildTrees on each T
-	public static void treeBuilder(A4Solution sol,Module world,HashMap<String,ExprVar>mapAtom,HashMap<String,String> mapObjsHash, ExprVar iState) throws Err {
+	/**
+   * Performs a BFS through the trees along the content relation, starting at the root,
+   * creating the each tree in the current git instance
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param mapAtom: map from atoms to names
+	 * @param mapObjsHash: map from object to hash value
+   * @param iState: current state 
+	 * @throws GitException,Err
+   */
+	public static void treeBuilder(A4Solution sol, Module world, HashMap<String, ExprVar> mapAtom, HashMap<String, String> mapObjsHash, ExprVar iState) throws Err {
 		Expr domain = CompUtil.parseOneExpression_fromString(world, "stored").join(iState);
 		Expr content = CompUtil.parseOneExpression_fromString(world, "Tree <: content");
 		Expr Tree = CompUtil.parseOneExpression_fromString(world, "Tree").domain(domain);
-	//	Expr parent =  CompUtil.parseOneExpression_fromString(world," Path <: parent");
-	//	Expr name =  CompUtil.parseOneExpression_fromString(world," Path <: iden");
 		
 		LinkedList<ExprVar> aux = new LinkedList<ExprVar>();
 		aux.add(ExprVar.make(null, "t",Tree.type()));
@@ -503,31 +500,35 @@ public class BuildGitObjects {
     // Get trees from solution
 		A4TupleSet trees = (A4TupleSet) sol.eval(treeExpr);
 
-    // Create trees with git mktree, put results in mapObjsHash
+    // BFS through trees
 		while (trees.size() > 0) { 
+      // Add tree to git instance
 			buildTrees(sol,trees,content,mapAtom,mapObjsHash);
-      // For each tree, 
+      // Make sure we don't see the same tree again
 			for (A4Tuple t : trees) {
-        // Add t to previous trees
 				previousTrees = previousTrees.plus(mapAtom.get(t.atom(0)));
-
 				tDecl = new Decl(null,null,null,aux,Tree.minus(previousTrees)); 
-        // Get all trees with content in previous trees
 				treeExpr = Sig.UNIV.join(tDecl.get().join(content)).range(Tree).in(previousTrees); 
 				treeExpr = treeExpr.comprehensionOver(tDecl);
 			}
-      // Get the trees 	
 			trees = (A4TupleSet) sol.eval(treeExpr);
 		}
 	}
 	
-  // Performs a breadth first search along the previous relation, starting with c for which c.previous = none
-  // running buildCommit on each c
-	public static void commitBuilder(A4Solution sol,Module world,HashMap<String,ExprVar> mapAtom, HashMap<String,String> mapObjsHash,ExprVar iState) throws Err {
+	/**
+   * Performs a BFS through the commits along the previous relation, starting at the root,
+   * creating each commit in the current git instance
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+	 * @param mapAtom: map from atoms to names
+	 * @param mapObjsHash: map from object to hash value
+   * @param iState: current state 
+	 * @throws GitException,Err
+   */
+	public static void commitBuilder(A4Solution sol, Module world, HashMap<String, ExprVar> mapAtom, HashMap<String, String> mapObjsHash, ExprVar iState) throws Err {
 		Sig Commit = Utils.getEFromIterable(world.getAllSigs(), "this/Commit");
 		Expr object = CompUtil.parseOneExpression_fromString(world,"stored");
 
-    // object -> state
 		Expr domain = object.join(iState);
 
     // Initially empty
@@ -541,14 +542,15 @@ public class BuildGitObjects {
 		// forall c:Commit :: c in object.State and c.previous in 'previousCommits' and c not in 'previousComits'
 		Expr currentCommits = c.in(domain).and(c.join(previous).in(previousCommits).and(c.in(previousCommits).not()));
 		currentCommits = currentCommits.comprehensionOver(Commit.decl);
+
     // Initially gives us the first commit because previous commits is currently empty
 		A4TupleSet commits = (A4TupleSet) sol.eval(currentCommits);
 
-    // Runs buildCommits on each commit by bfs'ing through the tree of previous relations
-    // starting with the first commit
+    // BFS through commits
 		while (commits.size() >0) {
-			//Logger.trace(commits.size());
-			buildCommits(sol,commits,previous,CompUtil.parseOneExpression_fromString(world, "tree").range(domain),mapAtom,mapObjsHash);
+      // Add commit to git instance
+			buildCommits(sol, commits, previous, CompUtil.parseOneExpression_fromString(world, "tree").range(domain), mapAtom, mapObjsHash);
+      // Make sure we don't see the same commit again
 			for (A4Tuple tc : commits) {
 				previousCommits = previousCommits.plus(mapAtom.get(tc.atom(0)));
 				currentCommits = c.in(domain).and(c.join(previous).in(previousCommits).and(c.in(previousCommits).not()));
@@ -558,7 +560,14 @@ public class BuildGitObjects {
 		}
 	}
 	
-	public static void placeHEAD(A4Solution sol,Module world,Expr iState) throws Err {
+	/**
+   * Points the HEAD to a commit 
+	 * @param sol: Alloy solution
+	 * @param world: Alloy module
+   * @param iState: current state 
+	 * @throws GitException,Err
+   */
+	public static void placeHEAD(A4Solution sol, Module world, Expr iState) throws Err {
 		Expr HEAD = CompUtil.parseOneExpression_fromString(world, "HEAD");
 		A4TupleSet res = (A4TupleSet) sol.eval(HEAD.join(iState));
     if (res.size() > 0) {
@@ -570,14 +579,23 @@ public class BuildGitObjects {
 	}
 	
 	
-	public static void buildCommits(A4Solution sol, A4TupleSet commits,Expr previous,Expr tree,HashMap<String,ExprVar> mapAtom,HashMap<String,String> mapObjsHash) throws Err {
+	/**
+   * Creates a commit in the current git instance 
+	 * @param sol: Alloy solution
+   * @param commits: commits to be built
+   * @param previous: Previous relation for commit
+	 * @param tree: tree to store in commit
+	 * @param mapAtom: map from atoms to names
+	 * @param mapObjsHash: map from object to hash value
+	 * @throws GitException,Err
+   */
+	public static void buildCommits(A4Solution sol, A4TupleSet commits, Expr previous, Expr tree, HashMap<String, ExprVar> mapAtom, HashMap<String, String> mapObjsHash) throws Err {
 		ArrayList<String> entries;
 		ExprVar commit;
 		A4TupleSet prevCommits;
 		A4Tuple commitTree;
 		String treeHash;
 		
-    // For each commit
 		for (A4Tuple t : commits) {
 			entries  = new ArrayList<String>();
       // Get the commit
@@ -585,8 +603,10 @@ public class BuildGitObjects {
       // Get commit.previous
 			prevCommits = (A4TupleSet) sol.eval(commit.join(previous));
 
+      // Format commit tree content
 			commitTree = ((A4TupleSet)sol.eval(commit.join(tree))).iterator().next();
-      // For each commit in commit.previous, add to entries if not already in entries
+
+      // Find parents of commit t
 			for (A4Tuple prev: prevCommits){
 				// TODO: Not sure this is safe 
 				// Don't add duplicate commit 
@@ -595,20 +615,23 @@ public class BuildGitObjects {
 				String h = mapObjsHash.get(prev.atom(0));
         // If entries already doesn't contain the previous commit, add it 
 				if (!entries.contains(h)) entries.add(h);
-
 			}
+
 			treeHash = mapObjsHash.get(commitTree.atom(0));
-			//Logger.trace(treeHash);
 			mapObjsHash.put(t.atom(0), buildCommitTree(treeHash,"\"test commit\"\n",entries));
 		}
 	}
 
-  // Takes a tuple set and expression and solution and generates
-  // a string representation of the git trees, which is then fed into
-  // "git mktree", the output of which goes into mapObjsHash
-	public static void buildTrees(A4Solution sol, 
-			//Expr parent, Expr name,
-			A4TupleSet trees, Expr content, HashMap<String, ExprVar> mapAtoms,
+	/**
+   * Creates a tree in the current git instance  
+	 * @param sol: Alloy solution
+   * @param trees: trees to be built
+   * @param content: Content relation for trees
+	 * @param mapAtom: map from atoms to names
+	 * @param mapObjsHash: map from object to hash value
+	 * @throws GitException,Err
+   */
+	public static void buildTrees(A4Solution sol, A4TupleSet trees, Expr content, HashMap<String, ExprVar> mapAtoms,
 			HashMap<String, String> mapObjsHash) throws Err {
 		ArrayList<String> entries;
 		ExprVar tree;
@@ -620,19 +643,26 @@ public class BuildGitObjects {
       // Get content from trees
 			lines = (A4TupleSet) sol.eval(tree.join(content));
         
-      // Build string representation of trees and put in entries 
+      // Build string representation of tree content 
 			for (A4Tuple line : lines) {
-				// buildPath(sol,parent,name,mapAtoms.get(line.atom(0)),mapAtoms);
 				entries.add(buildTreeEntry(line.sig(1).toString(),
 						mapObjsHash.get(line.atom(1)),
 						line.atom(0).replace("$", "_")));
 			}
-      // Run git mktree on entries and put the result in mapObjsHash 
+      // Build the tree t
 			mapObjsHash.put(t.atom(0), buildGitTree(entries));
 		}
 	}
 
-  // Builds the commit tree, places HEAD
+	/**
+   * Creates the git instance
+	 * @param sol: Alloy solution
+   * @param world: Alloy module
+   * @param index: iteration
+   * @param iState: current state
+	 * @param mapAtom: map from atoms to names
+	 * @throws Err
+   */
 	public static void buildObjects(A4Solution sol, Module world, String index,
 			ExprVar iState, HashMap<String, ExprVar> mapAtom) throws Err {
 
@@ -645,7 +675,7 @@ public class BuildGitObjects {
     // Blobs are git representations of files
 		Expr blobs = CompUtil.parseOneExpression_fromString(world, "Blob")
 				.domain(domain);
-
+    
 		A4TupleSet ts = (A4TupleSet) sol.eval(blobs);
 
     // Runs "git init"
@@ -655,17 +685,18 @@ public class BuildGitObjects {
 		for (A4Tuple t : ts)
 			mapObjsHash.put(t.atom(0), buildGitHashObject(t.atom(0)));
 
+    // Build tree objects
 		treeBuilder(sol, world, mapAtom, mapObjsHash, iState);
  
+    // Build commit objects
 		commitBuilder(sol, world, mapAtom, mapObjsHash, iState);
 
+    // Add files to the index
 		buildIndex(sol, world, mapAtom, mapObjsHash, iState);
     
+    // Build references
 		buildRefs(sol, world, mapAtom, mapObjsHash, iState);
 
-    // Run "git symbolic-ref HEAD pathtohead"
 		placeHEAD(sol, world, iState);
-    //displayAllCommits("output/" + index);
-
 	}
 }
