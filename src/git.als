@@ -119,22 +119,22 @@ abstract sig Object {
 }
 
 sig Blob extends Object {
-	conflict : set Blob,
+	conflict : Blob -> Blob,
 	-- b1 -> b2 -> b' in merging means b' is a result of merging b1 and b2
-	merging : Blob -> lone Blob
+	merging : Blob -> Blob -> lone Blob
 }
 
 fact BlobFacts {
-	all b1, b2 : Blob | 
-		b1 -> b2 in conflict implies b2 -> b1 in conflict
+	all b0, b1, b2 : Blob | 
+		b0 -> b1 -> b2 in conflict implies b0 -> b1 -> b2 in conflict
 	
 	-- conflicting blobs can't be merged
-	all b1, b2 : Blob |
-		b1 -> b2 in conflict implies no b1.merging[b2] 	
+	all b0, b1, b2 : Blob |
+		b0 -> b1 -> b2 in conflict implies no b2.(b1.(b0.merging)) 	
 
-	all b1, b2, b' : Blob |
-		b1 -> b2 -> b' in merging implies
-			b2 -> b1 -> b' in merging
+	all b0, b1, b2, b' : Blob |
+		b0 -> b1 -> b2 -> b' in merging implies
+			b0 -> b2 -> b1 -> b' in merging
 }	
 
 sig Tree extends Object {
@@ -456,11 +456,12 @@ pred commonFiles[f1, f2 : File, s : State, c : Commit] {
 	some f2.belongsTo.c
 }
 
-fun merge[f1, f2 : File] : set File {
+fun merge[f0, f1, f2 : File] : set File {
 	{ f3 : File | 
-		f1.content -> f2.content -> f3.content in merging }
+		f0.content -> f1.content -> f2.content -> f3.content in merging }
 }	
 
+/*
 pred checkout_branch[s, s' : State, n : Name] {
 	let c = pointsTo[n, s] {	-- the commit that the name points to
 	-- Preconditions
@@ -520,7 +521,7 @@ run checkout_branch_interesting {
 			f1.content.merging[f2.content] != f1.content
 	}
 } for 7 but 2 State, 2 Commit
-
+*/
 -- checkout a version of the file f from commit "from" (if provided), or from the HEAD
 pred checkout_file[s, s' : State, f : File, from : lone Commit] {
 	-- Preconditions
