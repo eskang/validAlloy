@@ -483,14 +483,18 @@ pred checkout_branch[s, s' : State, n : Name] {
 				f1 -> f3 in samepath and f3 in current.s' and f3 in merge[f1, f2]
 
 	all n : Node |
-		-- every file in the new working tree is either
+		-- a node is in current.s' if and only if
 		n in current.s' iff {
-			-- (1) the result of merging two versions of the file or
-			(some f1, f2 : File | commonFiles[f1, f2, s, c] and n in merge[f1, f2]) or
-			-- (2) the file from the commit being checked out
-			(some n.belongsTo.c and no f1 : File | commonFiles[f1, n, s, c]) or
-			-- (3) untracked file in the existing tree
-			n in untracked[s]
+			-- n is a file that satisfies one of the following three:
+			(n in File and (
+				-- (1) the result of merging two versions of the file or
+				(some f1, f2 : File | commonFiles[f1, f2, s, c] and n in merge[f1, f2]) or
+				-- (2) the file from the commit being checked out
+				(some n.belongsTo.c and no f1 : File | commonFiles[f1, n, s, c]) or
+				-- (3) untracked file in the existing tree
+				n in untracked[s])) or
+			-- or n is a directory that is a parent of some other node in current.s'
+			(n in Dir and some ^parent.n & current.s')
 		}
 	-- index remains the same
 	index.s' = index.s
